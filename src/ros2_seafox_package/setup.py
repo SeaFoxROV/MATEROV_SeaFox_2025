@@ -10,6 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/ros2_seafox_package/launch', ['launch/base_launcher.py']),  # Agregar esta línea
+        ('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  # Agregar esta línea
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,6 +22,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+        'control = ros2_seafox_package.base.control:main',
+        #'otro_nodo = otro_nodo:main',
         ],
     },
 )
