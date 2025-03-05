@@ -17,12 +17,17 @@ setup(
     zip_safe=True,
     maintainer='seafoxinventive',
     maintainer_email='seafoxROV@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='SeafoxInventive 2025 MATEROV Competition',
+    license='MIT License',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
         'control = ros2_seafox_package.control:main',
+        'rov_control = ros2_seafox_package.rov_control:main',
+        'setpoint_controller = ros2_seafox_package.setpoint_controller:main',
+        'quaternion_to_euler = ros2_seafox_package.quaternion:main',
+        'cmd_controller = ros2_seafox_package.cmd_controller:main',
+        
         #'otro_nodo = otro_nodo:main',
         ],
     },

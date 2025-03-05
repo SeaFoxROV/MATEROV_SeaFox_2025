@@ -11,8 +11,12 @@ setup.py
 launch/base_launcher.py
 resource/ros2_seafox_package
 ros2_seafox_package/__init__.py
+ros2_seafox_package/cmd_controller.py
 ros2_seafox_package/control.py
 ros2_seafox_package/ecuaciones.py
+ros2_seafox_package/quaternion.py
+ros2_seafox_package/rov_control.py
+ros2_seafox_package/setpoint_controller.py
 test/test_copyright.py
 test/test_flake8.py
 test/test_pep257.py
