@@ -14,6 +14,7 @@ class JoystickPublisher(Node):
         self.init_joysticks()
 
     def init_joysticks(self):
+        # Initialize any connected joysticks.
         for i in range(pygame.joystick.get_count()):
             joy = pygame.joystick.Joystick(i)
             joy.init()
@@ -21,32 +22,30 @@ class JoystickPublisher(Node):
             print(f"Joystick {joy.get_instance_id()} connected")
 
     def publish_joystick_data(self):
+        # Read and publish joystick inputs.
         msg = Float32MultiArray()
         data = []
         
         for joystick in self.joysticks.values():
-            # Leer valores de los ejes
+            # Read axes values.
             for i in range(joystick.get_numaxes()):
-                data.append(float(joystick.get_axis(i)))  # Mantener como float
-            
-            # Leer valores de los botones (0.0 o 1.0)
-            for i in range(8):  # Solo botones del 0 al 7
+                data.append(float(joystick.get_axis(i)))
+            # Read first 8 button states.
+            for i in range(8):
                 data.append(float(joystick.get_button(i)))
-            
-            # Leer valores de los hats (tupla de dos valores)
+            # Read hat (D-pad) values.
             for i in range(joystick.get_numhats()):
                 hat = joystick.get_hat(i)
                 data.extend([float(hat[0]), float(hat[1])])
-
+                
         msg.data = data
         self.publisher_.publish(msg)
-
 
 def main():
     rclpy.init()
     node = JoystickPublisher()
     clock = pygame.time.Clock()
-    
+
     try:
         while rclpy.ok():
             for event in pygame.event.get():
@@ -56,18 +55,18 @@ def main():
                     node.joysticks[joy.get_instance_id()] = joy
                     print(f"Joystick {joy.get_instance_id()} connected")
                 elif event.type == pygame.JOYDEVICEREMOVED:
-                    del node.joysticks[event.instance_id]
-                    print(f"Joystick {event.instance_id} disconnected")
-            
+                    if event.instance_id in node.joysticks:
+                        del node.joysticks[event.instance_id]
+                        print(f"Joystick {event.instance_id} disconnected")
             node.publish_joystick_data()
-            clock.tick(30)
-    
+            # Process any pending ROS callbacks.
+            rclpy.spin_once(node, timeout_sec=0)
+            clock.tick(30)  # Run at 30 Hz.
     except KeyboardInterrupt:
         pass
     finally:
         pygame.joystick.quit()
         rclpy.shutdown()
-
 
 if __name__ == "__main__":
     main()

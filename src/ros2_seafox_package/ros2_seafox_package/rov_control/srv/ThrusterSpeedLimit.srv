@@ -7,3 +7,4 @@ int8 back_top_right
 int8 back_bottom_left
 int8 back_bottom_right
 ---
+bool success
