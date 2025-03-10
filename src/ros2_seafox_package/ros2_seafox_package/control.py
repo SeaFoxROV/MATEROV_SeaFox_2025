@@ -1,28 +1,28 @@
-import pygame
-import rclpy
-from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray
+import pygame # library of the joystick
+import rclpy #ROS 2 library
+from rclpy.node import Node #Class to create a ROS 2 node
+from std_msgs.msg import Float32MultiArray #Meessage type to publish an array of float numbers
 
-pygame.init()
+pygame.init() #Initialize the pygame library
 
-class JoystickPublisher(Node):
-    def __init__(self):
-        super().__init__('joystick_publisher')
-        self.publisher_ = self.create_publisher(Float32MultiArray, 'joystick_data', 10)
-        self.joysticks = {}
-        pygame.joystick.init()
-        self.init_joysticks()
+class JoystickPublisher(Node): #Node to publish the joystick data
+    def __init__(self): #Constructor
+        super().__init__('joystick_publisher') #Sets node name
+        self.publisher_ = self.create_publisher(Float32MultiArray, 'joystick_data', 10) #Create the publisher, it publishes a Float32MultiArray message type
+        self.joysticks = {} #Dictionary to store the joysticks
+        pygame.joystick.init() #Initialize the joysticks
+        self.init_joysticks() #Initialize the joysticks
 
     def init_joysticks(self):
-        for i in range(pygame.joystick.get_count()):
-            joy = pygame.joystick.Joystick(i)
-            joy.init()
-            self.joysticks[joy.get_instance_id()] = joy
-            print(f"Joystick {joy.get_instance_id()} connected")
+        for i in range(pygame.joystick.get_count()): #Number of joysticks connected
+            joy = pygame.joystick.Joystick(i) #Get the joystick
+            joy.init() #Initialize the joystick
+            self.joysticks[joy.get_instance_id()] = joy #Add the joystick to the dictionary
+            print(f"Joystick {joy.get_instance_id()} connected") #Confirms joystick is connected
 
     def publish_joystick_data(self):
-        msg = Float32MultiArray()
-        data = []
+        msg = Float32MultiArray() #Create the message
+        data = [] #List to store the data
         
         for joystick in self.joysticks.values():
             # Leer valores de los ejes
@@ -38,17 +38,17 @@ class JoystickPublisher(Node):
                 hat = joystick.get_hat(i)
                 data.extend([float(hat[0]), float(hat[1])])
 
-        msg.data = data
-        self.publisher_.publish(msg)
+        msg.data = data #assigns de value to the message
+        self.publisher_.publish(msg) #publish the message
 
 
 def main():
-    rclpy.init()
-    node = JoystickPublisher()
-    clock = pygame.time.Clock()
+    rclpy.init() #Initialize ROS 2
+    node = JoystickPublisher() #Create the node
+    clock = pygame.time.Clock() #Create a clock to control the loop
     
     try:
-        while rclpy.ok():
+        while rclpy.ok(): #As longs ROS2 is running
             for event in pygame.event.get():
                 if event.type == pygame.JOYDEVICEADDED:
                     joy = pygame.joystick.Joystick(event.device_index)
