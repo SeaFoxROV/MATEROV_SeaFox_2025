@@ -1,3 +1,4 @@
 [console_scripts]
 control = ros2_seafox_package.control:main
+motion_controller = ros2_seafox_package.motion_controller:main
 

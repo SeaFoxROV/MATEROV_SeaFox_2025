@@ -12,7 +12,7 @@ launch/base_launcher.py
 resource/ros2_seafox_package
 ros2_seafox_package/__init__.py
 ros2_seafox_package/control.py
-ros2_seafox_package/ecuaciones.py
+ros2_seafox_package/motion_controller.py
 test/test_copyright.py
 test/test_flake8.py
 test/test_pep257.py

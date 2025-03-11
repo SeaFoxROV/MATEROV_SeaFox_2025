@@ -23,6 +23,7 @@ setup(
     entry_points={
         'console_scripts': [
         'control = ros2_seafox_package.control:main',
+        'motion_controller = ros2_seafox_package.motion_controller:main',
         #'otro_nodo = otro_nodo:main',
         ],
     },
