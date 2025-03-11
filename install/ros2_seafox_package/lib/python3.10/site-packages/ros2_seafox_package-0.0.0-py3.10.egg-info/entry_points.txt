@@ -1,3 +1,5 @@
 [console_scripts]
+cmd_controller = ros2_seafox_package.cmd_controller:main
 control = ros2_seafox_package.control:main
+motion_controller = ros2_seafox_package.motion_controller:main
 
