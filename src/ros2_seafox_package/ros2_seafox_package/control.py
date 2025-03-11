@@ -49,11 +49,11 @@ def main():
     
     try:
         while rclpy.ok(): #As longs ROS2 is running
-            for event in pygame.event.get():
-                if event.type == pygame.JOYDEVICEADDED:
-                    joy = pygame.joystick.Joystick(event.device_index)
-                    joy.init()
-                    node.joysticks[joy.get_instance_id()] = joy
+            for event in pygame.event.get(): #Listens to the events
+                if event.type == pygame.JOYDEVICEADDED: #If a joystick is connected
+                    joy = pygame.joystick.Joystick(event.device_index) #Get the joystick
+                    joy.init() #Initialize the joystick
+                    node.joysticks[joy.get_instance_id()] = joy #Add the joystick to the dictionary
                     print(f"Joystick {joy.get_instance_id()} connected")
                 elif event.type == pygame.JOYDEVICEREMOVED:
                     del node.joysticks[event.instance_id]
