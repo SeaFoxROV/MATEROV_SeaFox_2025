@@ -7,7 +7,7 @@ import math
 import signal
 
 #Necessary to preevnt damaging thrusters
-#from rov_control.srv import ThrusterSpeedLimit, MaxJerk
+from rov_control.srv import ThrusterSpeedLimit, MaxJerk
 
 NUM_DOF = 6
 NUM_THRUSTERS = 8
@@ -44,8 +44,8 @@ class CmdController(Node):
         self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
         
         # Remove comment, from code below, once ThrusterSpeedLimit and MaxJerk services are available
-        #self.create_service(ThrusterSpeedLimit, 'ThrusterSpeedLimit', self.set_thruster_speed_limit)
-        #self.create_service(MaxJerk, 'MaxJerk', self.set_max_jerk)
+        self.create_service(ThrusterSpeedLimit, 'ThrusterSpeedLimit', self.set_thruster_speed_limit)
+        self.create_service(MaxJerk, 'MaxJerk', self.set_max_jerk)
         
         self.last_thrusters_command = [0.0] * NUM_THRUSTERS
         self.thrusters_speed_limit = [75] * NUM_THRUSTERS
