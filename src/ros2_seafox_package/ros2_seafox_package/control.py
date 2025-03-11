@@ -4,7 +4,7 @@ from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
 
 pygame.init()
-
+#[leftx, lefty, lefttrigger, rightx, righty, righttrgger, A, B, X, Y , LT, RT, BACK, SELECT, crossx, crossy]
 class JoystickPublisher(Node):
     def __init__(self):
         super().__init__('joystick_publisher')
