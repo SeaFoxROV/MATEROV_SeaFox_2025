@@ -5,8 +5,7 @@ package_name = 'ros2_seafox_package'
 setup(
     name=package_name,
     version='0.0.0',
-    packages=find_packages(where='src', exclude=['test']),  # <-- IMPORTANT
-    package_dir={'': 'src'},                                # <-- IMPORTANT
+    packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -25,9 +24,9 @@ setup(
         'console_scripts': [
         #Base scripts
             #control scripts
-            'joystick_reader = ros2_seafox_package.base.control.joystick_reader:main',
-            'joystick_to_twist = ros2_seafox_package.base.control.joystick_to_twist:main',
-            'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
+                'joystick_reader = ros2_seafox_package.base.control.joystick_reader:main',
+                'joystick_to_twist = ros2_seafox_package.base.control.joystick_to_twist:main',
+                'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
             
             #gui scripts
                 #'gui = ros2_seafox_package.base.gui.main_gui:main',
@@ -38,7 +37,7 @@ setup(
                 #'camera_controller = ros2_seafox_package.rov.cameras.camera_controller:main',
 
             #serial
-            'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
+                'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
 
         #'otro_nodo = otro_nodo:main',
         ],
