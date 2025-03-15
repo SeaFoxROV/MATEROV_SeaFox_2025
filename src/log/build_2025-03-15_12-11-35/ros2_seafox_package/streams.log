@@ -1,0 +1,31 @@
+[1.274s] Invoking command in '/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/ros2_seafox_package': PYTHONPATH=/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/ros2_seafox_package build --build-base /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/build install --record /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/install.log --single-version-externally-managed install_data
+[1.742s] running egg_info
+[1.743s] writing ../build/ros2_seafox_package/ros2_seafox_package.egg-info/PKG-INFO
+[1.744s] writing dependency_links to ../build/ros2_seafox_package/ros2_seafox_package.egg-info/dependency_links.txt
+[1.744s] writing entry points to ../build/ros2_seafox_package/ros2_seafox_package.egg-info/entry_points.txt
+[1.744s] writing requirements to ../build/ros2_seafox_package/ros2_seafox_package.egg-info/requires.txt
+[1.744s] writing top-level names to ../build/ros2_seafox_package/ros2_seafox_package.egg-info/top_level.txt
+[1.748s] reading manifest file '../build/ros2_seafox_package/ros2_seafox_package.egg-info/SOURCES.txt'
+[1.750s] writing manifest file '../build/ros2_seafox_package/ros2_seafox_package.egg-info/SOURCES.txt'
+[1.750s] running build
+[1.750s] running build_py
+[1.750s] copying ros2_seafox_package/gui_cameras.py -> /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/build/lib/ros2_seafox_package
+[1.751s] copying ros2_seafox_package/main_gui.py -> /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/build/lib/ros2_seafox_package
+[1.751s] running install
+[1.752s] running install_lib
+[1.754s] copying /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/build/lib/ros2_seafox_package/gui_cameras.py -> /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package
+[1.754s] copying /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/build/lib/ros2_seafox_package/main_gui.py -> /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package
+[1.755s] byte-compiling /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/gui_cameras.py to gui_cameras.cpython-310.pyc
+[1.757s] byte-compiling /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/main_gui.py to main_gui.cpython-310.pyc
+[1.758s] running install_data
+[1.758s] running install_egg_info
+[1.761s] removing '/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info' (and everything under it)
+[1.762s] Copying ../build/ros2_seafox_package/ros2_seafox_package.egg-info to /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info
+[1.763s] running install_scripts
+[1.800s] Installing camera_publisher script to /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package
+[1.800s] Installing cmd_controller script to /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package
+[1.800s] Installing control script to /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package
+[1.801s] Installing main_gui script to /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package
+[1.801s] Installing motion_controller script to /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package
+[1.801s] writing list of installed files to '/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/install.log'
+[1.842s] Invoked command in '/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/ros2_seafox_package' returned '0': PYTHONPATH=/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/ros2_seafox_package build --build-base /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/build install --record /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/build/ros2_seafox_package/install.log --single-version-externally-managed install_data

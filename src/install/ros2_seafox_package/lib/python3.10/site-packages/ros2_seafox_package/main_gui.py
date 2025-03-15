@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 
 import rclpy
-from .camera import CameraPublisher
+from .camera_publisher import CameraPublisher
 from .gui_cameras import CameraGUI
 
 def main(args=None):
