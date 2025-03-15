@@ -85,8 +85,8 @@ class CmdController(Node):
                 diff = -delta_speed
             self.last_thrusters_command[i] += diff
             # Mapeo de [-1,1] a [0,255]
-            thruster_temp[i] = float((self.last_thrusters_command[i] + 1) * 127.5)
-            thruster_temp[i] = max(0.0, min(255.0, thruster_temp[i]))
+            thruster_temp[i] = float((self.last_thrusters_command[i] + 1) * 500 + 1000)
+            thruster_temp[i] = max(1000.0, min(2000.0, thruster_temp[i]))
         
         # Crear y publicar el mensaje Float32MultiArray
         thruster_array = Float32MultiArray()
@@ -98,7 +98,7 @@ class CmdController(Node):
     def on_shutdown(self, sig, frame):
         self.get_logger().info("Cerrando cmd_controller, enviando comando de stop (127) a todos los propulsores...")
         stop_array = Float32MultiArray()
-        stop_array.data = [127.0] * NUM_THRUSTERS
+        stop_array.data = [1670.0] * NUM_THRUSTERS
         self.pub_thrusters.publish(stop_array)
         rclpy.shutdown()
 

@@ -9,6 +9,7 @@ setup.py
 ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/top_level.txt
 ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/zip-safe
 launch/base_launcher.py
+launch/rov_launcher.py
 resource/ros2_seafox_package
 ros2_seafox_package/__init__.py
 ros2_seafox_package/cmd_controller.py

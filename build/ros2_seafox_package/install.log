@@ -9,6 +9,7 @@
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ament_index/resource_index/packages/ros2_seafox_package
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/package.xml
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch/base_launcher.py
+/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch/rov_launcher.py
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info/zip-safe
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info/SOURCES.txt
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info/entry_points.txt
@@ -19,3 +20,4 @@
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/cmd_controller
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/control
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/motion_controller
+/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/rosserial

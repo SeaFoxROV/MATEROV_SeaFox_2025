@@ -11,7 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/ros2_seafox_package/launch', ['launch/base_launcher.py']),  # Agregar esta línea
-        #('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  # Agregar esta línea
+        ('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  # Agregar esta línea
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,6 +25,8 @@ setup(
         'control = ros2_seafox_package.control:main',
         'motion_controller = ros2_seafox_package.motion_controller:main',
         'cmd_controller = ros2_seafox_package.cmd_controller:main',
+        'rosserial = ros2_seafox_package.rosserial:main',
+
         #'otro_nodo = otro_nodo:main',
         ],
     },
