@@ -1,12 +1,16 @@
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__init__.py
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/camera.py
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/cmd_controller.py
+/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/gui_cameras.py
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/control.py
+/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/main_gui.py
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/motion_controller.py
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/__init__.cpython-310.pyc
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/camera.cpython-310.pyc
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/cmd_controller.cpython-310.pyc
+/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/gui_cameras.cpython-310.pyc
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/control.cpython-310.pyc
+/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/main_gui.cpython-310.pyc
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/motion_controller.cpython-310.pyc
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/share/ament_index/resource_index/packages/ros2_seafox_package
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/share/ros2_seafox_package/package.xml
@@ -21,4 +25,5 @@
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package/camera_publisher
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package/cmd_controller
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package/control
+/home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package/main_gui
 /home/ruben_yh/Desktop/seafox/MATEROV_SeaFox_2025/src/install/ros2_seafox_package/lib/ros2_seafox_package/motion_controller

@@ -2,5 +2,6 @@
 camera_publisher = ros2_seafox_package.cmd_controller:main
 cmd_controller = ros2_seafox_package.cmd_controller:main
 control = ros2_seafox_package.control:main
+main_gui = ros2_seafox_package.cmd_controller:main
 motion_controller = ros2_seafox_package.motion_controller:main
 
