@@ -25,8 +25,8 @@ setup(
         'control = ros2_seafox_package.control:main',
         'motion_controller = ros2_seafox_package.motion_controller:main',
         'cmd_controller = ros2_seafox_package.cmd_controller:main',
-        'camera_publisher = ros2_seafox_package.cmd_controller:main',
-        'main_gui = ros2_seafox_package.cmd_controller:main',
+        'camera_publisher = ros2_seafox_package.camera_publisher:main',
+        'main_gui = ros2_seafox_package.main_gui:main',
         
         #'otro_nodo = otro_nodo:main',
         ],

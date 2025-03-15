@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 
 import rclpy
-from .camera import CameraSubscriber
+from .camera import CameraPublisher
 from .gui_cameras import CameraGUI
 
 def main(args=None):
@@ -13,7 +13,7 @@ def main(args=None):
     app = QApplication(sys.argv)
 
     # Instantiate the ROS subscriber node and the GUI
-    camera_subscriber = CameraSubscriber()
+    camera_subscriber = CameraPublisher()
     gui = CameraGUI(camera_subscriber)
     gui.show()
 
