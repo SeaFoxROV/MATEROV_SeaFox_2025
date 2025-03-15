@@ -1,6 +1,6 @@
 [console_scripts]
-cmd_controller = ros2_seafox_package.cmd_controller:main
-control = ros2_seafox_package.control:main
-motion_controller = ros2_seafox_package.motion_controller:main
-rosserial = ros2_seafox_package.rosserial:main
+joystick_reader = ros2_seafox_package.base.control.joystick_reader:main
+joystick_to_twist = ros2_seafox_package.base.control.joystick_to_twist:main
+rosserial = ros2_seafox_package.rov.serial.rosserial:main
+twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main
 
