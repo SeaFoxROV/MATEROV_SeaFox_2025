@@ -11,6 +11,7 @@ setup.py
 launch/base_launcher.py
 resource/ros2_seafox_package
 ros2_seafox_package/__init__.py
+ros2_seafox_package/camera.py
 ros2_seafox_package/cmd_controller.py
 ros2_seafox_package/control.py
 ros2_seafox_package/motion_controller.py
