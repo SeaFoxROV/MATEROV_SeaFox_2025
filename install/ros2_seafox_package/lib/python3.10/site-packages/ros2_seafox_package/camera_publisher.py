@@ -26,7 +26,7 @@ class CameraPublisher(Node):
                 self.get_logger().info(f"Camera {i} opened successfully.")
 
         # Timer to publish frames at roughly 30Hz
-        self.timer = self.create_timer(0.033, self.timer_callback)
+        self.timer = self.create_timer(0.05, self.timer_callback)
         self.get_logger().info("CameraPublisher node has started!")
 
     def timer_callback(self):
