@@ -18,7 +18,7 @@ class CameraPublisher(Node):
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
         # Open camera devices (adjust indexes as needed)
-        self.captures = [cv2.VideoCapture(i) for i in range(4)]
+        self.captures = [cv2.VideoCapture(i) for i in range(0,7, 2)]
         for i, cap in enumerate(self.captures):
             if not cap.isOpened():
                 self.get_logger().error(f"Failed to open camera {i}")
