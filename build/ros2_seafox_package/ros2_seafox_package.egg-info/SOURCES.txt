@@ -13,15 +13,9 @@ launch/rov_launcher.py
 resource/ros2_seafox_package
 ros2_seafox_package/__init__.py
 ros2_seafox_package/caliz.py
-ros2_seafox_package/base/__init__.py
-ros2_seafox_package/base/control/__init__.py
 ros2_seafox_package/base/control/joystick_reader.py
 ros2_seafox_package/base/control/joystick_to_twist.py
 ros2_seafox_package/base/control/twist_to_pwm.py
-ros2_seafox_package/base/gui/__init__.py
-ros2_seafox_package/rov/__init__.py
-ros2_seafox_package/rov/cameras/__init__.py
-ros2_seafox_package/rov/serial/__init__.py
 ros2_seafox_package/rov/serial/rosserial.py
 test/test_copyright.py
 test/test_flake8.py
