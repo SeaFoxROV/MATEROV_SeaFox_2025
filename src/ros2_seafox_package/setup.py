@@ -10,8 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/ros2_seafox_package/launch', ['launch/base_launcher.py']),  # Agregar esta línea
-        #('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  # Agregar esta línea
+        ('share/ros2_seafox_package/launch', ['launch/base_launcher.py']), 
+        ('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -22,7 +22,23 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'control = ros2_seafox_package.control:main',
+        #Base scripts
+            #control scripts
+                'joystick_reader = ros2_seafox_package.base.control.joystick_reader:main',
+                'joystick_to_twist = ros2_seafox_package.base.control.joystick_to_twist:main',
+                'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
+            
+            #gui scripts
+                #'gui = ros2_seafox_package.base.gui.main_gui:main',
+        
+
+        #ROV scripts
+            #cameras scripts
+                #'camera_controller = ros2_seafox_package.rov.cameras.camera_controller:main',
+
+            #serial
+                'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
+
         #'otro_nodo = otro_nodo:main',
         ],
     },
