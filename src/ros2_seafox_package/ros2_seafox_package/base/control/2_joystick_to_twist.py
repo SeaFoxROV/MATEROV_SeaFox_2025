@@ -9,7 +9,7 @@ class MotionController(Node):
     def __init__(self):
         super().__init__('motion_controller_node')
         # Publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, '/desired_twist', 10)
         
         # Subscribers
         self.create_subscription(Float32MultiArray, '/joystick_data', self.joy_callback, 100)
@@ -34,15 +34,13 @@ class MotionController(Node):
         # Map joystick axes to velocity command
         left_joy_x = msg.data[0]      # Sides
         left_joy_y = msg.data[1]      # Forward/Back
-        left_trigger = msg.data[2]    #doiwn
-        right_trigger = msg.data[5]      # jup   Z
-        right_joy_x = msg.data[3]
-        right_joy_y = msg.data[4]
+        left_trigger = msg.data[2]    #down
+        right_trigger = msg.data[5]      # up   
+        right_joy_x = msg.data[3]     #angular y
+        right_joy_y = msg.data[4]     #angular x
 
         #falta hacer la logica de botones
 
-        #ajustar drift de x ES UNA CONSTANTE LO PUEDES RESTAR ASI NOMAS
-        #ajustar deadzon de y (no es una constante)
         self.last_user_velocity_command.linear.x = -left_joy_y
         self.last_user_velocity_command.linear.y = left_joy_x
         self.last_user_velocity_command.linear.z = (right_trigger - left_trigger)/2
