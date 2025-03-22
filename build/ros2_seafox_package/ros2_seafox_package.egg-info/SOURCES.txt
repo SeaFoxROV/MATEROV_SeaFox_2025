@@ -13,7 +13,11 @@ launch/rov_launcher.py
 resource/ros2_seafox_package
 ros2_seafox_package/__init__.py
 ros2_seafox_package/caliz.py
+ros2_seafox_package.egg-info/PKG-INFO
+ros2_seafox_package.egg-info/SOURCES.txt
+ros2_seafox_package.egg-info/dependency_links.txt
+ros2_seafox_package.egg-info/entry_points.txt
+ros2_seafox_package.egg-info/requires.txt
+ros2_seafox_package.egg-info/top_level.txt
+ros2_seafox_package.egg-info/zip-safe
 ros2_seafox_package/rov/serial/rosserial.py
-test/test_copyright.py
-test/test_flake8.py
-test/test_pep257.py

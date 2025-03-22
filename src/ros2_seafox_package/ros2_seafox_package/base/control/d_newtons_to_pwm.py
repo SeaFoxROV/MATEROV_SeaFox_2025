@@ -47,7 +47,7 @@ class newton_to_pwm(Node):
         x = []
         y = []
 
-        with open(PATH + "data/newtons_to_pwm.tsv", "r") as file:
+        with open(PATH + "/data/newtons_to_pwm.tsv", "r") as file:
             for data_point in file:
                 data = data_point.split("\t")
                 x.append(data[0])
@@ -56,22 +56,31 @@ class newton_to_pwm(Node):
         optimal_params, param_covariance = curve_fit(newton_to_pwm.newtons_to_pwm, x, y)
         return optimal_params
 
-    def pwm_callback(self, twist_msg):
-        pwm_values = Int16MultiArray()
-        pwm_values.data = [0] * 8
-        motor_values = self.generate_motor_values(twist_msg)
-        for index, newton in enumerate(motor_values):
-            pwm_values.data[index] = int(newton_to_pwm.newtons_to_pwm(
+    def pwm_callback(self, motor_values):
+        # Creamos un nuevo mensaje para publicar PWM
+        pwm_msg = Int16MultiArray()
+        pwm_msg.data = [0] * 8
+
+        # Iteramos sobre los valores recibidos en motor_values.data
+        for index, newton in enumerate(motor_values.data):
+            pwm = int(newton_to_pwm.newtons_to_pwm(
                 newton,
                 self.pwm_fit_params[0],
                 self.pwm_fit_params[1],
                 self.pwm_fit_params[2],
                 self.pwm_fit_params[3],
                 self.pwm_fit_params[4],
-                self.pwm_fit_params[5]))
-            pwm_values.data[index] = 1900 if pwm_values.data[index] > 1900 else 1100 if pwm_values.data[index] < 1100 else pwm_values.data[index]
-            if newton == 0: pwm_values.data[index] = 1500
-        self.pwm_pub.publish(pwm_values)
+                self.pwm_fit_params[5]
+            ))
+            # Limitar el rango de pwm
+            pwm = 1900 if pwm > 1900 else 1100 if pwm < 1100 else pwm
+            # Si el valor en newton es 0, lo asignamos a 1500
+            if newton == 0:
+                pwm = 1500
+            pwm_msg.data[index] = pwm
+
+        self.pwm_pub.publish(pwm_msg)
+
     
     def __del__(self):
         pwm_values = Int16MultiArray()

@@ -1,0 +1,25 @@
+[0.548s] Invoking command in '/home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package': PYTHONPATH=/home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/build --no-deps symlink_data --force
+[0.805s] running develop
+[0.956s] running egg_info
+[0.956s] writing ros2_seafox_package.egg-info/PKG-INFO
+[0.957s] writing dependency_links to ros2_seafox_package.egg-info/dependency_links.txt
+[0.957s] writing entry points to ros2_seafox_package.egg-info/entry_points.txt
+[0.957s] writing requirements to ros2_seafox_package.egg-info/requires.txt
+[0.957s] writing top-level names to ros2_seafox_package.egg-info/top_level.txt
+[0.959s] reading manifest file 'ros2_seafox_package.egg-info/SOURCES.txt'
+[0.960s] writing manifest file 'ros2_seafox_package.egg-info/SOURCES.txt'
+[0.961s] running build_ext
+[0.961s] Creating /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2-seafox-package.egg-link (link to .)
+[0.962s] Installing joystick_reader script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+[0.962s] Installing joystick_to_twist script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+[0.962s] Installing newtons_to_pwm script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+[0.963s] Installing rosserial script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+[0.963s] Installing twist_to_newtons script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+[0.963s] 
+[0.963s] Installed /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package
+[0.963s] running symlink_data
+[0.963s] symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/resource/ros2_seafox_package -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ament_index/resource_index/packages
+[0.964s] symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/package.xml -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package
+[0.964s] symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/launch/base_launcher.py -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch
+[0.964s] symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/launch/rov_launcher.py -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch
+[0.987s] Invoked command in '/home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package' returned '0': PYTHONPATH=/home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/build --no-deps symlink_data --force
