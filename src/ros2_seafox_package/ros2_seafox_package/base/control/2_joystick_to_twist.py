@@ -9,10 +9,10 @@ class MotionController(Node):
     def __init__(self):
         super().__init__('motion_controller_node')
         # Publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, '/desired_twist', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, 'desired_twist', 10)
         
         # Subscribers
-        self.create_subscription(Float32MultiArray, '/joystick_data', self.joy_callback, 100)
+        self.create_subscription(Float32MultiArray, 'joystick_data', self.joy_callback, 100)
         #self.create_subscription(Float64, '/control_effort/angular/x', self.roll_effort_callback, 100)
         #self.create_subscription(Float64, '/control_effort/angular/y', self.pitch_effort_callback, 100)
         

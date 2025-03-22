@@ -24,9 +24,10 @@ setup(
         'console_scripts': [
         #Base scripts
             #control scripts
-                '1_joystick_reader = ros2_seafox_package.base.control.1_joystick_reader:main',
-                '2_joystick_to_twist = ros2_seafox_package.base.control.2_joystick_to_twist:main',
-                'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
+                'joystick_reader = ros2_seafox_package.base.control.1_joystick_reader:main',
+                'joystick_to_twist = ros2_seafox_package.base.control.2_joystick_to_twist:main',
+                'twist_to_newtons = ros2_seafox_package.base.control.3_twist_to_newtons:main',
+               # 'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
             
             #gui scripts
                 #'gui = ros2_seafox_package.base.gui.main_gui:main',
