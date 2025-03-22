@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray,Bool
+from std_msgs.msg import Float32MultiArray,Int16MultiArray,Bool
 import serial
 import time
 
@@ -16,8 +16,8 @@ class RosserialNode(Node):
 
         # Suscribirse al tópico de comandos de motores
         self.subscription = self.create_subscription(
-            Float32MultiArray,
-            'thruster_cmd',
+            Int16MultiArray,
+            'pwm_values',
             self.cmd_callback,
             10)
 
@@ -45,7 +45,7 @@ class RosserialNode(Node):
     def update_motors(self):
         """ Se ejecuta cada 10 ms, imprime y envía los datos actuales de los motores. """
 
-        output = ";".join([f"{value:.2f}" for value in self.motor_values]) + ";\n"
+        output = ";".join([f"{value}" for value in self.motor_values]) + ";\n"
 
         # Imprimir en la consola
         #self.get_logger().info(f"Datos de motores: {output.strip()}")
@@ -86,6 +86,7 @@ class RosserialNode(Node):
                     self.bar_publisher.publish(bar_msg)
                     self.leak_publisher.publish(leak_msg)
 
+                    print(data[-3:])
                     self.get_logger().info(f"Datos de sensores recibidos: {data}")
             except Exception as e: 
                 #print("error")

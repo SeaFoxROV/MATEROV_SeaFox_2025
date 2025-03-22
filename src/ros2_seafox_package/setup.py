@@ -12,6 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/ros2_seafox_package/launch', ['launch/base_launcher.py']), 
         ('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  
+        ('share/ros2_seafox_package/launch', ['launch/camera_launcher.py']),  
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -30,12 +31,12 @@ setup(
                 'newtons_to_pwm = ros2_seafox_package.base.control.d_newtons_to_pwm:main',
             
             #gui scripts
-                #'gui = ros2_seafox_package.base.gui.main_gui:main',
+                'camera_gui = ros2_seafox_package.base.gui.camera_gui:main',
         
 
         #ROV scripts
             #cameras scripts
-                #'camera_controller = ros2_seafox_package.rov.cameras.camera_controller:main',
+                'camera_publisher = ros2_seafox_package.rov.cameras.camera_publisher:main',
 
             #serial
                 'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
