@@ -176,11 +176,11 @@ class twist_to_newtons(Node):
             (A) limit and the current limit of each ESC
         """
         # All motors
-        total_scalar = self.get_current_scalar_value(mv, self.TOTAL_CURRENT_LIMIT)
+        total_scalar = self.get_current_scalar_value(mv, TOTAL_CURRENT_LIMIT)
         # First four motors / motors on esc 1
-        esc1_scalar = self.get_current_scalar_value(mv[:4], self.ESC_CURRENT_LIMIT)
+        esc1_scalar = self.get_current_scalar_value(mv[:4], ESC_CURRENT_LIMIT)
         # Second four motors / motors on esc 2
-        esc2_scalar = self.get_current_scalar_value(mv[4:], self.ESC_CURRENT_LIMIT)
+        esc2_scalar = self.get_current_scalar_value(mv[4:], ESC_CURRENT_LIMIT)
 
         return min(total_scalar, esc1_scalar, esc2_scalar)
 

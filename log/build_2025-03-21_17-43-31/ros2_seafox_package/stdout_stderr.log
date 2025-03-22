@@ -1,0 +1,22 @@
+running develop
+running egg_info
+writing ros2_seafox_package.egg-info/PKG-INFO
+writing dependency_links to ros2_seafox_package.egg-info/dependency_links.txt
+writing entry points to ros2_seafox_package.egg-info/entry_points.txt
+writing requirements to ros2_seafox_package.egg-info/requires.txt
+writing top-level names to ros2_seafox_package.egg-info/top_level.txt
+reading manifest file 'ros2_seafox_package.egg-info/SOURCES.txt'
+writing manifest file 'ros2_seafox_package.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2-seafox-package.egg-link (link to .)
+Installing joystick_reader script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing joystick_to_twist script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing rosserial script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing twist_to_newtons script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+
+Installed /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package
+running symlink_data
+symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/resource/ros2_seafox_package -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ament_index/resource_index/packages
+symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/package.xml -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package
+symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/launch/base_launcher.py -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch
+symbolically linking /home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/launch/rov_launcher.py -> /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch

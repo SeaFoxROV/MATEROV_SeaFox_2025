@@ -11,8 +11,8 @@ setup.py
 launch/base_launcher.py
 launch/rov_launcher.py
 resource/ros2_seafox_package
-ros2_seafox_package/2_caliz.py
 ros2_seafox_package/__init__.py
+ros2_seafox_package/caliz.py
 ros2_seafox_package/rov/serial/rosserial.py
 test/test_copyright.py
 test/test_flake8.py

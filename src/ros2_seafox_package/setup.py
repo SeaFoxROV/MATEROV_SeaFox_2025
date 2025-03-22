@@ -27,7 +27,7 @@ setup(
                 'joystick_reader = ros2_seafox_package.base.control.a_joystick_reader:main',
                 'joystick_to_twist = ros2_seafox_package.base.control.b_joystick_to_twist:main',
                 'twist_to_newtons = ros2_seafox_package.base.control.c_twist_to_newtons:main',
-               # 'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
+                'newtons_to_pwm = ros2_seafox_package.base.control.d_newtons_to_pwm:main',
             
             #gui scripts
                 #'gui = ros2_seafox_package.base.gui.main_gui:main',

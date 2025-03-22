@@ -1,7 +1,7 @@
-/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/2_caliz.py
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__init__.py
-/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/2_caliz.cpython-310.pyc
+/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/caliz.py
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/__init__.cpython-310.pyc
+/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package/__pycache__/caliz.cpython-310.pyc
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ament_index/resource_index/packages/ros2_seafox_package
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/package.xml
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/share/ros2_seafox_package/launch/base_launcher.py
@@ -15,5 +15,6 @@
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info/top_level.txt
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/joystick_reader
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/joystick_to_twist
+/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/newtons_to_pwm
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/rosserial
 /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package/twist_to_newtons

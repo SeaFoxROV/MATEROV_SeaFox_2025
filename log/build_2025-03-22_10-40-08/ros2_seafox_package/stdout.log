@@ -1,0 +1,23 @@
+running egg_info
+writing ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/PKG-INFO
+writing dependency_links to ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/dependency_links.txt
+writing entry points to ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/entry_points.txt
+writing requirements to ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/requires.txt
+writing top-level names to ../../build/ros2_seafox_package/ros2_seafox_package.egg-info/top_level.txt
+reading manifest file '../../build/ros2_seafox_package/ros2_seafox_package.egg-info/SOURCES.txt'
+writing manifest file '../../build/ros2_seafox_package/ros2_seafox_package.egg-info/SOURCES.txt'
+running build
+running build_py
+running install
+running install_lib
+running install_data
+running install_egg_info
+removing '/home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/ros2_seafox_package/ros2_seafox_package.egg-info to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/python3.10/site-packages/ros2_seafox_package-0.0.0-py3.10.egg-info
+running install_scripts
+Installing joystick_reader script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing joystick_to_twist script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing rosserial script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing twist_to_newtons script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+Installing twist_to_pwm script to /home/seafoxinventive/MATEROV_SeaFox_2025/install/ros2_seafox_package/lib/ros2_seafox_package
+writing list of installed files to '/home/seafoxinventive/MATEROV_SeaFox_2025/build/ros2_seafox_package/install.log'
