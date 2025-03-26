@@ -19,14 +19,18 @@ class CameraPublisher(Node):
 
         # Open camera devices (adjust indexes as needed)
         self.captures = [cv2.VideoCapture(i) for i in range(0,7, 2)] 
+        
         for i, cap in enumerate(self.captures):
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            cap.set(cv2.CAP_PROP_FPS, 30)
             if not cap.isOpened():
                 self.get_logger().error(f"Failed to open camera {i}")
             else:
                 self.get_logger().info(f"Camera {i} opened successfully.")
 
         # Timer to publish frames at roughly 30Hz
-        self.timer = self.create_timer(0.03, self.timer_callback)
+        self.timer = self.create_timer(0.033, self.timer_callback)
         self.get_logger().info("CameraPublisher node has started!")
 
     def timer_callback(self):

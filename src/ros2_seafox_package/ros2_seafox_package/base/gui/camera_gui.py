@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import sys
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QComboBox
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QComboBox,QSplitter
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt
 
 import rclpy
 from rclpy.node import Node
@@ -50,7 +50,7 @@ class CameraGUI(QWidget):
 
         # Window setup
         self.setWindowTitle('ROV Camera Viewer')
-        self.setFixedSize(800, 600)
+        self.setFixedSize(1400, 600)
 
         # Dropdown selector
         self.dropdown = QComboBox()
@@ -60,20 +60,36 @@ class CameraGUI(QWidget):
             'Camera 3',
             'Camera 4'
         ])
+        self.dropdown2 = QComboBox()
+        self.dropdown2.addItems([
+            'Camera 1',
+            'Camera 2',
+            'Camera 3',
+            'Camera 4'
+        ])
+
         self.dropdown.currentIndexChanged.connect(self.change_camera)
+        self.dropdown2.currentIndexChanged.connect(self.change_camera2)
 
         # Label to display image
         self.label = QLabel()
-        self.label.setFixedSize(780, 540)  # Adjust as needed for your camera resolution
+        self.label.setFixedSize(640, 480)  # Adjust as needed for your camera resolution
+        self.label2 = QLabel()
+        self.label2.setFixedSize(640, 480)  # Adjust as needed for your camera resolution
 
         # Layout
         layout = QVBoxLayout()
         layout.addWidget(self.dropdown)
-        layout.addWidget(self.label)
+        layout.addWidget(self.dropdown2)
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.addWidget(self.label)
+        splitter.addWidget(self.label2)
+        layout.addWidget(splitter)
         self.setLayout(layout)
 
         # Camera index to display
         self.current_camera_index = 0
+        self.current_camera_index2 = 1
 
         # Timer to update GUI
         self.timer = QTimer()
@@ -82,6 +98,9 @@ class CameraGUI(QWidget):
 
     def change_camera(self, index):
         self.current_camera_index = index
+
+    def change_camera2(self, index):
+        self.current_camera_index2 = index
 
     def update_image(self):
         frame = self.node.image_data[self.current_camera_index]
@@ -94,6 +113,18 @@ class CameraGUI(QWidget):
         else:
             # Optional: Show "No signal" image or text when no frame available
             self.label.setText("No signal from camera.")
+
+        frame2 = self.node.image_data[self.current_camera_index2]
+        if frame2 is not None:
+            height, width, channel = frame2.shape
+            bytes_per_line = 3 * width
+            q_img2 = QImage(frame2.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+            pixmap2 = QPixmap.fromImage(q_img2).scaled(self.label2.width(), self.label2.height())
+            self.label2.setPixmap(pixmap2)
+        else:
+            # Optional: Show "No signal" image or text when no frame available
+            self.label2.setText("No signal from camera.")
+
 
 
 def main(args=None):
