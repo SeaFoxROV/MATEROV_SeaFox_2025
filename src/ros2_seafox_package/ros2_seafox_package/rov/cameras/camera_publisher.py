@@ -2,6 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
+from std_msgs.msg import Int32MultiArray
 from cv_bridge import CvBridge
 import cv2
 
@@ -9,17 +10,18 @@ class CameraPublisher(Node):
     def __init__(self):
         super().__init__('camera_publisher')
         self.bridge = CvBridge()
+
+        # Define two topics: left and right camera frames
         self.topic_names = [
-            'camera1/image_raw',
-            'camera2/image_raw',
-            'camera3/image_raw',
-            'camera4/image_raw'
+            'camera_left/image_raw',
+            'camera_right/image_raw'
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
-        # Open camera devices (adjust indexes as needed)
-        self.captures = [cv2.VideoCapture(i) for i in range(0,7, 2)] 
-        
+        # Define the physical camera devices available
+        # (Here we assume you have 4 physical cameras at these device indexes)
+        cameras_index = [0, 2, 4, 6]  # adjust as needed
+        self.captures = [cv2.VideoCapture(i) for i in cameras_index]
         for i, cap in enumerate(self.captures):
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -29,18 +31,46 @@ class CameraPublisher(Node):
             else:
                 self.get_logger().info(f"Camera {i} opened successfully.")
 
-        # Timer to publish frames at roughly 30Hz
+        # Default active cameras for left and right (using indexes in the cameras_index list)
+        self.active_indexes = [0, 1]
+        
+        # Subscription to receive new camera selections from the GUI (or another node)
+        self.selection_sub = self.create_subscription(
+            Int32MultiArray,
+            'camera_selection',
+            self.selection_callback,
+            10
+        )
+
+        # Timer to publish frames at ~30Hz from only the active cameras
         self.timer = self.create_timer(0.033, self.timer_callback)
         self.get_logger().info("CameraPublisher node has started!")
 
+    def selection_callback(self, msg):
+        # Expecting msg.data to be a list of two integers representing the camera indexes (0 to 3)
+        if len(msg.data) == 2:
+
+
+            self.active_indexes = list(msg.data)
+
+            
+
+            self.get_logger().info(f"Active camera indexes updated: {self.active_indexes}")
+        else:
+            self.get_logger().warning("Received invalid camera selection (expected 2 indexes).")
+
     def timer_callback(self):
-        for i, cap in enumerate(self.captures):
-            ret, frame = cap.read()
-            if ret:
-                msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
-                self.image_publishers[i].publish(msg)
+        # For left (publisher index 0) and right (publisher index 1) cameras:
+        for pub_idx, cam_idx in enumerate(self.active_indexes):
+            if cam_idx < len(self.captures):
+                ret, frame = self.captures[cam_idx].read()
+                if ret:
+                    msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+                    self.image_publishers[pub_idx].publish(msg)
+                else:
+                    self.get_logger().warning(f"Camera {cam_idx} frame not available.")
             else:
-                self.get_logger().warning(f"Camera {i} frame not available.")
+                self.get_logger().warning(f"Invalid camera index: {cam_idx}")
 
     def destroy_node(self):
         for cap in self.captures:
