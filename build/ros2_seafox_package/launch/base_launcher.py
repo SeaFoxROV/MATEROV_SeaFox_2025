@@ -1,1 +1,0 @@
-/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/launch/base_launcher.py
