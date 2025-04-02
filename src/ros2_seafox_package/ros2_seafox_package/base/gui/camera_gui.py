@@ -14,13 +14,14 @@ class CameraSubscriber(Node):
     def __init__(self):
         super().__init__('camera_subscriber')
         self.bridge = CvBridge()
-        self.image_data = [None, None]  # store latest frame for left and right
+        self.image_data = [None, None, None]  # store latest frames for left, right, and realsense
 
         self.topic_names = [
             'camera_left/image_raw',
-            'camera_right/image_raw'
+            'camera_right/image_raw',
+            'camera_realsense/image_raw'
         ]
-        # Create subscribers for the two camera topics
+        # Create subscribers for the three camera topics
         self.subscribers = []
         for i, topic in enumerate(self.topic_names):
             sub = self.create_subscription(
@@ -58,7 +59,9 @@ class CameraGUI(QWidget):
         self.dropdown.setFixedSize(1320, 20)
         self.dropdown.currentIndexChanged.connect(self.change_camera)
 
-        # Labels for displaying left and right camera images
+        # Labels for displaying cameras
+        self.label_realsense = QLabel()
+        self.label_realsense.setFixedSize(640, 480)
         self.label_left = QLabel()
         self.label_left.setFixedSize(640, 480)
         self.label_right = QLabel()
@@ -74,6 +77,7 @@ class CameraGUI(QWidget):
         splitter.addWidget(self.label_left)
         splitter.addWidget(self.label_right)
         layout.addWidget(splitter)
+        layout.addWidget(self.label_realsense)
         self.setLayout(layout)
 
         # Default camera pair (using 0-indexed camera numbers corresponding to physical devices)
@@ -106,6 +110,17 @@ class CameraGUI(QWidget):
         print(f"Published new camera selection: {pair}")
 
     def update_image(self):
+        # Update RealSense image
+        frame_realsense = self.node.image_data[2]
+        if frame_realsense is not None:
+            height, width, channel = frame_realsense.shape
+            bytes_per_line = 3 * width
+            q_img = QImage(frame_realsense.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+            pixmap = QPixmap.fromImage(q_img).scaled(self.label_realsense.width(), self.label_realsense.height())
+            self.label_realsense.setPixmap(pixmap)
+        else:
+            self.label_realsense.setText("No signal from RealSense")
+
         # Update left image
         frame_left = self.node.image_data[0]
         if frame_left is not None:

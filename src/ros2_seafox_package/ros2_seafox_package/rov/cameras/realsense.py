@@ -35,15 +35,9 @@ class RealSenseNode(Node):
         color_image = np.asanyarray(color_frame.get_data())
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
         self.image_publisher.publish(msg)
-        
-        cv2.imshow("RealSense", color_image)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            self.destroy_node()
-            rclpy.shutdown()
-    
+            
     def destroy_node(self):
         self.pipeline.stop()
-        cv2.destroyAllWindows()
         super().destroy_node()
 
 
