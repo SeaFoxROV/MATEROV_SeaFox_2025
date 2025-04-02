@@ -27,7 +27,7 @@ class MainFui(QWidget):
         self.label_left.setFixedSize(640, 480)
         self.label_right = QLabel()
         self.label_right.setFixedSize(640, 480)
-
+        
         # Layout
         layout = QVBoxLayout()
         dropsplitter = QSplitter(Qt.Horizontal)
