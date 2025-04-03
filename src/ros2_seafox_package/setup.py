@@ -32,11 +32,11 @@ setup(
             
             #gui scripts
                 'camera_gui = ros2_seafox_package.base.gui.camera_gui:main',
-                'realsense = ros2_seafox_package.rov.cameras.realsense:main',
 
         #ROV scripts
             #cameras scripts
                 'camera_publisher = ros2_seafox_package.rov.cameras.camera_publisher:main',
+                'realsense = ros2_seafox_package.rov.cameras.realsense:main',
                 
             #serial
                 'rosserial = ros2_seafox_package.rov.serial.rosserial:main',

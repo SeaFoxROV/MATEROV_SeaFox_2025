@@ -13,8 +13,8 @@ class RealSenseNode(Node):
         config = rs.config()
         config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         
-        self.image_publisher = self.create_publisher(Image, 'camera/image_raw', 10)
-        self.bridge = CvBridge()
+        self.image_publisher = self.create_publisher(Image, 'camera_realsense/image_raw', 10)
+        self.bridge = CvBridge()    
         
         try:
             self.pipeline.start(config)
