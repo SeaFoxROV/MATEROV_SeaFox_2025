@@ -20,7 +20,7 @@ class CameraPublisher(Node):
 
         # Define the physical camera devices available
         # (Here we assume you have 4 physical cameras at these device indexes)
-        cameras_index = [0, 2, 3, 6]  # adjust as needed
+        cameras_index = [0, 9, 3, 6]  # adjust as needed
         self.captures = [cv2.VideoCapture(i) for i in cameras_index]
         for i, cap in enumerate(self.captures):
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)

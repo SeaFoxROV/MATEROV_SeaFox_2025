@@ -32,6 +32,7 @@ setup(
             
             #gui scripts
                 'camera_gui = ros2_seafox_package.base.gui.camera_gui:main',
+                'main_gui = ros2_seafox_package.base.gui.main_gui:main',
 
         #ROV scripts
             #cameras scripts

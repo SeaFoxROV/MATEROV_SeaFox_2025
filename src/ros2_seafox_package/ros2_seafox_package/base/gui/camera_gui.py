@@ -152,6 +152,7 @@ def main(args=None):
 
     # Create the GUI and pass the ROS node to it
     gui = CameraGUI(camera_node)
+    gui.showMaximized()
     gui.show()
 
     # Timer to process ROS callbacks

@@ -11,7 +11,6 @@ class RealSenseNode(Node):
     # Each element will be a tuple: (x_pixel, y_pixel, [X, Y, Z] in meters)
     points = []
     def __init__(self):
-        global points
         super().__init__('realsense')
         self.pipeline = rs.pipeline()
         config = rs.config()
