@@ -9,9 +9,8 @@ from cv_bridge import CvBridge
 class RealSenseNode(Node):
     # Global list to store selected points
     # Each element will be a tuple: (x_pixel, y_pixel, [X, Y, Z] in meters)
-    points = []
     def __init__(self):
-        global points
+        self.points=[]
         super().__init__('realsense')
         self.pipeline = rs.pipeline()
         config = rs.config()
@@ -44,7 +43,7 @@ class RealSenseNode(Node):
             color_image = np.asanyarray(color_frame.get_data())
 
             # Optionally, draw the selected points on the color image
-            for pt in points:
+            for pt in self.points:
                 cv2.circle(color_image, (pt[0], pt[1]), 5, (0, 0, 255), -1)
             
             # Display the color image
@@ -65,13 +64,13 @@ class RealSenseNode(Node):
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
         self.image_publisher.publish(msg)
     
-    def mouse_callback(event, x, y, flags, param): #The third and forth variables are for additional parameters
-        global points, depth_frame, color_intrinsics
+    def mouse_callback(event, x, y, flags, param, self): #The third and forth variables are for additional parameters
+        global depth_frame, color_intrinsics
         # On left mouse button click:
         if event == cv2.EVENT_LBUTTONDOWN:
             # If already two points are selected, reset for a new measurement
-            if len(points) >= 2:
-                points = []
+            if len(self.points) >= 2:
+                self.points = []
             # Get the depth at the clicked pixel
             depth = depth_frame.get_distance(x, y)
             if depth == 0:
@@ -79,11 +78,11 @@ class RealSenseNode(Node):
                 return
             # Deproject from pixel coordinates to 3D space
             point_3d = rs.rs2_deproject_pixel_to_point(color_intrinsics, [x, y], depth)
-            points.append((x, y, point_3d))
+            self.points.append((x, y, point_3d))
             # If two points are now selected, compute the distance
-            if len(points) == 2:
-                p1 = np.array(points[0][2])
-                p2 = np.array(points[1][2])
+            if len(self.points) == 2:
+                p1 = np.array(self.points[0][2])
+                p2 = np.array(self.points[1][2])
                 distance = np.linalg.norm(p1 - p2)
                 #Minus the average error distance of the camera
                 if distance >=1 and distance <= 1.10:
