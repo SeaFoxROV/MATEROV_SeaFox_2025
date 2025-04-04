@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from std_msgs.msg import Int32MultiArray
 
 class RealSenseNode(Node):
     # Global list to store selected points
@@ -21,6 +22,15 @@ class RealSenseNode(Node):
         self.data_ = self.create_publisher(Image, 'camera_realsense/image_raw', 10)
         self.bridge = CvBridge()    
         
+        #pixel pos
+        self.pixel_pos = self.create_subscription(
+            Int32MultiArray,
+            'pixel_position',
+            self.pixelpos,
+            10
+        )
+
+
         try:
             self.pipeline.start(config)
             self.get_logger().info("RealSense iniciada correctamente")
@@ -33,7 +43,12 @@ class RealSenseNode(Node):
         cv2.namedWindow('RealSense')
         cv2.setMouseCallback('RealSense', self.mouse_callback)
 
-    
+    def pixelpos(self, pos):
+        self.get_logger().info(f"X {pos.data}")
+
+        self.x = pos.data[0]
+        self.y = pos.data[1]
+
     def capture_frame(self):
         # Wait for a coherent pair of frames: depth and color
         frames = self.pipeline.wait_for_frames()
@@ -73,8 +88,10 @@ class RealSenseNode(Node):
     
     def mouse_callback(self, event, x, y, flags, param):
         # On left mouse button click:
+        x = self.x
+        y = self.y
         if event == cv2.EVENT_LBUTTONDOWN:
-            print("Hola")
+            print("Distancia entre dos puntos")
             # If already two points are selected, reset for a new measurement
             if len(self.points) >= 2:
                 self.points = []
@@ -107,6 +124,9 @@ class RealSenseNode(Node):
                 # Adjust distance if needed (your subtraction statements are currently not modifying the distance)
                 print(f"Distance between points: {distance:.2f} meters")
                 print(f"Depth distance: {depth:.2f} meters")
+                self.get_logger().info(f"Distance between points: {distance:.2f} meters")
+                self.get_logger().info(f"Depth distance: {depth:.2f} meters")
+
                 
     def destroy_node(self):
         self.pipeline.stop()

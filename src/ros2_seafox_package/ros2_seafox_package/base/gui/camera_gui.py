@@ -46,6 +46,7 @@ class CameraGUI(QWidget):
 
         # Create a publisher to send the selected camera indexes to the publisher node
         self.selection_pub = self.node.create_publisher(Int32MultiArray, 'camera_selection', 10)
+        self.pixel_pos = self.node.create_publisher(Int32MultiArray, 'pixel_position', 10)
 
         self.setWindowTitle('ROV Camera Viewer')
         self.setFixedSize(1320, 960)
@@ -109,6 +110,14 @@ class CameraGUI(QWidget):
         self.selection_pub.publish(msg)
         print(f"Published new camera selection: {pair}")
 
+    def getPos(self , event):
+        x = event.pos().x()
+        y = event.pos().y() 
+        msg = Int32MultiArray()
+        msg.data = [x,y]
+        self.pixel_pos.publish(msg)
+
+
     def update_image(self):
         # Update RealSense image
         frame_realsense = self.node.image_data[2]
@@ -118,6 +127,7 @@ class CameraGUI(QWidget):
             q_img = QImage(frame_realsense.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(q_img).scaled(self.label_realsense.width(), self.label_realsense.height())
             self.label_realsense.setPixmap(pixmap)
+            self.label_realsense.mousePressEvent = self.getPos
         else:
             self.label_realsense.setText("No signal from RealSense")
 
