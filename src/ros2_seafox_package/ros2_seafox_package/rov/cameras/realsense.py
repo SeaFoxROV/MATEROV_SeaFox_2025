@@ -91,6 +91,7 @@ class RealSenseNode(Node):
         x = self.x
         y = self.y
         if event == cv2.EVENT_LBUTTONDOWN:
+            self.get_logger().info("AAAAAAAAAA")
             print("Distancia entre dos puntos")
             # If already two points are selected, reset for a new measurement
             if len(self.points) >= 2:
@@ -108,19 +109,19 @@ class RealSenseNode(Node):
                 p1 = np.array(self.points[0][2])
                 p2 = np.array(self.points[1][2])
                 distance = np.linalg.norm(p1 - p2)
-                #Minus the average distance of the camera
+                #Minus the average error of distance of the camera
                 if distance >=1 and distance <= 1.10:
-                    distance-3.4
+                    distance=distance-3.4
                 elif distance >=1.11 and distance <= 1.39:
-                    distance-3.8
+                    distance=distance-3.8
                 elif distance >=1.40 and distance <= 1.59:
-                    distance-4
+                    distance=distance-4
                 elif distance >=1.60 and distance <= 1.79:
-                    distance-3.4
+                    distance=distance-3.4
                 elif distance >=1.80 and distance <= 1.99:
-                    distance-9
+                    distance=distance-9
                 elif distance >=2 and distance <= 2.10:
-                    distance-12.8
+                    distance=distance-12.8
                 # Adjust distance if needed (your subtraction statements are currently not modifying the distance)
                 print(f"Distance between points: {distance:.2f} meters")
                 print(f"Depth distance: {depth:.2f} meters")
