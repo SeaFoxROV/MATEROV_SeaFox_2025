@@ -18,6 +18,7 @@ class RealSenseNode(Node):
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)    # depth stream
         
         self.image_publisher = self.create_publisher(Image, 'camera_realsense/image_raw', 10)
+        self.data_ = self.create_publisher(Image, 'camera_realsense/image_raw', 10)
         self.bridge = CvBridge()    
         
         try:
@@ -52,11 +53,11 @@ class RealSenseNode(Node):
                 cv2.circle(color_image, (pt[0], pt[1]), 5, (0, 0, 255), -1)
             
             # Display the color image
-            cv2.imshow('RealSense', color_image)
-            key = cv2.waitKey(1)
+            # cv2.imshow('RealSense', color_image)
+            # key = cv2.waitKey(1)
             # Exit on 'Esc' key press
-            if key == 27:
-                break
+            # if key == 27:
+                # break
     
     def capture_frame(self):
         frames = self.pipeline.wait_for_frames()
