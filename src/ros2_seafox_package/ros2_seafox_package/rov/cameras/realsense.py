@@ -33,40 +33,41 @@ class RealSenseNode(Node):
         cv2.namedWindow('RealSense')
         cv2.setMouseCallback('RealSense', self.mouse_callback)
 
-        while True:
-            # Wait for a coherent pair of frames: depth and color
-            frames = self.pipeline.wait_for_frames()
-            self.depth_frame = frames.get_depth_frame()
-            color_frame = frames.get_color_frame()
-            if not self.depth_frame or not color_frame:
-                continue
-
-            # Retrieve and store the color intrinsics
-            color_profile = color_frame.get_profile()
-            self.color_intrinsics = color_profile.as_video_stream_profile().get_intrinsics()
-
-            # Convert images to numpy arrays
-            color_image = np.asanyarray(color_frame.get_data())
-
-            # Optionally, draw the selected points on the color image
-            for pt in self.points:
-                cv2.circle(color_image, (pt[0], pt[1]), 5, (0, 0, 255), -1)
-            
-            # Display the color image
-            # cv2.imshow('RealSense', color_image)
-            # key = cv2.waitKey(1)
-            # Exit on 'Esc' key press
-            # if key == 27:
-                # break
     
     def capture_frame(self):
+        # Wait for a coherent pair of frames: depth and color
         frames = self.pipeline.wait_for_frames()
+        self.depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
-        
-        if not color_frame:
-            return
-        
+        #if not self.depth_frame or not color_frame:
+        #    continue
+
+        # Retrieve and store the color intrinsics
+        color_profile = color_frame.get_profile()
+        self.color_intrinsics = color_profile.as_video_stream_profile().get_intrinsics()
+
+        # Convert images to numpy arrays
         color_image = np.asanyarray(color_frame.get_data())
+
+        # Optionally, draw the selected points on the color image
+        for pt in self.points:
+            cv2.circle(color_image, (pt[0], pt[1]), 5, (0, 0, 255), -1)
+        
+        # Display the color image
+        # cv2.imshow('RealSense', color_image)
+        # key = cv2.waitKey(1)
+        # Exit on 'Esc' key press
+        # if key == 27:
+            # break
+
+
+        #frames = self.pipeline.wait_for_frames()
+        #color_frame = frames.get_color_frame()
+        
+        #if not color_frame:
+        #    return
+        
+        #color_image = np.asanyarray(color_frame.get_data())
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
         self.image_publisher.publish(msg)
     
