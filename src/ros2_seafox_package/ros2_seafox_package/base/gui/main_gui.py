@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QSplitter, QLabel, QWidget, QPushButto
 from PyQt5.QtCore import Qt, QTimer
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Float32MultiArray
 
 class UltimateSubscriber(Node):
     def __init__(self):
@@ -17,11 +17,22 @@ class UltimateSubscriber(Node):
             self.distance_callback,
             10
         )
+        self.joystick_buttons = self.create_subscription(
+            Float32MultiArray,
+            'joystick_data',
+            self.joystick_callback,
+            10
+        )
         self.latest_distance = None
+        self.latest_buttons = []
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
         self.get_logger().info(f"Received distance: {msg.data:.2f} meters")
+
+    def joystick_callback(self, msg: Float32MultiArray):
+        self.latest_buttons = msg.data
+        self.get_logger().info(f"Received buttons: {msg.data:.2f} meters")
 
 class MainGui(QWidget):
     def __init__(self, node: UltimateSubscriber):
