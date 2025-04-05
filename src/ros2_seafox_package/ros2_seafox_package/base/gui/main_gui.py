@@ -10,13 +10,14 @@ from std_msgs.msg import Float32, Float32MultiArray
 class UltimateSubscriber(Node):
     def __init__(self):
         super().__init__('ultimate_subscriber')
-        # Crear suscripción al tópico "distance_point" con el callback adecuado
+        # Suscripción al tópico "distance_point"
         self.distance_subscription = self.create_subscription(
             Float32,
             'distance_point',
             self.distance_callback,
             10
         )
+        # Suscripción al tópico "joystick_data"
         self.joystick_buttons = self.create_subscription(
             Float32MultiArray,
             'joystick_data',
@@ -24,7 +25,7 @@ class UltimateSubscriber(Node):
             10
         )
         self.latest_distance = None
-        self.latest_buttons = []
+        self.latest_buttons = None
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
@@ -32,7 +33,7 @@ class UltimateSubscriber(Node):
 
     def joystick_callback(self, msg: Float32MultiArray):
         self.latest_buttons = msg.data
-        self.get_logger().info(f"Received buttons: {msg.data:.2f} meters")
+        self.get_logger().info(f"Received buttons: {msg.data}")
 
 class MainGui(QWidget):
     def __init__(self, node: UltimateSubscriber):
@@ -43,9 +44,9 @@ class MainGui(QWidget):
         self.setFixedSize(1320, 960)
 
         # Label para mostrar la distancia recibida
-        self.floatgui = QLabel("Distance: -- m")
-        self.floatgui.setFixedSize(480, 20)
-        self.floatgui.setAlignment(Qt.AlignCenter)
+        self.distance_points = QLabel("Distance: -- m")
+        self.distance_points.setFixedSize(480, 20)
+        self.distance_points.setAlignment(Qt.AlignCenter)
 
         # Botones de ejemplo
         self.graficar = QPushButton("Graficar")
@@ -53,10 +54,10 @@ class MainGui(QWidget):
         self.conexion = QPushButton("Conexion")
         self.conexion.setFixedSize(240, 20)
 
-        # Layout para el label (centrado)
+        # Layout para el label de la distancia (centrado)
         label_layout = QHBoxLayout()
         label_layout.addStretch()
-        label_layout.addWidget(self.floatgui)
+        label_layout.addWidget(self.distance_points)
         label_layout.addStretch()
 
         # Layout para los botones
@@ -68,29 +69,42 @@ class MainGui(QWidget):
         button_widget = QWidget()
         button_widget.setLayout(button_layout)
 
-        # QSplitter (contiene el label y los botones)
-        screen_splitter = QSplitter(Qt.Vertical)
+        # QSplitter (contiene el widget de botones y el label de distancia)
+        screen_splitter = QSplitter(Qt.Horizontal)
         screen_splitter.setFrameShape(QFrame.NoFrame)
         label_widget = QWidget()
         label_widget.setLayout(label_layout)
-        screen_splitter.addWidget(label_widget)
         screen_splitter.addWidget(button_widget)
+        screen_splitter.addWidget(label_widget)
+
+        # Nuevo label para mostrar el estado de los botones
+        self.button_status = QLabel("Buttons pressed: None")
+        self.button_status.setAlignment(Qt.AlignCenter)
+        self.button_status.setFixedHeight(20)
 
         # Layout principal
         main_layout = QVBoxLayout()
         main_layout.addWidget(screen_splitter)
+        main_layout.addWidget(self.button_status)
         self.setLayout(main_layout)
 
-        # Timer para actualizar el label con el último valor recibido
+        # Timer para actualizar el label de distancia y el de botones cada 100 ms
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_distance)
-        self.timer.start(100)  # Actualiza cada 100 ms
+        self.timer.timeout.connect(self.update_ui)
+        self.timer.start(100)
 
-    def update_distance(self):
+    def update_ui(self):
+        # Actualizar la distancia
         if self.node.latest_distance is not None:
-            self.floatgui.setText(f"Distance: {self.node.latest_distance:.2f} m")
+            self.distance_points.setText(f"Distance: {self.node.latest_distance:.2f} m")
         else:
-            self.floatgui.setText("Distance: -- m")
+            self.distance_points.setText("Distance: -- m")
+        # Actualizar el estado de los botones mostrando el array completo
+        if self.node.latest_buttons is not None:
+            self.button_status.setText("Buttons: " + str(self.node.latest_buttons))
+        else:
+            self.button_status.setText("Buttons: None")
+
 
 def ros_spin_thread(node: Node):
     rclpy.spin(node)
