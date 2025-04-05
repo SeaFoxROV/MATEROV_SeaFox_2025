@@ -27,5 +27,11 @@ def generate_launch_description():
             name='main_gui',
             output='screen',
         ),
+        Node(
+            package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
+            executable='yolo',  # Reemplaza con el nombre del ejecutable de tu nodo
+            name='yolo',
+            output='screen',
+        ),
 
     ])

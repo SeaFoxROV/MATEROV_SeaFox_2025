@@ -38,6 +38,7 @@ setup(
             #cameras scripts
                 'camera_publisher = ros2_seafox_package.rov.cameras.camera_publisher:main',
                 'realsense = ros2_seafox_package.rov.cameras.realsense:main',
+                'yolo = ros2_seafox_package.rov.cameras.yolo_model.yolo:main',
                 
             #serial
                 'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
