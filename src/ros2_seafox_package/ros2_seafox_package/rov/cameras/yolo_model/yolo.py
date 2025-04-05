@@ -8,7 +8,7 @@ import cv2
 
 class YOLO(Node):
     def __init__(self):
-        super().__init__('yolo_node')
+        super().__init__('yolo')
         self.bridge = CvBridge()
         self.image_publisher = self.create_publisher(Image, 'camera_yolo/image_raw', 10)
         self.image_subscriber = self.create_subscription(

@@ -29,11 +29,11 @@ class UltimateSubscriber(Node):
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
-        self.get_logger().info(f"Received distance: {msg.data:.2f} meters")
+        #self.get_logger().info(f"Received distance: {msg.data:.2f} meters")
 
     def joystick_callback(self, msg: Float32MultiArray):
         self.latest_buttons = msg.data
-        self.get_logger().info(f"Received buttons: {msg.data}")
+        #self.get_logger().info(f"Received buttons: {msg.data}")
 
 class MainGui(QWidget):
     def __init__(self, node: UltimateSubscriber):

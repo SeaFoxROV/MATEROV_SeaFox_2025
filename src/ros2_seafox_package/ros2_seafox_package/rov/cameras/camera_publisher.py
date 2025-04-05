@@ -27,9 +27,11 @@ class CameraPublisher(Node):
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             cap.set(cv2.CAP_PROP_FPS, 30)
             if not cap.isOpened():
-                self.get_logger().error(f"Failed to open camera {i}")
+                print()
+                #self.get_logger().error(f"Failed to open camera {i}")
             else:
-                self.get_logger().info(f"Camera {i} opened successfully.")
+                print()
+                #self.get_logger().info(f"Camera {i} opened successfully.")
 
         # Default active cameras for left and right (using indexes in the cameras_index list)
         self.active_indexes = [0, 1]

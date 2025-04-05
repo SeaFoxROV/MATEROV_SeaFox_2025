@@ -37,7 +37,8 @@ class CameraSubscriber(Node):
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
             self.image_data[index] = cv_image
         except Exception as e:
-            self.get_logger().error(f"Failed to convert image: {e}")
+            print()
+            #self.get_logger().error(f"Failed to convert image: {e}")
 
 class CameraGUI(QWidget):
     def __init__(self, node):

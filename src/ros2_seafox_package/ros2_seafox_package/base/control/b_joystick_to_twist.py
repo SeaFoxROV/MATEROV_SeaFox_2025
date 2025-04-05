@@ -2,21 +2,29 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
-from std_msgs.msg import Bool, Float64
 from std_msgs.msg import Float32MultiArray
 
 class MotionController(Node):
     def __init__(self):
         super().__init__('motion_controller_node')
         # Publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, 'desired_twist', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+
+        self.gripper_pub = self.create_publisher(Float32MultiArray, '/gripper_pwm', 10)
         
         # Subscribers
-        self.create_subscription(Float32MultiArray, 'joystick_data', self.joy_callback, 100)
+        self.create_subscription(Float32MultiArray, '/joystick_data', self.joy_callback, 100)
         #self.create_subscription(Float64, '/control_effort/angular/x', self.roll_effort_callback, 100)
         #self.create_subscription(Float64, '/control_effort/angular/y', self.pitch_effort_callback, 100)
         
         self.last_user_velocity_command = Twist()
+
+        self.pwm_tick = 10
+
+        self.pwms = Float32MultiArray()
+
+        self.pwms.data = [1500.0]*3
+
         self.last_command_time = self.get_clock().now()
         #self.roll_pid_effort = 0.0
         #self.pitch_pid_effort = 0.0
@@ -34,18 +42,26 @@ class MotionController(Node):
         # Map joystick axes to velocity command
         left_joy_x = msg.data[0]      # Sides
         left_joy_y = msg.data[1]      # Forward/Back
-        left_trigger = msg.data[2]    #down
-        right_trigger = msg.data[5]      # up   
-        right_joy_x = msg.data[3]     #angular y
-        right_joy_y = msg.data[4]     #angular x
+        left_trigger = msg.data[2]    #doiwn
+        right_trigger = msg.data[5]      # jup   Z
+        right_joy_x = msg.data[3]
+        right_joy_y = msg.data[4]
 
-        #falta hacer la logica de botones
 
+        #ajustar drift de x ES UNA CONSTANTE LO PUEDES RESTAR ASI NOMAS
+        #ajustar deadzon de y (no es una constante)
         self.last_user_velocity_command.linear.x = -left_joy_y
         self.last_user_velocity_command.linear.y = left_joy_x
         self.last_user_velocity_command.linear.z = (right_trigger - left_trigger)/2
         self.last_user_velocity_command.angular.x = right_joy_x
         self.last_user_velocity_command.angular.y = right_joy_y
+        
+        self.pwms.data[0] += msg.data[15]*self.pwm_tick
+        self.pwms.data[1] += msg.data[14]*self.pwm_tick
+
+        self.pwms.data[2] += (0,(-self.pwm_tick,(self.pwm_tick,0)[bool(msg.data[11])])[bool(msg.data[10])])[bool(msg.data[10] and msg.data[11])]
+
+        
         
         self.last_command_time = self.get_clock().now()
 
@@ -68,6 +84,8 @@ class MotionController(Node):
         cmd_vel.angular.x = self.last_user_velocity_command.angular.x# + self.roll_pid_effort
         cmd_vel.angular.y = self.last_user_velocity_command.angular.y #- self.pitch_pid_effort
         #cmd_vel.angular.z = self.last_user_velocity_command.angular.z
+        
+        self.gripper_pub.publish(self.pwms)
 
         self.cmd_vel_pub.publish(cmd_vel)
 
@@ -78,5 +96,5 @@ def main(args=None):
     node.destroy_node()
     rclpy.shutdown()
 
-if __name__ == '__main__':
+if __name__ == '_main_':
     main()
