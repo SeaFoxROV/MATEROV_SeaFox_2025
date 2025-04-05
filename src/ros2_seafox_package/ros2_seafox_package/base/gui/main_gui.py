@@ -1,73 +1,94 @@
+#!/usr/bin/env python3
 import sys
 import threading
 from PyQt5.QtWidgets import QApplication, QSplitter, QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import Float32
 
 class UltimateSubscriber(Node):
     def __init__(self):
         super().__init__('ultimate_subscriber')
+        # Crear suscripción al tópico "distance_point" con el callback adecuado
+        self.distance_subscription = self.create_subscription(
+            Float32,
+            'distance_point',
+            self.distance_callback,
+            10
+        )
+        self.latest_distance = None
+
+    def distance_callback(self, msg: Float32):
+        self.latest_distance = msg.data
+        self.get_logger().info(f"Received distance: {msg.data:.2f} meters")
 
 class MainGui(QWidget):
-    def __init__(self, node):
+    def __init__(self, node: UltimateSubscriber):
         super().__init__()
         self.node = node 
 
         self.setWindowTitle('MainGUI')
         self.setFixedSize(1320, 960)
 
-        # Label
-        self.floatgui = QLabel("Float")
+        # Label para mostrar la distancia recibida
+        self.floatgui = QLabel("Distance: -- m")
         self.floatgui.setFixedSize(480, 20)
-        self.floatgui.setAlignment(Qt.AlignCenter)  # Align text inside the label
+        self.floatgui.setAlignment(Qt.AlignCenter)
 
-        # Buttons
+        # Botones de ejemplo
         self.graficar = QPushButton("Graficar")
         self.graficar.setFixedSize(240, 20)
-
         self.conexion = QPushButton("Conexion")
         self.conexion.setFixedSize(240, 20)
 
-        # Layout for label (centered)
+        # Layout para el label (centrado)
         label_layout = QHBoxLayout()
         label_layout.addStretch()
         label_layout.addWidget(self.floatgui)
         label_layout.addStretch()
 
-        # Layout for buttons
+        # Layout para los botones
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.conexion)
         button_layout.addWidget(self.graficar)
 
-        # Wrapping buttons in a widget to use with QSplitter
+        # Widget que envuelve los botones para usar con QSplitter
         button_widget = QWidget()
         button_widget.setLayout(button_layout)
 
-        # Splitter (contains label & buttons)
+        # QSplitter (contiene el label y los botones)
         screen_splitter = QSplitter(Qt.Vertical)
         screen_splitter.setFrameShape(QFrame.NoFrame)
-        
-        # Wrapping label layout in a widget for QSplitter
         label_widget = QWidget()
         label_widget.setLayout(label_layout)
-
         screen_splitter.addWidget(label_widget)
         screen_splitter.addWidget(button_widget)
 
-        # Main layout
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(screen_splitter)
-        self.setLayout(self.layout)
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(screen_splitter)
+        self.setLayout(main_layout)
 
-def ros_spin_thread(node):
+        # Timer para actualizar el label con el último valor recibido
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_distance)
+        self.timer.start(100)  # Actualiza cada 100 ms
+
+    def update_distance(self):
+        if self.node.latest_distance is not None:
+            self.floatgui.setText(f"Distance: {self.node.latest_distance:.2f} m")
+        else:
+            self.floatgui.setText("Distance: -- m")
+
+def ros_spin_thread(node: Node):
     rclpy.spin(node)
 
 def main(args=None):
     rclpy.init(args=args)
     sub = UltimateSubscriber()
     
-    # Start ROS2 spinning in a separate thread
+    # Ejecutar el spin de ROS2 en un hilo separado para no bloquear la GUI
     ros_thread = threading.Thread(target=ros_spin_thread, args=(sub,), daemon=True)
     ros_thread.start()
     
@@ -75,9 +96,9 @@ def main(args=None):
     gui = MainGui(sub)
     gui.show()
     
-    sys.exit(app.exec_())
-
-    rclpy.shutdown()  # Ensure ROS2 is properly shutdown
+    exit_code = app.exec_()
+    rclpy.shutdown()
+    sys.exit(exit_code)
 
 if __name__ == '__main__':
     main()

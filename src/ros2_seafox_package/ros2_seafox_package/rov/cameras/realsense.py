@@ -7,6 +7,8 @@ import numpy as np
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32
+
 
 class RealSenseNode(Node):
     def __init__(self):
@@ -18,6 +20,7 @@ class RealSenseNode(Node):
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)    # Stream de profundidad
 
         self.image_publisher = self.create_publisher(Image, 'camera_realsense/image_raw', 10)
+        self.distance_publisher = self.create_publisher(Float32, 'distance_point', 10)
         self.bridge = CvBridge()
 
         # Suscripción para recibir la posición del pixel desde la GUI
@@ -67,13 +70,12 @@ class RealSenseNode(Node):
         self.points.append((x, y, point_3d))
         self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
 
-        # Si se tienen dos puntos, calcular y loggear la distancia
         if len(self.points) == 2:
             p1 = np.array(self.points[0][2])
             p2 = np.array(self.points[1][2])
             distance = np.linalg.norm(p1 - p2)
 
-            # Ajustar la distancia según tus rangos (se reasigna correctamente)
+            # Ajuste de distancia
             if 1 <= distance <= 1.10:
                 distance = distance - 3.4
             elif 1.11 <= distance <= 1.39:
@@ -87,9 +89,11 @@ class RealSenseNode(Node):
             elif 2 <= distance <= 2.10:
                 distance = distance - 12.8
 
+            # Convertir a mensaje Float32 y publicarlo
+            msg = Float32()
+            msg.data = float(distance)
+            self.distance_publisher.publish(msg)
             self.get_logger().info(f"Distance between points: {distance:.2f} meters")
-            self.get_logger().info(f"Depth at last point: {depth:.2f} meters")
-
     def capture_frame(self):
         # Esperar y obtener frames de profundidad y color
         frames = self.pipeline.wait_for_frames()
