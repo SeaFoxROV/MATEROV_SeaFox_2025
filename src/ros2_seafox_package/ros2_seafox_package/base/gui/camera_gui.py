@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QComboBox, QSplitter
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget, QVBoxLayout, QComboBox, QSplitter
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
 
@@ -14,14 +14,20 @@ class CameraSubscriber(Node):
     def __init__(self):
         super().__init__('camera_subscriber')
         self.bridge = CvBridge()
-        self.image_data = [None, None, None]  # store latest frames for left, right, and realsense
+        self.image_data = [None, None, None]  # almacena las últimas imágenes para left, right y realsense
 
         self.topic_names = [
-            'camera_left/image_raw',
-            'camera_right/image_raw',
-            'camera_realsense/image_raw'
+            'vcamera_left/image_raw',
+            'vcamera_right/image_raw',
+            'vcamera_realsense/image_raw'
         ]
-        # Create subscribers for the three camera topics
+
+        self.yolo_topic_names = [
+            'yolocamera_left/image_raw',
+            'yolocamera_right/image_raw',
+            'camera_yolo/image_raw'
+        ]
+        # Subscriptores para los tópicos de cámaras normales
         self.subscribers = []
         for i, topic in enumerate(self.topic_names):
             sub = self.create_subscription(
@@ -32,27 +38,40 @@ class CameraSubscriber(Node):
             )
             self.subscribers.append(sub)
 
+        # Subscriptores para los tópicos de cámaras con YOLO
+        self.yolosubscribers = []
+        for i, topic in enumerate(self.yolo_topic_names):
+            yolo_sub = self.create_subscription(
+                Image,
+                topic,
+                lambda msg, idx=i: self.callback(msg, idx),
+                10
+            )
+            self.yolosubscribers.append(yolo_sub)
+
     def callback(self, msg, index):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
             self.image_data[index] = cv_image
         except Exception as e:
-            print()
-            #self.get_logger().error(f"Failed to convert image: {e}")
+            print(f"Error converting image: {e}")
 
 class CameraGUI(QWidget):
     def __init__(self, node):
         super().__init__()
-        self.node = node  # ROS2 subscriber node
-
-        # Create a publisher to send the selected camera indexes to the publisher node
-        self.selection_pub = self.node.create_publisher(Int32MultiArray, 'camera_selection', 10)
-        self.pixel_pos = self.node.create_publisher(Int32MultiArray, 'pixel_position', 10)
+        self.node = node  # Nodo ROS2 suscriptor
 
         self.setWindowTitle('ROV Camera Viewer')
         self.setFixedSize(1320, 960)
 
-        # Dropdown selector for different pairs of cameras
+        # Publicador para la selección de cámaras (se envían pares de índices)
+        self.camera_selection_pub = self.node.create_publisher(Int32MultiArray, 'camera_selection', 10)
+        # Publicador para el modo (0: normal, 1: YOLO)
+        self.mode_pub = self.node.create_publisher(Int32MultiArray, 'mode_selection', 10)
+        # Publicador para la posición de píxeles (ya implementado)
+        self.pixel_pos = self.node.create_publisher(Int32MultiArray, 'pixel_position', 10)
+
+        # Dropdown selector para pares de cámaras
         self.dropdown = QComboBox()
         self.dropdown.addItems([
             'Camera 1 and 2',
@@ -61,13 +80,19 @@ class CameraGUI(QWidget):
         self.dropdown.setFixedSize(1320, 20)
         self.dropdown.currentIndexChanged.connect(self.change_camera)
 
-        # Labels for displaying cameras
+        # Labels para mostrar las imágenes
         self.label_realsense = QLabel()
         self.label_realsense.setFixedSize(640, 480)
         self.label_left = QLabel()
         self.label_left.setFixedSize(640, 480)
         self.label_right = QLabel()
         self.label_right.setFixedSize(640, 480)
+
+        # Botón para activar/desactivar YOLO
+        self.yolobtn = QPushButton("Activar YOLO", self)
+        self.yolobtn.setCheckable(True)
+        self.yolobtn.clicked.connect(self.toggle_view)
+        self.yolobtn.setFixedSize(50, 100)
 
         # Layout
         layout = QVBoxLayout()
@@ -79,48 +104,82 @@ class CameraGUI(QWidget):
         splitter.addWidget(self.label_left)
         splitter.addWidget(self.label_right)
         layout.addWidget(splitter)
-        layout.addWidget(self.label_realsense)
+        splitter2 = QSplitter(Qt.Horizontal)
+        splitter2.addWidget(self.label_realsense)
+        splitter2.addWidget(self.yolobtn)
+        layout.addWidget(splitter2)
         self.setLayout(layout)
 
-        # Default camera pair (using 0-indexed camera numbers corresponding to physical devices)
-        # For example: selecting "Camera 1 and 2" corresponds to indexes [0, 1]
+        # Par de cámaras por defecto (índices 0 y 1)
         self.current_camera_pair = [0, 1]
-
-        # Publish the default camera pair
         self.send_camera_selection(self.current_camera_pair)
 
-        # Timer to update the GUI with new images
+        # Publica el modo por defecto (0: normal)
+        self.send_mode_selection(0)
+
+        # Timer para actualizar la GUI (~30 FPS)
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_image)
-        self.timer.start(33)  # ~30 FPS
+        self.timer.start(33)
 
     def change_camera(self, index):
-        # Mapping selection index to a pair of camera indexes (0 to 3)
-        # Modify these mappings as needed.
+        # Mapea el índice del dropdown a un par de cámaras (ajusta según tus dispositivos)
         if index == 0:
             self.current_camera_pair = [0, 1]
         elif index == 1:
             self.current_camera_pair = [2, 3]
-
         self.send_camera_selection(self.current_camera_pair)
 
+    def toggle_view(self):
+        # Cuando se pulsa el botón, se actualiza el texto y se publica el modo en el tópico mode_selection
+        if self.yolobtn.isChecked():
+            self.yolobtn.setText("Desactivar YOLO")
+            self.send_mode_selection(1)  # 1 para YOLO
+            self.update_yolo_images(True)
+        else:
+            self.yolobtn.setText("Activar YOLO")
+            self.send_mode_selection(0)  # 0 para imágenes normales
+            self.update_yolo_images(False)
+
     def send_camera_selection(self, pair):
-        # Create and publish an Int32MultiArray message containing the two camera indexes.
         msg = Int32MultiArray()
         msg.data = pair
-        self.selection_pub.publish(msg)
+        self.camera_selection_pub.publish(msg)
         print(f"Published new camera selection: {pair}")
 
-    def getPos(self , event):
+    def send_mode_selection(self, mode):
+        msg = Int32MultiArray()
+        msg.data = [mode]
+        self.mode_pub.publish(msg)
+        print(f"Published new mode selection: {mode}")
+
+    def getPos(self, event):
         x = event.pos().x()
         y = event.pos().y() 
         msg = Int32MultiArray()
-        msg.data = [x,y]
+        msg.data = [x, y]
         self.pixel_pos.publish(msg)
 
+    def update_yolo_images(self, enable_yolo):
+        # Actualiza las imágenes de las cámaras izquierda y derecha según si se activa YOLO o no
+        if enable_yolo:
+            self.label_left.setPixmap(self.get_pixmap(self.node.image_data[0], True))
+            self.label_right.setPixmap(self.get_pixmap(self.node.image_data[1], True))
+        else:
+            self.label_left.setPixmap(self.get_pixmap(self.node.image_data[0], False))
+            self.label_right.setPixmap(self.get_pixmap(self.node.image_data[1], False))
+
+    def get_pixmap(self, frame, is_yolo):
+        if frame is not None:
+            height, width, channel = frame.shape
+            bytes_per_line = 3 * width
+            q_img = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+            return QPixmap.fromImage(q_img).scaled(640, 480)
+        else:
+            return QPixmap()
 
     def update_image(self):
-        # Update RealSense image
+        # Actualiza la imagen de RealSense
         frame_realsense = self.node.image_data[2]
         if frame_realsense is not None:
             height, width, channel = frame_realsense.shape
@@ -132,7 +191,7 @@ class CameraGUI(QWidget):
         else:
             self.label_realsense.setText("No signal from RealSense")
 
-        # Update left image
+        # Actualiza la imagen de la cámara izquierda
         frame_left = self.node.image_data[0]
         if frame_left is not None:
             height, width, channel = frame_left.shape
@@ -143,7 +202,7 @@ class CameraGUI(QWidget):
         else:
             self.label_left.setText("No signal from left camera")
 
-        # Update right image
+        # Actualiza la imagen de la cámara derecha
         frame_right = self.node.image_data[1]
         if frame_right is not None:
             height, width, channel = frame_right.shape
@@ -158,15 +217,15 @@ def main(args=None):
     rclpy.init(args=args)
     app = QApplication(sys.argv)
 
-    # Create the ROS2 subscriber node
+    # Crear el nodo ROS2 suscriptor
     camera_node = CameraSubscriber()
 
-    # Create the GUI and pass the ROS node to it
+    # Crear la GUI y pasarle el nodo ROS2
     gui = CameraGUI(camera_node)
     gui.showMaximized()
     gui.show()
 
-    # Timer to process ROS callbacks
+    # Timer para procesar los callbacks de ROS
     spin_timer = QTimer()
     spin_timer.timeout.connect(lambda: rclpy.spin_once(camera_node, timeout_sec=0.01))
     spin_timer.start(10)

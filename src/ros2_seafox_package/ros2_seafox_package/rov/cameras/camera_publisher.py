@@ -59,7 +59,8 @@ class CameraPublisher(Node):
 
             self.get_logger().info(f"Active camera indexes updated: {self.active_indexes}")
         else:
-            self.get_logger().warning("Received invalid camera selection (expected 2 indexes).")
+            print()
+            #self.get_logger().warning("Received invalid camera selection (expected 2 indexes).")
 
     def timer_callback(self):
         # For left (publisher index 0) and right (publisher index 1) cameras:
@@ -70,8 +71,10 @@ class CameraPublisher(Node):
                     msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                     self.image_publishers[pub_idx].publish(msg)
                 else:
-                    self.get_logger().warning(f"Camera {cam_idx} frame not available.")
+                    print()
+                    #self.get_logger().warning(f"Camera {cam_idx} frame not available.")
             else:
+                
                 self.get_logger().warning(f"Invalid camera index: {cam_idx}")
 
     def destroy_node(self):

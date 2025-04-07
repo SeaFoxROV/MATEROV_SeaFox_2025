@@ -42,7 +42,7 @@ class RealSenseNode(Node):
         self.timer = self.create_timer(0.033, self.capture_frame)
 
         # Para visualizar la imagen (opcional)
-        cv2.namedWindow('RealSense')
+        #cv2.namedWindow('RealSense')
 
     def pixelpos(self, pos):
         # Se recibe el mensaje con la posición del pixel desde la GUI

@@ -35,8 +35,8 @@ class RosserialNode(Node):
             self.get_logger().error(f"No se pudo conectar al Arduino: {e}")
 
         # Timer para ejecutar la función cada 10 ms
-        self.create_timer(0.01, self.update_motors)
-        self.create_timer(0.01, self.read_sensors)  # Nuevo timer para leer sensores
+        self.create_timer(0.05, self.update_motors)
+        self.create_timer(0.05, self.read_sensors)  # Nuevo timer para leer sensores
 
     def cmd_callback(self, msg):
         """ Callback que actualiza los valores de los motores. """
