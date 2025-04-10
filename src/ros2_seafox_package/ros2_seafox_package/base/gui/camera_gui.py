@@ -81,12 +81,10 @@ class CameraGUI(QWidget):
         self.dropdown.currentIndexChanged.connect(self.change_camera)
 
         # Labels para mostrar las imágenes
-        self.label_realsense = QLabel()
-        self.label_realsense.setFixedSize(640, 480)
         self.label_left = QLabel()
-        self.label_left.setFixedSize(640, 480)
+        self.label_left.setFixedSize(900, 800)
         self.label_right = QLabel()
-        self.label_right.setFixedSize(640, 480)
+        self.label_right.setFixedSize(900, 800)
 
         # Botón para activar/desactivar YOLO
         self.yolobtn = QPushButton("Activar YOLO", self)
@@ -105,7 +103,6 @@ class CameraGUI(QWidget):
         splitter.addWidget(self.label_right)
         layout.addWidget(splitter)
         splitter2 = QSplitter(Qt.Horizontal)
-        splitter2.addWidget(self.label_realsense)
         splitter2.addWidget(self.yolobtn)
         layout.addWidget(splitter2)
         self.setLayout(layout)
@@ -174,22 +171,11 @@ class CameraGUI(QWidget):
             height, width, channel = frame.shape
             bytes_per_line = 3 * width
             q_img = QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
-            return QPixmap.fromImage(q_img).scaled(640, 480)
+            return QPixmap.fromImage(q_img).scaled(900, 800)
         else:
             return QPixmap()
 
     def update_image(self):
-        # Actualiza la imagen de RealSense
-        frame_realsense = self.node.image_data[2]
-        if frame_realsense is not None:
-            height, width, channel = frame_realsense.shape
-            bytes_per_line = 3 * width
-            q_img = QImage(frame_realsense.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
-            pixmap = QPixmap.fromImage(q_img).scaled(self.label_realsense.width(), self.label_realsense.height())
-            self.label_realsense.setPixmap(pixmap)
-            self.label_realsense.mousePressEvent = self.getPos
-        else:
-            self.label_realsense.setText("No signal from RealSense")
 
         # Actualiza la imagen de la cámara izquierda
         frame_left = self.node.image_data[0]
@@ -198,7 +184,7 @@ class CameraGUI(QWidget):
             bytes_per_line = 3 * width
             q_img = QImage(frame_left.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(q_img).scaled(self.label_left.width(), self.label_left.height())
-            self.picture_field.setPixmap(self.pixmap.scaled(self.picture_field.width()-8, self.picture_field.height()-8, Qt.KeepAspectRatio))
+            # self.picture_field.setPixmap(self.pixmap.scaled(self.picture_field.width()-8, self.picture_field.height()-8, Qt.KeepAspectRatio))
             self.label_left.setPixmap(pixmap)
         else:
             self.label_left.setText("No signal from left camera")
