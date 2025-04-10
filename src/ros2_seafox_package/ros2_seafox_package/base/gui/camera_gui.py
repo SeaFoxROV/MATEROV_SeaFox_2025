@@ -198,6 +198,7 @@ class CameraGUI(QWidget):
             bytes_per_line = 3 * width
             q_img = QImage(frame_left.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(q_img).scaled(self.label_left.width(), self.label_left.height())
+            self.picture_field.setPixmap(self.pixmap.scaled(self.picture_field.width()-8, self.picture_field.height()-8, Qt.KeepAspectRatio))
             self.label_left.setPixmap(pixmap)
         else:
             self.label_left.setText("No signal from left camera")
