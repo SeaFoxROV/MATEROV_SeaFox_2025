@@ -8,7 +8,7 @@ class MotionController(Node):
     def __init__(self):
         super().__init__('motion_controller_node')
         # Publishers
-        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_vel_pub = self.create_publisher(Twist, '/desired_twist', 10)
 
         self.gripper_pub = self.create_publisher(Float32MultiArray, '/gripper_pwm', 10)
         
@@ -85,7 +85,7 @@ class MotionController(Node):
         cmd_vel.angular.y = self.last_user_velocity_command.angular.y #- self.pitch_pid_effort
         #cmd_vel.angular.z = self.last_user_velocity_command.angular.z
         
-        self.gripper_pub.publish(self.pwms)
+        #self.gripper_pub.publish(self.pwms)
 
         self.cmd_vel_pub.publish(cmd_vel)
 
