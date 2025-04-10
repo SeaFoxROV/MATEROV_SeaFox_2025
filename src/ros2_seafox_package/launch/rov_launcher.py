@@ -15,6 +15,13 @@ def generate_launch_description():
             name='camera_publisher',
             output='screen',
         ),
+        Node(
+            package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
+            executable='realsense',  # Reemplaza con el nombre del ejecutable de tu nodo
+            name='realsense',
+            output='screen',
+        ),
+
         
     
     ])
