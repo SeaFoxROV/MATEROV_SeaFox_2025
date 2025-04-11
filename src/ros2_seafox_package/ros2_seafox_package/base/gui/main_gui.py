@@ -1,24 +1,127 @@
 #!/usr/bin/env python3
 import sys
 import threading
-from PyQt5.QtWidgets import QApplication, QSplitter, QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
+from PyQt5.QtWidgets import (
+    QApplication, QSplitter, QLabel, QWidget,
+    QPushButton, QVBoxLayout, QHBoxLayout, QFrame
+)
 from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QPixmap, QPainter, QColor
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32, Float32MultiArray
 
+# --- Widget para mostrar el control de Xbox ---
+class XboxControlWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.bg_image = QPixmap("src/ros2_seafox_package/ros2_seafox_package/imgs/xbox.png")  # Ruta a tu imagen
+        self.buttons_state = [0] * 16
+        
+        # Mapeo de botones digitales a sus posiciones en la imagen (ejemplo)
+        self.button_positions = {
+            6: (300, 200),  # A
+            7: (350, 170),  # B
+            8: (250, 170),  # X
+            9: (300, 140),  # Y
+            10: (50, 50),   # LT
+            11: (450, 50),  # RT
+            12: (200, 100), # BACK
+            13: (350, 100), # SELECT
+            14: (150, 250), # crossx (parte del D-pad)
+            15: (150, 300)  # crossy (parte del D-pad)
+        }
+        # Ubicaciones base para los sticks analógicos (ejemplo)
+        self.analog_positions = {
+            0: (100, 250),  # Left Stick: posición neutra
+            3: (400, 250)   # Right Stick: posición neutra
+        }
+        self.setMinimumSize(600, 400)
+
+    def update_buttons(self, buttons_data):
+        if len(buttons_data) != 16:
+            print("Error: se esperaban 16 elementos en buttons_data")
+            return
+        self.buttons_state = buttons_data
+        self.update()  # Solicita repintar el widget
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        # Dibuja la imagen de fondo; si no se carga, se pinta un fondo gris
+        if not self.bg_image.isNull():
+            painter.drawPixmap(self.rect(), self.bg_image)
+        else:
+            painter.fillRect(self.rect(), QColor(100, 100, 100))
+        
+        # --- Dibujar indicadores para botones digitales ---
+        for idx, pos in self.button_positions.items():
+            if idx >= len(self.buttons_state):
+                continue
+            # Se pinta rojo si está presionado, o gris semitransparente si no
+            if self.buttons_state[idx]:
+                painter.setBrush(QColor("red"))
+            else:
+                painter.setBrush(QColor(200, 200, 200, 100))
+            radius = 15
+            painter.drawEllipse(
+                int(pos[0] - radius), int(pos[1] - radius),
+                int(radius * 2), int(radius * 2)
+            )
+        
+        # --- Dibujar indicadores para sticks analógicos ---
+        # Stick izquierdo: índices 0 y 1 (leftx, lefty)
+        leftx = self.buttons_state[0]
+        lefty = self.buttons_state[1]
+        lx, ly = self.analog_positions[0]
+        offset = 20  # factor de desplazamiento visual
+        adjusted_left_x = int(lx + leftx * offset)
+        adjusted_left_y = int(ly + lefty * offset)
+        painter.setBrush(QColor("blue"))
+        painter.drawEllipse(
+            adjusted_left_x - 10, adjusted_left_y - 10,
+            20, 20
+        )
+        
+        # Stick derecho: índices 3 y 4 (rightx, righty)
+        rightx = self.buttons_state[3]
+        righty = self.buttons_state[4]
+        rx, ry = self.analog_positions[3]
+        adjusted_right_x = int(rx + rightx * offset)
+        adjusted_right_y = int(ry + righty * offset)
+        painter.setBrush(QColor("green"))
+        painter.drawEllipse(
+            adjusted_right_x - 10, adjusted_right_y - 10,
+            20, 20
+        )
+        
+        # --- Dibujar indicadores para triggers ---
+        # Left trigger: índice 2 (dibuja una barra)
+        left_trigger = self.buttons_state[2]
+        if left_trigger:
+            painter.setBrush(QColor("orange"))
+            painter.drawRect(
+                50, 10, int(left_trigger * 50), 10
+            )
+        # Right trigger: índice 5
+        right_trigger = self.buttons_state[5]
+        if right_trigger:
+            painter.setBrush(QColor("orange"))
+            painter.drawRect(
+                450, 10, int(right_trigger * 50), 10
+            )
+        # No es necesario llamar a painter.end() ya que se finaliza al salir del método.
+
+# --- Nodo ROS2 que se suscribe a distance_point y joystick_data ---
 class UltimateSubscriber(Node):
     def __init__(self):
         super().__init__('ultimate_subscriber')
-        # Suscripción al tópico "distance_point"
         self.distance_subscription = self.create_subscription(
             Float32,
             'distance_point',
             self.distance_callback,
             10
         )
-        # Suscripción al tópico "joystick_data"
-        self.joystick_buttons = self.create_subscription(
+        self.joystick_subscription = self.create_subscription(
             Float32MultiArray,
             'joystick_data',
             self.joystick_callback,
@@ -29,47 +132,39 @@ class UltimateSubscriber(Node):
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
-        #self.get_logger().info(f"Received distance: {msg.data:.2f} meters")
 
     def joystick_callback(self, msg: Float32MultiArray):
         self.latest_buttons = msg.data
-        #self.get_logger().info(f"Received buttons: {msg.data}")
 
+# --- Interfaz principal ---
 class MainGui(QWidget):
     def __init__(self, node: UltimateSubscriber):
         super().__init__()
         self.node = node 
-
         self.setWindowTitle('MainGUI')
         self.setFixedSize(1320, 960)
 
-        # Label para mostrar la distancia recibida
         self.distance_points = QLabel("Distance: -- m")
         self.distance_points.setFixedSize(480, 20)
         self.distance_points.setAlignment(Qt.AlignCenter)
 
-        # Botones de ejemplo
         self.graficar = QPushButton("Graficar")
         self.graficar.setFixedSize(240, 20)
         self.conexion = QPushButton("Conexion")
         self.conexion.setFixedSize(240, 20)
 
-        # Layout para el label de la distancia (centrado)
         label_layout = QHBoxLayout()
         label_layout.addStretch()
         label_layout.addWidget(self.distance_points)
         label_layout.addStretch()
 
-        # Layout para los botones
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.conexion)
         button_layout.addWidget(self.graficar)
 
-        # Widget que envuelve los botones para usar con QSplitter
         button_widget = QWidget()
         button_widget.setLayout(button_layout)
 
-        # QSplitter (contiene el widget de botones y el label de distancia)
         screen_splitter = QSplitter(Qt.Horizontal)
         screen_splitter.setFrameShape(QFrame.NoFrame)
         label_widget = QWidget()
@@ -77,34 +172,34 @@ class MainGui(QWidget):
         screen_splitter.addWidget(button_widget)
         screen_splitter.addWidget(label_widget)
 
-        # Nuevo label para mostrar el estado de los botones
         self.button_status = QLabel("Buttons pressed: None")
         self.button_status.setAlignment(Qt.AlignCenter)
         self.button_status.setFixedHeight(20)
 
-        # Layout principal
+        # Instanciamos el widget del control Xbox
+        self.xbox_widget = XboxControlWidget()
+        self.xbox_widget.setFixedSize(600, 400)
+
         main_layout = QVBoxLayout()
         main_layout.addWidget(screen_splitter)
         main_layout.addWidget(self.button_status)
+        main_layout.addWidget(self.xbox_widget)
         self.setLayout(main_layout)
 
-        # Timer para actualizar el label de distancia y el de botones cada 100 ms
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_ui)
         self.timer.start(100)
 
     def update_ui(self):
-        # Actualizar la distancia
         if self.node.latest_distance is not None:
             self.distance_points.setText(f"Distance: {self.node.latest_distance:.2f} m")
         else:
             self.distance_points.setText("Distance: -- m")
-        # Actualizar el estado de los botones mostrando el array completo
         if self.node.latest_buttons is not None:
             self.button_status.setText("Buttons: " + str(self.node.latest_buttons))
+            self.xbox_widget.update_buttons(self.node.latest_buttons)
         else:
             self.button_status.setText("Buttons: None")
-
 
 def ros_spin_thread(node: Node):
     rclpy.spin(node)
@@ -113,7 +208,6 @@ def main(args=None):
     rclpy.init(args=args)
     sub = UltimateSubscriber()
     
-    # Ejecutar el spin de ROS2 en un hilo separado para no bloquear la GUI
     ros_thread = threading.Thread(target=ros_spin_thread, args=(sub,), daemon=True)
     ros_thread.start()
     
