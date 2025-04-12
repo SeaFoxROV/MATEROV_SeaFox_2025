@@ -16,25 +16,25 @@ class XboxControlWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.bg_image = QPixmap("src/ros2_seafox_package/ros2_seafox_package/imgs/xbox.png")  # Ruta a tu imagen
-        self.buttons_state = [0] * 16
+        self.buttons_state = [0] * 16 
         
         # Mapeo de botones digitales a sus posiciones en la imagen (ejemplo)
         self.button_positions = {
-            6: (300, 200),  # A
-            7: (350, 170),  # B
-            8: (250, 170),  # X
-            9: (300, 140),  # Y
-            10: (50, 50),   # LT
-            11: (450, 50),  # RT
-            12: (200, 100), # BACK
-            13: (350, 100), # SELECT
-            14: (150, 250), # crossx (parte del D-pad)
-            15: (150, 300)  # crossy (parte del D-pad)
+            6: (305, 158),  # A
+            7: (332, 130),  # B
+            8: (273, 130),  # X
+            9: (305, 100),  # Y
+            10: (100, 57),   # LT
+            11: (320, 57),  # RT
+            12: (170, 130), # BACK
+            13: (235, 130), # SELECT
+            14: (167, 195), # crossx (parte del D-pad)
+            15: (147, 170)  # crossy (parte del D-pad)
         }
         # Ubicaciones base para los sticks analógicos (ejemplo)
         self.analog_positions = {
-            0: (100, 250),  # Left Stick: posición neutra
-            3: (400, 250)   # Right Stick: posición neutra
+            0: (100, 130),  # Left Stick: posición neutra
+            3: (255, 190)   # Right Stick: posición neutra
         }
         self.setMinimumSize(600, 400)
 
@@ -57,14 +57,25 @@ class XboxControlWidget(QWidget):
         for idx, pos in self.button_positions.items():
             if idx >= len(self.buttons_state):
                 continue
-            # Se pinta rojo si está presionado, o gris semitransparente si no
+
+            # Para crossx y crossy, si el valor es -1 se asigna una nueva posición
+            if idx == 14 and self.buttons_state[idx] == -1:
+                # Si cross x es -1, se indicará "izquierda" en otra posición
+                new_pos = (127, 195)  # Coordenadas para indicar izquierda (ajusta según tus necesidades)
+            elif idx == 15 and self.buttons_state[idx] == -1:
+                # Si cross y es -1, se indicará "abajo" en otra posición
+                new_pos = (147, 220)  # Coordenadas para indicar abajo (ajusta según tus necesidades)
+            else:
+                new_pos = pos
+
+            # Se pinta rojo si el botón está activado (valor distinto de 0 o -1 según se requiera)
             if self.buttons_state[idx]:
                 painter.setBrush(QColor("red"))
             else:
                 painter.setBrush(QColor(200, 200, 200, 100))
             radius = 15
             painter.drawEllipse(
-                int(pos[0] - radius), int(pos[1] - radius),
+                int(new_pos[0] - radius), int(new_pos[1] - radius),
                 int(radius * 2), int(radius * 2)
             )
         
@@ -107,9 +118,9 @@ class XboxControlWidget(QWidget):
         if right_trigger:
             painter.setBrush(QColor("orange"))
             painter.drawRect(
-                450, 10, int(right_trigger * 50), 10
+                305, 10, int(right_trigger * 50), 10
             )
-        # No es necesario llamar a painter.end() ya que se finaliza al salir del método.
+        # Al salir del método se libera el contexto del pintor.
 
 # --- Nodo ROS2 que se suscribe a distance_point y joystick_data ---
 class UltimateSubscriber(Node):
@@ -172,18 +183,20 @@ class MainGui(QWidget):
         screen_splitter.addWidget(button_widget)
         screen_splitter.addWidget(label_widget)
 
+        screen_splitter2 = QSplitter(Qt.Horizontal)
+        # Instanciamos el widget del control Xbox
+        self.xbox_widget = XboxControlWidget()
+        self.xbox_widget.setFixedSize(400, 400)
+        screen_splitter2.addWidget(self.xbox_widget)
+
         self.button_status = QLabel("Buttons pressed: None")
         self.button_status.setAlignment(Qt.AlignCenter)
         self.button_status.setFixedHeight(20)
 
-        # Instanciamos el widget del control Xbox
-        self.xbox_widget = XboxControlWidget()
-        self.xbox_widget.setFixedSize(600, 400)
-
         main_layout = QVBoxLayout()
         main_layout.addWidget(screen_splitter)
         main_layout.addWidget(self.button_status)
-        main_layout.addWidget(self.xbox_widget)
+        main_layout.addWidget(screen_splitter2)
         self.setLayout(main_layout)
 
         self.timer = QTimer(self)
