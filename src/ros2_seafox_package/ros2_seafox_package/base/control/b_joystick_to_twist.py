@@ -50,10 +50,10 @@ class MotionController(Node):
 
         #ajustar drift de x ES UNA CONSTANTE LO PUEDES RESTAR ASI NOMAS
         #ajustar deadzon de y (no es una constante)
-        self.last_user_velocity_command.linear.x = -left_joy_y
-        self.last_user_velocity_command.linear.y = left_joy_x
+        self.last_user_velocity_command.linear.y = -left_joy_y
+        self.last_user_velocity_command.linear.x = left_joy_x
         self.last_user_velocity_command.linear.z = (right_trigger - left_trigger)/2
-        self.last_user_velocity_command.angular.x = right_joy_x
+        self.last_user_velocity_command.angular.z = right_joy_x
         self.last_user_velocity_command.angular.y = right_joy_y
         
         self.pwms.data[0] += msg.data[15]*self.pwm_tick
@@ -83,7 +83,7 @@ class MotionController(Node):
         cmd_vel.linear.z = self.last_user_velocity_command.linear.z
         cmd_vel.angular.x = self.last_user_velocity_command.angular.x# + self.roll_pid_effort
         cmd_vel.angular.y = self.last_user_velocity_command.angular.y #- self.pitch_pid_effort
-        #cmd_vel.angular.z = self.last_user_velocity_command.angular.z
+        cmd_vel.angular.z = self.last_user_velocity_command.angular.z
         
         #self.gripper_pub.publish(self.pwms)
 

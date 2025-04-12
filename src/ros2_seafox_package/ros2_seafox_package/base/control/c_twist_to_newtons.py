@@ -32,27 +32,41 @@ class twist_to_newtons(Node):
         super().__init__("twist_to_newtons")
 
         self.motor_positions = [ # [X, Y, Z] Posiciones de los motores respecto al centro del ROV
-            [ 0.200,  0.130,  0.004], # Motor 0
-            [ 0.200, -0.130,  0.047], # Motor 1
-            [-0.200,  0.130,  0.047], # Motor 2
-            [-0.200, -0.130,  0.047], # Motor 3
-            [ 0.198,  0.156, -0.038], # Motor 4
-            [ 0.198, -0.156, -0.038], # Motor 5
-            [ 0.0  ,  0    ,  0],
-            [ 0.0  ,  0    ,  0]
+            [-0.136 ,  0.1687, 0.048], # Motor 1
+            [ 0.1406,  0.1687, 0.048], # Motor 2
+            [ 0.1406, -0.0010, 0.031], # Motor 3
+            [-0.1406, -0.0010, 0.031], # Motor 4
+            [ 0.1896, -0.1270,-0.061], # Motor 5
+            [-0.1896, -0.1270,-0.061],     
+            [0,0,0],
+            [0,0,0]
             #[-0.198,  0.156, -0.038], # Motor 6
             #[-0.198, -0.156, -0.038]  # Motor 7
+           
         ]
+        """
+        Z and Y axis exchanged
+
+
+        
+            [-0.136 ,  0.048,  0.1946], # Motor 1
+            [ 0.1400, -0.021,  0.1687], # Motor 2
+            [ 0.1412,  0.031, -0.0010], # Motor 3
+            [-0.1406,  0.031, -0.0010], # Motor 4
+            [ 0.2130, -0.061, -0.1270], # Motor 5
+            [-0.1896, -0.061, -0.1309], # Motor 6        
+        """
         
         self.motor_thrusts = [ # [X, Y, Z] Fuerzas descompuestas respecto a la orientacion del ROV
-            [    0.0,     0.0, -1.0],   # Motor 0
-            [    0.0,     0.0,  1.0],   # Motor 1 
-            [    0.0,     0.0,  1.0],   # Motor 2
-            [    0.0,     0.0, -1.0],   # Motor 3
-            [-0.7071,  0.7071,  0.0],   # Motor 4
-            [-0.7071, -0.7071,  0.0],   # Motor 5
-            [ 0.7071,  0.7071,  0.0],   # Motor 6
-            [ 0.7071, -0.7071,  0.0]    # Motor 7
+            [ 0.7071,  0.7071, 0.0],   # Motor 1
+            [-0.7071,  0.7071, 0.0],   # Motor 2 
+            [    0.0,     0.0, 1.0],   # Motor 3
+            [    0.0,     0.0, 1.0],   # Motor 4
+            [ 0.7071,  0.7071, 0.0],   # Motor 5
+            [-0.7071,  0.7071, 0.0],   # Motor 6
+            [ 0,  0,  0],   # Motor 6
+            [ 0, 0 ,  0]    # Motor 7
+        
         ]
 
         self.center_of_mass = [0.0,0.0,0.0] #[X,Y,Z] Posicion del centro de masa respecto al centro del ROV 
