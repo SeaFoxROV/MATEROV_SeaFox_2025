@@ -4,6 +4,7 @@ import threading
 from PyQt5.QtWidgets import QApplication, QSplitter, QLabel, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt5.QtCore import Qt, QTimer
 import rclpy
+import signal
 from rclpy.node import Node
 from std_msgs.msg import Float32, Float32MultiArray
 
@@ -109,8 +110,18 @@ class MainGui(QWidget):
 def ros_spin_thread(node: Node):
     rclpy.spin(node)
 
+
+def sigint_handler(*args):
+    """Handler for the SIGINT signal."""
+    sys.stderr.write('\r')
+    QApplication.quit()
+
+
+
 def main(args=None):
     rclpy.init(args=args)
+    signal.signal(signal.SIGINT, sigint_handler)
+
     sub = UltimateSubscriber()
     
     # Ejecutar el spin de ROS2 en un hilo separado para no bloquear la GUI

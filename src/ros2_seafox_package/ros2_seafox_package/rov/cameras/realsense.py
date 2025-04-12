@@ -8,6 +8,8 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from std_msgs.msg import Int32MultiArray
 from std_msgs.msg import Float32
+from std_msgs.msg import Empty
+
 
 
 class RealSenseNode(Node):
@@ -31,6 +33,10 @@ class RealSenseNode(Node):
             10
         )
 
+        # Add subscriber for resetting the RealSense camera
+        self.create_subscription(Empty, 'reset_cameras', self.reset_realsense_callback, 10)
+
+
         try:
             self.pipeline.start(config)
             self.get_logger().info("RealSense iniciada correctamente")
@@ -43,6 +49,20 @@ class RealSenseNode(Node):
 
         # Para visualizar la imagen (opcional)
         #cv2.namedWindow('RealSense')
+
+    def reset_realsense_callback(self, msg):
+        self.get_logger().info("Resetting RealSense camera...")
+        try:
+            # Stop and restart the pipeline using the same configuration.
+            self.pipeline.stop()
+            config = rs.config()
+            config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+            self.pipeline.start(config)
+            self.get_logger().info("RealSense reset successfully.")
+        except Exception as e:
+            self.get_logger().error(f"Failed to reset RealSense camera: {e}")
+
 
     def pixelpos(self, pos):
         # Se recibe el mensaje con la posición del pixel desde la GUI

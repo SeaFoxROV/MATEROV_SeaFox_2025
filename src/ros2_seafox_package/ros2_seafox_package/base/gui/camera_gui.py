@@ -3,31 +3,34 @@ import sys
 from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget, QVBoxLayout, QComboBox, QSplitter
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
-
+import signal
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int32MultiArray, Empty
 from cv_bridge import CvBridge
 
 class CameraSubscriber(Node):
     def __init__(self):
         super().__init__('camera_subscriber')
         self.bridge = CvBridge()
-        self.image_data = [None, None, None]  # almacena las últimas imágenes para left, right y realsense
+        self.image_data = [None, None, None]
 
         self.topic_names = [
             'vcamera_left/image_raw',
             'vcamera_right/image_raw',
             'vcamera_realsense/image_raw'
         ]
-
         self.yolo_topic_names = [
             'yolocamera_left/image_raw',
             'yolocamera_right/image_raw',
             'camera_yolo/image_raw'
         ]
-        # Subscriptores para los tópicos de cámaras normales
+        
+        # Create publisher for resetting cameras
+        self.reset_pub = self.create_publisher(Empty, 'reset_cameras', 10)
+
+        # Subscribe to regular camera topics
         self.subscribers = []
         for i, topic in enumerate(self.topic_names):
             sub = self.create_subscription(
@@ -38,7 +41,7 @@ class CameraSubscriber(Node):
             )
             self.subscribers.append(sub)
 
-        # Subscriptores para los tópicos de cámaras con YOLO
+        # Subscribers for YOLO topics
         self.yolosubscribers = []
         for i, topic in enumerate(self.yolo_topic_names):
             yolo_sub = self.create_subscription(
@@ -92,7 +95,14 @@ class CameraGUI(QWidget):
         self.yolobtn = QPushButton("Activar YOLO", self)
         self.yolobtn.setCheckable(True)
         self.yolobtn.clicked.connect(self.toggle_view)
-        self.yolobtn.setFixedSize(50, 100)
+        self.yolobtn.setFixedSize(150, 100)
+
+        # Botón para resetear las cámaras
+        self.resetbtn = QPushButton("Reset Cameras", self)
+        self.resetbtn.clicked.connect(self.reset_cameras)
+        self.resetbtn.setCheckable(False)  # Normal push button behavior
+        self.resetbtn.setFixedSize(150, 100)
+
 
         # Layout
         layout = QVBoxLayout()
@@ -104,9 +114,12 @@ class CameraGUI(QWidget):
         splitter.addWidget(self.label_left)
         splitter.addWidget(self.label_right)
         layout.addWidget(splitter)
+
+
         splitter2 = QSplitter(Qt.Horizontal)
         splitter2.addWidget(self.label_realsense)
         splitter2.addWidget(self.yolobtn)
+        splitter2.addWidget(self.resetbtn)   # New reset button added here
         layout.addWidget(splitter2)
         self.setLayout(layout)
 
@@ -121,6 +134,13 @@ class CameraGUI(QWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
+
+    def reset_cameras(self):
+        # Publish an empty message using the publisher defined in the node.
+        msg = Empty()
+        self.node.reset_pub.publish(msg)
+        print("Published reset cameras command.")
+
 
     def change_camera(self, index):
         # Mapea el índice del dropdown a un par de cámaras (ajusta según tus dispositivos)
@@ -213,8 +233,16 @@ class CameraGUI(QWidget):
         else:
             self.label_right.setText("No signal from right camera")
 
+###
+def sigint_handler(*args):
+    """Handler for the SIGINT signal."""
+    sys.stderr.write('\r')
+    QApplication.quit()
+
 def main(args=None):
     rclpy.init(args=args)
+    signal.signal(signal.SIGINT, sigint_handler)
+
     app = QApplication(sys.argv)
 
     # Crear el nodo ROS2 suscriptor
