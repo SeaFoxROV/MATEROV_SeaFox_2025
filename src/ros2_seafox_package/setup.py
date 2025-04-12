@@ -12,6 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/ros2_seafox_package/launch', ['launch/base_launcher.py']), 
         ('share/ros2_seafox_package/launch', ['launch/rov_launcher.py']),  
+        ('share/ros2_seafox_package/launch', ['launch/camera_launcher.py']),  
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,18 +25,21 @@ setup(
         'console_scripts': [
         #Base scripts
             #control scripts
-                'joystick_reader = ros2_seafox_package.base.control.joystick_reader:main',
-                'joystick_to_twist = ros2_seafox_package.base.control.joystick_to_twist:main',
-                'twist_to_pwm = ros2_seafox_package.base.control.twist_to_pwm:main',
+                'joystick_reader = ros2_seafox_package.base.control.a_joystick_reader:main',
+                'joystick_to_twist = ros2_seafox_package.base.control.b_joystick_to_twist:main',
+                'twist_to_newtons = ros2_seafox_package.base.control.c_twist_to_newtons:main',
+                'newtons_to_pwm = ros2_seafox_package.base.control.d_newtons_to_pwm:main',
             
             #gui scripts
-                #'gui = ros2_seafox_package.base.gui.main_gui:main',
-        
+                'camera_gui = ros2_seafox_package.base.gui.camera_gui:main',
+                'main_gui = ros2_seafox_package.base.gui.main_gui:main',
 
         #ROV scripts
             #cameras scripts
-                #'camera_controller = ros2_seafox_package.rov.cameras.camera_controller:main',
-
+                'camera_publisher = ros2_seafox_package.rov.cameras.camera_publisher:main',
+                'realsense = ros2_seafox_package.rov.cameras.realsense:main',
+                'imageViewer = ros2_seafox_package.rov.cameras.yolo_model.yolo:main',
+                
             #serial
                 'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
 

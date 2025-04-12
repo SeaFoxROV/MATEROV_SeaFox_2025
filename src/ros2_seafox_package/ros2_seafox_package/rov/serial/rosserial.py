@@ -1,7 +1,8 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray,Bool
+from std_msgs.msg import Float32MultiArray, Int16MultiArray, Bool
 import serial
+import serial.tools.list_ports
 import time
 
 def map_range(value, in_min, in_max, out_min, out_max):
@@ -11,86 +12,73 @@ class RosserialNode(Node):
     def __init__(self):
         super().__init__('rosserial_node')
 
-        # Inicializar valores de motores en 0
-        self.motor_values = [0.0] * 8
+        self.motor_values = [1500.0] * 8  # Inicia en modo seguro
+        self.last_cmd_time = time.time()  # Última vez que llegó un mensaje
 
-        # Suscribirse al tópico de comandos de motores
         self.subscription = self.create_subscription(
-            Float32MultiArray,
-            'thruster_cmd',
+            Int16MultiArray,
+            'pwm_values',
             self.cmd_callback,
             10)
 
-        # Publicador para enviar datos de sensores
-        self.imu_publisher= self.create_publisher(Float32MultiArray, 'imu', 10)
+        self.imu_publisher = self.create_publisher(Float32MultiArray, 'imu', 10)
         self.bar_publisher = self.create_publisher(Float32MultiArray, 'bar02', 10)
         self.leak_publisher = self.create_publisher(Bool, 'leak_sensor', 10)
 
-        # Configuración del puerto serial al Arduino
+        self.puerto = self.get_port()
         try:
-            self.arduino = serial.Serial("/dev/ttyUSB0", 115200, timeout=0.01)  # Cambiar según el puerto real
-            time.sleep(1)  # Esperar a que el puerto se estabilice
-            self.get_logger().info("Conectado al Arduino")
+            self.arduino = serial.Serial(self.puerto, 115200, timeout=0.01)
+            self.get_logger().info(f"Conectado al Arduino en el puerto {self.puerto}")
         except Exception as e:
             self.get_logger().error(f"No se pudo conectar al Arduino: {e}")
+            self.arduino = None
 
-        # Timer para ejecutar la función cada 10 ms
-        self.create_timer(0.01, self.update_motors)
-        self.create_timer(0.01, self.read_sensors)  # Nuevo timer para leer sensores
+        self.create_timer(0.05, self.update_motors)
+
+    def get_port(self):
+        puertos = serial.tools.list_ports.comports()
+        for puerto in puertos:
+            if "USB" in puerto.device:
+                return puerto.device
+        return None
 
     def cmd_callback(self, msg):
-        """ Callback que actualiza los valores de los motores. """
         self.motor_values = list(msg.data)
+        self.last_cmd_time = time.time()
 
     def update_motors(self):
-        """ Se ejecuta cada 10 ms, imprime y envía los datos actuales de los motores. """
+        if self.arduino is None:
+            return
 
-        output = ";".join([f"{value:.2f}" for value in self.motor_values]) + ";\n"
+        # Watchdog: si no llegan mensajes en 0.5 segundos, enviar 1500
+        if time.time() - self.last_cmd_time > 0.5:
+            self.motor_values = [1500.0] * 8
 
-        # Imprimir en la consola
-        #self.get_logger().info(f"Datos de motores: {output.strip()}")
+        # Pequeña zona muerta
+        output_values = []
+        for motor_value in self.motor_values:
+            if 1430 < motor_value < 1570:
+                motor_value = 1500
+            output_values.append(motor_value)
 
-        # Enviar al Arduino por serial
+        output = ";".join([f"{int(value)}" for value in output_values]) + ";\n"
         try:
             self.arduino.write(output.encode())
+            self.get_logger().info(f"Datos de motores: {output.strip()}")
         except Exception as e:
             self.get_logger().error(f"Error al escribir en el Arduino: {e}")
 
-    def read_sensors(self):
-        """ Lee datos del monitor serial y los publica en el tópico `sensor_data`. """
-        while self.arduino.in_waiting > 0:
+    def stop_motors(self):
+        if self.arduino:
+            stop_values = [1500] * 8
+            output = ";".join([str(v) for v in stop_values]) + ";\n"
             try:
-                line = self.arduino.readline().decode().strip()
-                if line:
-                    data = line.split(";")
-
-                    
-                    imu_msg = Float32MultiArray()
-                    bar_msg = Float32MultiArray()
-                    leak_msg = Bool()
-                    
-                    imu_msg.data = [0.0] * 6  # Inicializa con 7 elementos
-
-                    bar_msg.data = [0.0] * 3  # Inicializa con 7 elementos
-
-
-                    for i in range(6):
-                        imu_msg.data[i] = float(data[i])
-                    bar_msg.data[0] = float(data[6])
-                    bar_msg.data[1] = float(data[7])
-                    bar_msg.data[2] = float(data[8])
-
-                    leak_msg.data = bool(float(data[9]))
-
-                    self.imu_publisher.publish(imu_msg)
-                    self.bar_publisher.publish(bar_msg)
-                    self.leak_publisher.publish(leak_msg)
-
-                    self.get_logger().info(f"Datos de sensores recibidos: {data}")
-            except Exception as e: 
-                #print("error")
-                self.get_logger().error(f"Error al leer del Arduino: {e}")
-
+                self.arduino.write(output.encode())
+                self.get_logger().info("Motores detenidos (1500)")
+            except Exception as e:
+                self.get_logger().error(f"No se pudo detener los motores: {e}")
+        else:
+            self.get_logger().warn("No hay conexión serial para detener los motores.")
 
 def main(args=None):
     rclpy.init(args=args)
@@ -100,6 +88,7 @@ def main(args=None):
     except KeyboardInterrupt:
         node.get_logger().info("Nodo interrumpido por el usuario.")
     finally:
+        node.stop_motors()
         node.destroy_node()
         rclpy.shutdown()
 
