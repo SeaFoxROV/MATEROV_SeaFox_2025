@@ -30,7 +30,7 @@ class twist_to_newtons(Node):
 
         self.motor_positions = [ # [X, Y, Z] Posiciones de los motores respecto al centro del ROV
             [-0.136 ,  0.1687, 0.048], # Motor 1
-            [ 0.1406,  0.1687, 0.048], # Motor 2
+            [ 0.136,  0.1687, 0.048], # Motor 2
             [ 0.1406, -0.0010, 0.031], # Motor 3
             [-0.1406, -0.0010, 0.031], # Motor 4
             [ 0.1896, -0.1270,-0.061], # Motor 5

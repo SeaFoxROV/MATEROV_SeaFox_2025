@@ -65,7 +65,7 @@ class ImageViewer(Node):
         )
         
         self.get_logger().info("ImageViewer node has started!")
-        self.model = YOLO(r'/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
         # Timer que se activa cada 33ms (~30 FPS)
         self.timer = self.create_timer(0.033, self.timer_callback)
 

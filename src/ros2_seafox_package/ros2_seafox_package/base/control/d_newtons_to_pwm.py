@@ -81,7 +81,7 @@ class newton_to_pwm(Node):
                 pwm = 1500
             pwm_msg.data[index] = pwm
 
-        
+        pwm_msg.data[3] += 15
         self.pwm_pub.publish(pwm_msg)
 
     
