@@ -72,8 +72,8 @@ class newton_to_pwm(Node):
                 self.pwm_fit_params[5]
             ))
             # Limitar el rango de pwm
-            up = 1800
-            down = 1200
+            up = 1750
+            down = 1250
             pwm = up if pwm > up else down if pwm < down else pwm
         
             # Si el valor en newton es 0, lo asignamos a 1500
