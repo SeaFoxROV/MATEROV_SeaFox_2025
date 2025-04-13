@@ -3,7 +3,7 @@ import sys
 import threading
 from PyQt5.QtWidgets import (
     QApplication, QSplitter, QLabel, QWidget,
-    QPushButton, QVBoxLayout, QHBoxLayout, QFrame
+    QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QLineEdit
 )
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap, QPainter, QColor
@@ -140,6 +140,11 @@ class UltimateSubscriber(Node):
         )
         self.latest_distance = None
         self.latest_buttons = None
+        
+        self.textbox = QLineEdit(self)
+        self.textbox.move(20, 20)
+        self.textbox.resize(280,40)
+
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
