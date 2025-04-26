@@ -141,10 +141,11 @@ class UltimateSubscriber(Node):
         self.latest_distance = None
         self.latest_buttons = None
         
+        '''
         self.textbox = QLineEdit(self)
         self.textbox.move(20, 20)
         self.textbox.resize(280,40)
-
+        '''
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
