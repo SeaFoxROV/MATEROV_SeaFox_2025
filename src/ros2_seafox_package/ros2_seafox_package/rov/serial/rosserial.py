@@ -14,13 +14,19 @@ class RosserialNode(Node):
 
         self.motor_values = [1500.0] * 8  # Inicia en modo seguro
         self.last_cmd_time = time.time()  # Última vez que llegó un mensaje
+        self.gripper_values = [1500.0] * 3  # Inicia en modo seguro
 
         self.subscription = self.create_subscription(
             Int16MultiArray,
             'pwm_values',
             self.cmd_callback,
             10)
-
+        ###self.subgripper = self.create_subscription(
+        #    Float32MultiArray,
+        #    'gripper_pwm',
+        #    self.cmd_callback,
+        #    10)
+        ###
         self.imu_publisher = self.create_publisher(Float32MultiArray, 'imu', 10)
         self.bar_publisher = self.create_publisher(Float32MultiArray, 'bar02', 10)
         self.leak_publisher = self.create_publisher(Bool, 'leak_sensor', 10)
@@ -38,12 +44,12 @@ class RosserialNode(Node):
     def get_port(self):
         puertos = serial.tools.list_ports.comports()
         for puerto in puertos:
-            if "USB" in puerto.device:
+            if "USB" in puerto.device or "ACM" in puerto.device:
                 return puerto.device
         return None
 
     def cmd_callback(self, msg):
-        self.motor_values = list(msg.data)
+        self.pwm_values = list(msg.data)
         self.last_cmd_time = time.time()
 
     def update_motors(self):
@@ -51,13 +57,13 @@ class RosserialNode(Node):
             return
 
         # Watchdog: si no llegan mensajes en 0.5 segundos, enviar 1500
-        if time.time() - self.last_cmd_time > 0.5:
-            self.motor_values = [1500.0] * 8
+        #if time.time() - self.last_cmd_time > 0.5:
+        #    self.motor_values = [1500.0] * 8
 
         # Pequeña zona muerta
         output_values = []
-        for motor_value in self.motor_values:
-            if 1430 < motor_value < 1570:
+        for motor_value in self.pwm_values:
+            if 1600 > motor_value and 1400<motor_value:
                 motor_value = 1500
             output_values.append(motor_value)
 
