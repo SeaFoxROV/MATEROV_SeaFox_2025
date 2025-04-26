@@ -57,7 +57,7 @@ class RosserialNode(Node):
         # Pequeña zona muerta
         output_values = []
         for motor_value in self.motor_values:
-            if 1430 < motor_value < 1570:
+            if 1400 < motor_value < 1600:
                 motor_value = 1500
             output_values.append(motor_value)
 

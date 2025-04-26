@@ -25,12 +25,23 @@ class UltimateSubscriber(Node):
             self.joystick_callback,
             10
         )
+        self.imu_subscriber = self.create_subscription(
+            Float32,
+            'imu',
+            self.imu_callback,
+            10
+        )
         self.latest_distance = None
         self.latest_buttons = None
+        self.latest_imu = None
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
         #self.get_logger().info(f"Received distance: {msg.data:.2f} meters")
+
+    def imu_callback(self, msg: Float32):
+        self.latest_imu = msg.data
+        #self.get_logger().info(f"Received imu_data: {msg.data:.2f}")
 
     def joystick_callback(self, msg: Float32MultiArray):
         self.latest_buttons = msg.data
