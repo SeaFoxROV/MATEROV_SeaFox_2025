@@ -74,6 +74,8 @@ class ComputerModel:
                 if cell_img.size == 0:
                     row_cells.append('')
                 else:
+                    cell_img = cv2.resize(cell_img, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+
                     text = pytesseract.image_to_string(cell_img, config=tess_config)
                     text = text.strip().upper()
                     row_cells.append(text if text in ['Y', 'N'] else '')
@@ -98,7 +100,7 @@ class ComputerModel:
         return binary
 
 if __name__ == '__main__':
-    path = "src/ros2_seafox_package/ros2_seafox_package/imgs/table.png"
+    path = "src/ros2_seafox_package/ros2_seafox_package/imgs/table1.png"
     comp = ComputerModel()
     df, data = comp.read_table(path)
     binary_table = comp.bin(data)
