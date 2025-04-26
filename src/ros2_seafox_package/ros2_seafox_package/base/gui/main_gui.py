@@ -147,6 +147,7 @@ class UltimateSubscriber(Node):
         )
         self.latest_distance = None
         self.latest_buttons = None
+        self.latest_imu = None
         
         '''
         self.textbox = QLineEdit(self)
@@ -156,6 +157,9 @@ class UltimateSubscriber(Node):
 
     def distance_callback(self, msg: Float32):
         self.latest_distance = msg.data
+
+    def imu_callback(self, msg: Float32):
+        self.imu_callback = msg.data
 
     def joystick_callback(self, msg: Float32MultiArray):
         self.latest_buttons = msg.data
