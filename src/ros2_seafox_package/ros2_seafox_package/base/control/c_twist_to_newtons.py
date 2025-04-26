@@ -1,6 +1,3 @@
-
-
-
 MAX_FWD_THRUST = 36.3826715 * 2 # N
 MAX_REV_THRUST = -28.6354180 * 2 # N
 
@@ -32,12 +29,12 @@ class twist_to_newtons(Node):
         super().__init__("twist_to_newtons")
 
         self.motor_positions = [ # [X, Y, Z] Posiciones de los motores respecto al centro del ROV
-            [-0.136 ,  0.1946, 0.048], # Motor 1
-            [ 0.1400,  0.1687,-0.021], # Motor 2
-            [ 0.1412, -0.0010, 0.031], # Motor 3
+            [-0.136 ,  0.1687, 0.048], # Motor 1
+            [ 0.136,  0.1687, 0.048], # Motor 2
+            [ 0.1406, -0.0010, 0.031], # Motor 3
             [-0.1406, -0.0010, 0.031], # Motor 4
-            [ 0.2130, -0.1270,-0.061], # Motor 5
-            [-0.1896, -0.1309,-0.061],     
+            [ 0.1896, -0.1270,-0.061], # Motor 5
+            [-0.1896, -0.1270,-0.061],     
             [0,0,0],
             [0,0,0]
             #[-0.198,  0.156, -0.038], # Motor 6
@@ -46,6 +43,9 @@ class twist_to_newtons(Node):
         ]
         """
         Z and Y axis exchanged
+
+
+        
             [-0.136 ,  0.048,  0.1946], # Motor 1
             [ 0.1400, -0.021,  0.1687], # Motor 2
             [ 0.1412,  0.031, -0.0010], # Motor 3
@@ -58,7 +58,7 @@ class twist_to_newtons(Node):
             [ 0.7071,  0.7071, 0.0],   # Motor 1
             [-0.7071,  0.7071, 0.0],   # Motor 2 
             [    0.0,     0.0, 1.0],   # Motor 3
-            [    0.0,     0.0, 1.0],   # Motor 4
+            [    0.0,     0.0, -1.0],   # Motor 4
             [ 0.7071,  0.7071, 0.0],   # Motor 5
             [-0.7071,  0.7071, 0.0],   # Motor 6
             [ 0,  0,  0],   # Motor 6

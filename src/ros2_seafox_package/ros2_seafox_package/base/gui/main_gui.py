@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 import rclpy
+import signal
 from rclpy.node import Node
 from std_msgs.msg import Float32, Float32MultiArray
 
@@ -138,6 +139,12 @@ class UltimateSubscriber(Node):
             self.joystick_callback,
             10
         )
+        self.imu_subscriber = self.create_subscription(
+            Float32,
+            'imu',
+            self.imu_callback,
+            10
+        )
         self.latest_distance = None
         self.latest_buttons = None
         
@@ -223,8 +230,18 @@ class MainGui(QWidget):
 def ros_spin_thread(node: Node):
     rclpy.spin(node)
 
+
+def sigint_handler(*args):
+    """Handler for the SIGINT signal."""
+    sys.stderr.write('\r')
+    QApplication.quit()
+
+
+
 def main(args=None):
     rclpy.init(args=args)
+    signal.signal(signal.SIGINT, sigint_handler)
+
     sub = UltimateSubscriber()
     
     ros_thread = threading.Thread(target=ros_spin_thread, args=(sub,), daemon=True)
