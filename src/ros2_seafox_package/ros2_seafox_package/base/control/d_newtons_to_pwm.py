@@ -58,7 +58,7 @@ class newton_to_pwm(Node):
     def pwm_callback(self, motor_values):
         # Creamos un nuevo mensaje para publicar PWM
         pwm_msg = Int16MultiArray()
-        pwm_msg.data = [0] * 8
+        pwm_msg.data = [1500] * 6
 
         # Iteramos sobre los valores recibidos en motor_values.data
         for index, newton in enumerate(motor_values.data):
@@ -72,8 +72,8 @@ class newton_to_pwm(Node):
                 self.pwm_fit_params[5]
             ))
             # Limitar el rango de pwm
-            up = 1800
-            down = 1200
+            up = 1750
+            down = 1250
             pwm = up if pwm > up else down if pwm < down else pwm
         
             # Si el valor en newton es 0, lo asignamos a 1500
@@ -81,13 +81,13 @@ class newton_to_pwm(Node):
                 pwm = 1500
             pwm_msg.data[index] = pwm
 
-        
+        pwm_msg.data[3] += 15
         self.pwm_pub.publish(pwm_msg)
 
     
     def __del__(self):
         pwm_values = Int16MultiArray()
-        pwm_values.data = [1500] * 8
+        pwm_values.data = [1500] * 6
         self.pwm_pub.publish(pwm_values)
 
 def main(args=None):

@@ -19,7 +19,7 @@ class MotionController(Node):
         
         self.last_user_velocity_command = Twist()
 
-        self.pwm_tick = 10
+        self.pwm_tick = 2.5
 
         self.pwms = Float32MultiArray()
 
@@ -50,22 +50,32 @@ class MotionController(Node):
 
         #ajustar drift de x ES UNA CONSTANTE LO PUEDES RESTAR ASI NOMAS
         #ajustar deadzon de y (no es una constante)
-        self.last_user_velocity_command.linear.y = -left_joy_y
-        self.last_user_velocity_command.linear.x = left_joy_x
+        self.last_user_velocity_command.linear.x = -left_joy_y
+        self.last_user_velocity_command.linear.y = left_joy_x
         self.last_user_velocity_command.linear.z = (right_trigger - left_trigger)/2
-        self.last_user_velocity_command.angular.z = right_joy_x
+        self.last_user_velocity_command.angular.x = right_joy_x
         self.last_user_velocity_command.angular.y = right_joy_y
         
         self.pwms.data[0] += msg.data[15]*self.pwm_tick
+
+        if self.pwms.data[0]<500:
+            self.pwms.data[0] = 500
+        if self.pwms.data[0]>2500:
+            self.pwms.data[0] = 2500
+
         self.pwms.data[1] += msg.data[14]*self.pwm_tick
 
-        if bool(msg.data[12]) and bool(msg.data[11]):
-            if bool(msg.data[12]):
-                self.pwms.data[2] += self.pwm_tick
-            else:
-                self.pwms.data[2] -= self.pwm_tick
-
+        if self.pwms.data[1]<500:
+            self.pwms.data[1] = 500
+        if self.pwms.data[1]>2500:
+            self.pwms.data[1] = 2500
+                    
+        self.pwms.data[2] += (msg.data[10]*self.pwm_tick)-(msg.data[11]*self.pwm_tick)
         
+        if self.pwms.data[2]<500:
+            self.pwms.data[2] = 500
+        if self.pwms.data[2]>2500:
+            self.pwms.data[2] = 2500
         
         self.last_command_time = self.get_clock().now()
 
@@ -87,7 +97,7 @@ class MotionController(Node):
         cmd_vel.linear.z = self.last_user_velocity_command.linear.z
         cmd_vel.angular.x = self.last_user_velocity_command.angular.x# + self.roll_pid_effort
         cmd_vel.angular.y = self.last_user_velocity_command.angular.y #- self.pitch_pid_effort
-        cmd_vel.angular.z = self.last_user_velocity_command.angular.z
+        #cmd_vel.angular.z = self.last_user_velocity_command.angular.z
         
         self.gripper_pub.publish(self.pwms)
 
