@@ -5,6 +5,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Int32MultiArray
 from cv_bridge import CvBridge
 import cv2
+from std_msgs.msg import Empty
 
 class CameraPublisher(Node):
     def __init__(self):
@@ -20,8 +21,13 @@ class CameraPublisher(Node):
 
         # Define the physical camera devices available
         # (Here we assume you have 4 physical cameras at these device indexes)
+<<<<<<< HEAD
         cameras_index = [2, 1, 0, 6]  # adjust as needed
         self.captures = [cv2.VideoCapture(i) for i in cameras_index]
+=======
+        self.cameras_index = [0, 2, 3, 6]  # adjust as needed
+        self.captures = [cv2.VideoCapture(i) for i in self.cameras_index]
+>>>>>>> 8e1933b8a6799a06796a084ae1a3590c3cc7ec3c
         for i, cap in enumerate(self.captures):
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -33,8 +39,12 @@ class CameraPublisher(Node):
                 print()
                 #self.get_logger().info(f"Camera {i} opened successfully.")
 
-        # Default active cameras for left and right (using indexes in the cameras_index list)
+        # Default active cameras for left and right (using indexes in the self.cameras_index list)
         self.active_indexes = [0, 1]
+
+        # Add subscriber for resetting cameras
+        self.create_subscription(Empty, 'reset_cameras', self.reset_cameras_callback, 10)
+
         
         # Subscription to receive new camera selections from the GUI (or another node)
         self.selection_sub = self.create_subscription(
@@ -61,6 +71,22 @@ class CameraPublisher(Node):
         else:
             print()
             #self.get_logger().warning("Received invalid camera selection (expected 2 indexes).")
+
+    def reset_cameras_callback(self, msg):
+        self.get_logger().info("Resetting normal cameras...")
+        # Release the currently opened cameras
+        for cap in self.captures:
+            cap.release()
+        # Reinitialize the cameras using the same indexes
+        self.captures = [cv2.VideoCapture(i) for i in self.cameras_index]
+        for i, cap in enumerate(self.captures):
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            cap.set(cv2.CAP_PROP_FPS, 30)
+            if not cap.isOpened():
+                self.get_logger().error(f"Failed to open camera {i} on reset.")
+            else:
+                self.get_logger().info(f"Camera {i} reset successfully.")
 
     def timer_callback(self):
         # For left (publisher index 0) and right (publisher index 1) cameras:
