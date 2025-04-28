@@ -12,13 +12,20 @@ class RosserialNode(Node):
     def __init__(self):
         super().__init__('rosserial_node')
 
-        self.motor_values = [1500.0] * 8  # Inicia en modo seguro
+        self.motor_values = [1500.0] * 6 
+        self.gripper_values = [1500.0] * 3
+
         self.last_cmd_time = time.time()  # Última vez que llegó un mensaje
 
         self.subscription = self.create_subscription(
             Int16MultiArray,
             'pwm_values',
             self.cmd_callback,
+            10)
+        self.gripper_sub = self.create_subscription(
+            Float32MultiArray,
+            'gripper_pwm',
+            self.gripper_callback,
             10)
 
         self.imu_publisher = self.create_publisher(Float32MultiArray, 'imu', 10)
@@ -38,7 +45,7 @@ class RosserialNode(Node):
     def get_port(self):
         puertos = serial.tools.list_ports.comports()
         for puerto in puertos:
-            if "USB" in puerto.device:
+            if "USB" in puerto.device or "ACM" in puerto.device  :  # Asegúrate de verificar correctamente el nombre del puerto
                 return puerto.device
         return None
 
@@ -46,20 +53,33 @@ class RosserialNode(Node):
         self.motor_values = list(msg.data)
         self.last_cmd_time = time.time()
 
+    def gripper_callback(self, msg):
+        # Verificar que los índices no excedan el tamaño de motor_values
+        if len(msg.data) >= 3:
+            self.gripper_values[0] = msg.data[0]
+            self.gripper_values[1] = msg.data[1]
+            self.gripper_values[2] = msg.data[2]  # Asumiendo que el índice 6 es para el 3er valor
+            self.last_cmd_time = time.time()
+        else:
+            self.get_logger().warn("Se recibieron datos incorrectos para el gripper.")
+
     def update_motors(self):
         if self.arduino is None:
             return
 
         # Watchdog: si no llegan mensajes en 0.5 segundos, enviar 1500
         if time.time() - self.last_cmd_time > 0.5:
-            self.motor_values = [1500.0] * 8
+            self.motor_values = [1500.0] * 9  # Volver a valores seguros
 
-        # Pequeña zona muerta
+        # Pequeña zona muerta (de 1400 a 1600)
         output_values = []
         for motor_value in self.motor_values:
             if 1400 < motor_value < 1600:
-                motor_value = 1500
+                motor_value = 1500  # Aplicamos la zona muerta
             output_values.append(motor_value)
+        
+        for gripper_value in self.gripper_values:
+            output_values.append(gripper_value)
 
         output = ";".join([f"{int(value)}" for value in output_values]) + ";\n"
         try:
@@ -70,7 +90,7 @@ class RosserialNode(Node):
 
     def stop_motors(self):
         if self.arduino:
-            stop_values = [1500] * 8
+            stop_values = [1500] * 10  # Detener todos los motores (10 valores)
             output = ";".join([str(v) for v in stop_values]) + ";\n"
             try:
                 self.arduino.write(output.encode())

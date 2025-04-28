@@ -34,11 +34,7 @@ class twist_to_newtons(Node):
             [ 0.1406, -0.0010, 0.031], # Motor 3
             [-0.1406, -0.0010, 0.031], # Motor 4
             [ 0.1896, -0.1270,-0.061], # Motor 5
-            [-0.1896, -0.1270,-0.061],     
-            [0,0,0],
-            [0,0,0]
-            #[-0.198,  0.156, -0.038], # Motor 6
-            #[-0.198, -0.156, -0.038]  # Motor 7
+            [-0.1896, -0.1270,-0.061]  # Motor 6
            
         ]
         """
@@ -61,9 +57,7 @@ class twist_to_newtons(Node):
             [    0.0,     0.0, -1.0],   # Motor 4
             [ 0.7071,  0.7071, 0.0],   # Motor 5
             [-0.7071,  0.7071, 0.0],   # Motor 6
-            [ 0,  0,  0],   # Motor 6
-            [ 0, 0 ,  0]    # Motor 7
-        
+            
         ]
 
         self.center_of_mass = [0.0,0.0,0.0] #[X,Y,Z] Posicion del centro de masa respecto al centro del ROV 
@@ -231,7 +225,7 @@ class twist_to_newtons(Node):
         ]
 
         if twist_array == [0, 0, 0, 0, 0, 0]:
-            return [0.0 for motor in range(8)] # No thrust needed
+            return [0.0 for motor in range(6)] # No thrust needed
 
         # Multiply twist with inverse of motor config to get motor effort values
         motor_values = np.matmul(self.inverse_config, twist_array).tolist()

@@ -19,7 +19,7 @@ class MotionController(Node):
         
         self.last_user_velocity_command = Twist()
 
-        self.pwm_tick = 10
+        self.pwm_tick = 2.5
 
         self.pwms = Float32MultiArray()
 
@@ -57,11 +57,25 @@ class MotionController(Node):
         self.last_user_velocity_command.angular.y = right_joy_y
         
         self.pwms.data[0] += msg.data[15]*self.pwm_tick
+
+        if self.pwms.data[0]<500:
+            self.pwms.data[0] = 500
+        if self.pwms.data[0]>2500:
+            self.pwms.data[0] = 2500
+
         self.pwms.data[1] += msg.data[14]*self.pwm_tick
 
-        self.pwms.data[2] += (0,(-self.pwm_tick,(self.pwm_tick,0)[bool(msg.data[11])])[bool(msg.data[10])])[bool(msg.data[10] and msg.data[11])]
-
+        if self.pwms.data[1]<500:
+            self.pwms.data[1] = 500
+        if self.pwms.data[1]>2500:
+            self.pwms.data[1] = 2500
+                    
+        self.pwms.data[2] += (msg.data[10]*self.pwm_tick)-(msg.data[11]*self.pwm_tick)
         
+        if self.pwms.data[2]<500:
+            self.pwms.data[2] = 500
+        if self.pwms.data[2]>2500:
+            self.pwms.data[2] = 2500
         
         self.last_command_time = self.get_clock().now()
 
@@ -85,7 +99,7 @@ class MotionController(Node):
         cmd_vel.angular.y = self.last_user_velocity_command.angular.y #- self.pitch_pid_effort
         #cmd_vel.angular.z = self.last_user_velocity_command.angular.z
         
-        #self.gripper_pub.publish(self.pwms)
+        self.gripper_pub.publish(self.pwms)
 
         self.cmd_vel_pub.publish(cmd_vel)
 

@@ -58,7 +58,7 @@ class newton_to_pwm(Node):
     def pwm_callback(self, motor_values):
         # Creamos un nuevo mensaje para publicar PWM
         pwm_msg = Int16MultiArray()
-        pwm_msg.data = [0] * 8
+        pwm_msg.data = [1500] * 6
 
         # Iteramos sobre los valores recibidos en motor_values.data
         for index, newton in enumerate(motor_values.data):
@@ -87,7 +87,7 @@ class newton_to_pwm(Node):
     
     def __del__(self):
         pwm_values = Int16MultiArray()
-        pwm_values.data = [1500] * 8
+        pwm_values.data = [1500] * 6
         self.pwm_pub.publish(pwm_values)
 
 def main(args=None):
