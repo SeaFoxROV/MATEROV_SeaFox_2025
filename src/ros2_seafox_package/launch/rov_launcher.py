@@ -20,7 +20,13 @@ def generate_launch_description():
             executable='realsense',  # Reemplaza con el nombre del ejecutable de tu nodo
             name='realsense',
             output='screen',
-        ),
+            parameters=[{
+            'enable_depth': True,
+            'enable_infra1': True,
+            'enable_infra2': True,
+            'enable_color': True,
+            }],
+        )
 
         
     
