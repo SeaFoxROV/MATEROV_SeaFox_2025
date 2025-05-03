@@ -17,9 +17,9 @@ class CameraSubscriber(Node):
         self.image_data = [None, None, None]
 
         self.topic_names = [
-            'vcamera_left/image_raw',
-            'vcamera_right/image_raw',
-            'vcamera_realsense/image_raw'
+            'camera_left/image_raw',
+            'camera_right/image_raw',
+            'camera_realsense/image_raw'
         ]
         self.yolo_topic_names = [
             'yolocamera_left/image_raw',

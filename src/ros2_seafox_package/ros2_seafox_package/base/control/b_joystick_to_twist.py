@@ -19,7 +19,7 @@ class MotionController(Node):
         
         self.last_user_velocity_command = Twist()
 
-        self.pwm_tick = 2.5
+        self.pwm_tick = 10
 
         self.pwms = Float32MultiArray()
 
