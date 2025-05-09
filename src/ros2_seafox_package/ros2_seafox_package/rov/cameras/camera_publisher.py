@@ -15,7 +15,8 @@ class CameraPublisher(Node):
         # Define two topics: left and right camera frames
         self.topic_names = [
             'camera_left/image_raw',
-            'camera_right/image_raw'
+            'camera_right/image_raw',
+            'real/image_raw'
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
@@ -85,7 +86,7 @@ class CameraPublisher(Node):
 
     def timer_callback(self):
         # For left (publisher index 0) and right (publisher index 1) cameras:
-        for pub_idx, cam_idx in enumerate(self.active_indexes):
+        for pub_idx, cam_idx in enumerate(self.cameras_index):
             if cam_idx < len(self.captures):
                 ret, frame = self.captures[cam_idx].read()
                 if ret:
