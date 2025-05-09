@@ -17,13 +17,39 @@ class CameraPublisher(Node):
             'camera_left/image_raw',
             'camera_right/image_raw'
         ]
+        self.one = [
+            'real/image_raw'
+        ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
+        self.real_publishers = [self.create_publisher(Image, topic, 10) for topic in self.one]
 
         # Define the physical camera devices available
         # (Here we assume you have 4 physical cameras at these device indexes)
-        self.cameras_index = [0, 2, 3, 6]  # adjust as needed
+        self.real_index = [3]
+        self.cameras_index = [0, 2, 4, 6]  # adjust as needed
+        # for i in range(10):
+        #     cap=cv2.VideoCapture(i)
+        #     if cap.isOpened():
+        #         self.get_logger(f"Camara encontrada en el indice {i}")
+        #         self.cameras_index.append(i)
+        #     else:
+        #         self.get_logger(f"Camara no encontrada en el indice {i}")
+        #     cap.release()
+
         self.captures = [cv2.VideoCapture(i) for i in self.cameras_index]
         for i, cap in enumerate(self.captures):
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            cap.set(cv2.CAP_PROP_FPS, 30)
+            if not cap.isOpened():
+                print()
+                #self.get_logger().error(f"Failed to open camera {i}")
+            else:
+                print()
+                #self.get_logger().info(f"Camera {i} opened successfully.")
+
+        self.capture_real = [cv2.VideoCapture(i) for i in self.real_index]
+        for i, cap in enumerate(self.capture_real):
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             cap.set(cv2.CAP_PROP_FPS, 30)
@@ -86,8 +112,8 @@ class CameraPublisher(Node):
     def timer_callback(self):
         # For left (publisher index 0) and right (publisher index 1) cameras:
         for pub_idx, cam_idx in enumerate(self.active_indexes):
-            if cam_idx < len(self.captures):
-                ret, frame = self.captures[cam_idx].read()
+            if cam_idx < len(self.capture_real):
+                ret, frame = self.capture_real[cam_idx].read()
                 if ret:
                     msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                     self.image_publishers[pub_idx].publish(msg)
@@ -95,8 +121,20 @@ class CameraPublisher(Node):
                     print()
                     #self.get_logger().warning(f"Camera {cam_idx} frame not available.")
             else:
-                
                 self.get_logger().warning(f"Invalid camera index: {cam_idx}")
+
+        for pub_idx, cam_idx in enumerate(self.real_index):
+            if cam_idx < len(self.captures):
+                ret, frame = self.captures[cam_idx].read()
+                if ret:
+                    msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+                    self.real_publishers[pub_idx].publish(msg)
+                else:
+                    print()
+                    #self.get_logger().warning(f"Camera {cam_idx} frame not available.")
+            else:
+                self.get_logger().warning(f"Invalid camera index: {cam_idx}")
+
 
     def destroy_node(self):
         for cap in self.captures:
