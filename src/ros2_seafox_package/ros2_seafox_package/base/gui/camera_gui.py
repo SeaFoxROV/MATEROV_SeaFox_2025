@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import paramiko
 from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QWidget, QVBoxLayout, QComboBox, QSplitter
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
@@ -17,9 +18,9 @@ class CameraSubscriber(Node):
         self.image_data = [None, None, None]
 
         self.topic_names = [
-            'vcamera_left/image_raw',
-            'vcamera_right/image_raw',
-            'vcamera_realsense/image_raw'
+            'camera_left/image_processed',
+            'camera_right/image_processed',
+            'camera_realsense/image_processed'
         ]
         self.yolo_topic_names = [
             'yolocamera_left/image_raw',
@@ -103,6 +104,11 @@ class CameraGUI(QWidget):
         self.resetbtn.setCheckable(False)  # Normal push button behavior
         self.resetbtn.setFixedSize(150, 100)
 
+        # Boton para hacer conexion al ssh
+        self.connectbtn = QPushButton("Connect Jetson", self)
+        self.connectbtn.clicked.connect(self.connect_jetson)
+        self.connectbtn.setCheckable(False)  # Normal push button behavior
+        self.connectbtn.setFixedSize(150, 100)
 
         # Layout
         layout = QVBoxLayout()
@@ -120,6 +126,7 @@ class CameraGUI(QWidget):
         splitter2.addWidget(self.label_realsense)
         splitter2.addWidget(self.yolobtn)
         splitter2.addWidget(self.resetbtn)   # New reset button added here
+        splitter2.addWidget(self.connectbtn) 
         layout.addWidget(splitter2)
         self.setLayout(layout)
 
@@ -149,6 +156,23 @@ class CameraGUI(QWidget):
         elif index == 1:
             self.current_camera_pair = [2, 3]
         self.send_camera_selection(self.current_camera_pair)
+
+    def connect_jetson(self):
+        command = "df"
+
+        # Update the next three lines with your
+        # server's information
+
+        host = "192.168.0.145"
+        username = "YOUR_LIMITED_USER_ACCOUNT"
+        password = "seafox"
+
+        client = paramiko.client.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(host, username=username, password=password)
+        _stdin, _stdout,_stderr = client.exec_command("df")
+        print(_stdout.read().decode())
+        client.close()
 
     def toggle_view(self):
         # Cuando se pulsa el botón, se actualiza el texto y se publica el modo en el tópico mode_selection

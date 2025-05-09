@@ -14,9 +14,9 @@ class ImageViewer(Node):
 
         # Tópicos para imágenes normales y procesadas
         self.topic_names = [
-            'vcamera_left/image_raw',
-            'vcamera_right/image_raw',
-            'vcamera_realsense/image_raw'
+            'camera_left/image_processed',
+            'camera_right/image_processed',
+            'camera_realsense/image_processed'
         ]
         self.subtopic_names = [
             'camera_left/image_raw',
@@ -88,7 +88,7 @@ class ImageViewer(Node):
                 continue
             try:
                 # Conversión de ROS2 a OpenCV
-                cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, encoding='bgr8')
+                cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, desired_encoding='bgr8')
             except Exception as e:
                 self.get_logger().error(f"Error converting image: {e}")
                 continue
