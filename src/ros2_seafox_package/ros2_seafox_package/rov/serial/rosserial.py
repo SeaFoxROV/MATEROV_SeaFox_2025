@@ -39,7 +39,7 @@ class RosserialNode(Node):
             self.get_logger().info(f"Conectado al Arduino en el puerto {self.puerto}")
         except Exception as e:
             self.get_logger().error(f"No se pudo conectar al Arduino: {e}")
-            self.arduino = None
+            self.arduino = None    
 
         self.create_timer(0.05, self.update_motors)
 

@@ -56,12 +56,12 @@ class MotionController(Node):
         self.last_user_velocity_command.angular.x = right_joy_x
         self.last_user_velocity_command.angular.y = right_joy_y
         
-        self.pwms.data[0] += msg.data[15]*self.pwm_tick
+        self.pwms.data[2] += msg.data[15]*self.pwm_tick
 
-        if self.pwms.data[0]<500:
-            self.pwms.data[0] = 500
-        if self.pwms.data[0]>2500:
-            self.pwms.data[0] = 2500
+        if self.pwms.data[2]<500:
+            self.pwms.data[2] = 500
+        if self.pwms.data[2]>2500:
+            self.pwms.data[2] = 2500
 
         self.pwms.data[1] += msg.data[14]*self.pwm_tick
 
@@ -70,13 +70,15 @@ class MotionController(Node):
         if self.pwms.data[1]>2500:
             self.pwms.data[1] = 2500
                     
-        self.pwms.data[2] += (msg.data[10]*self.pwm_tick)-(msg.data[11]*self.pwm_tick)
-        
-        if self.pwms.data[2]<500:
-            self.pwms.data[2] = 500
-        if self.pwms.data[2]>2500:
-            self.pwms.data[2] = 2500
-        
+        #self.pwms.data[0] += (msg.data[10]*self.pwm_tick)-(msg.data[11]*self.pwm_tick)
+        self.pwms.data[0] = 1500
+
+        if bool(msg.data[10]):
+            self.pwms.data[0] = 1400
+        if bool(msg.data[11]):
+            self.pwms.data[0] = 1600
+        if bool(msg.data[10]) and bool(msg.data[11]):
+            self.pwms.data[0] = 1500
         self.last_command_time = self.get_clock().now()
 
  #   def roll_effort_callback(self, msg: Float64):
