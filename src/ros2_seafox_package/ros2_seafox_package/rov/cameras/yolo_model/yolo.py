@@ -88,7 +88,7 @@ class ImageViewer(Node):
                 continue
             try:
                 # Conversión de ROS2 a OpenCV
-                cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, desired_encoding='bgr8')
+                cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, desired_encoding='mono8')
             except Exception as e:
                 self.get_logger().error(f"Error converting image: {e}")
                 continue
@@ -96,7 +96,7 @@ class ImageViewer(Node):
             if self.camera_mode == 0:
                 # Modo normal: se re-publica la imagen original
                 try:
-                    img_msg = self.bridge.cv2_to_imgmsg(cv_frame, encoding='bgr8')
+                    img_msg = self.bridge.cv2_to_imgmsg(cv_frame, encoding='mono8')
                 except Exception as e:
                     self.get_logger().error(f"Error converting image back to ROS2: {e}")
                     continue
@@ -106,7 +106,7 @@ class ImageViewer(Node):
                 results = self.model(cv_frame)
                 annotated_frame = results[0].plot()
                 try:
-                    img_msg = self.bridge.cv2_to_imgmsg(annotated_frame, encoding='bgr8')
+                    img_msg = self.bridge.cv2_to_imgmsg(annotated_frame, encoding='mono8')
                 except Exception as e:
                     self.get_logger().error(f"Error converting YOLO image back to ROS2: {e}")
                     continue
