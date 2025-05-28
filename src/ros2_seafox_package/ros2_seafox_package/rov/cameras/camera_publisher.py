@@ -20,18 +20,18 @@ class CameraPublisher(Node):
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
         # Abre las cámaras
-        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
 
         # Guarda las cámaras en una lista para fácil manejo
         self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
 
         # Configura parámetros de captura
-        for cam in self.captures:
-            cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-            cam.set(cv2.CAP_PROP_FPS, 30)
+        for cam in [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]:
+            cam.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+            cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+            cam.set(cv2.CAP_PROP_FPS, 25)
 
         # Verifica si las cámaras se abrieron correctamente
         for i, cam in enumerate(self.captures):
