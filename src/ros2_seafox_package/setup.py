@@ -31,8 +31,7 @@ setup(
                 'newtons_to_pwm = ros2_seafox_package.base.control.d_newtons_to_pwm:main',
             
             #gui scripts
-                'camera_gui = ros2_seafox_package.base.gui.camera_gui:main',
-                'main_gui = ros2_seafox_package.base.gui.main_gui:main',
+                'gui_handler = ros2_seafox_package.base.gui.gui_handler:main',
 
         #ROV scripts
             #cameras scripts
