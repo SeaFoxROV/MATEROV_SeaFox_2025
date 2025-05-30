@@ -95,7 +95,7 @@ class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.yolo = False
-        self.model = YOLO(r'/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
 
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
