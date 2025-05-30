@@ -35,7 +35,7 @@ class ImagePopup(QDialog):
 
     def show_image(self, index):
         if 0 <= index < len(self.images):
-            img = cv2.imread(self.images[index])
+            img =self.images[index]
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             h, w, ch = img.shape

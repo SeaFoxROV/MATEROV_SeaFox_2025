@@ -280,7 +280,7 @@ class PhotoSpherePopup(QDialog):
         if not self.captured_frames:
             print("No hay imágenes capturadas para mostrar.")
             return
-        image_paths = [f"captured_frame_{i}.jpg" for i in range(len(self.captured_frames))]
+        image_paths = self.captured_frames
         popup = ImagePopup(image_paths, self)
         popup.exec_()
 
