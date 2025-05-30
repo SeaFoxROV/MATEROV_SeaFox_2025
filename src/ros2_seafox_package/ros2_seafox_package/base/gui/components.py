@@ -165,6 +165,7 @@ class ObjectDetectionPopup(QDialog):
             frame = getattr(self.node, "realsense_frame", None)
         if self.yolo:
             self.video_label.setVisible(False)
+            self.video_label_yolo.setVisible(True)
             try:
                 results = self.model(frame)
                 annotated_frame = results[0].plot()
@@ -177,6 +178,7 @@ class ObjectDetectionPopup(QDialog):
                 print(f"Error in YOLO processing: {e}")
         elif frame is not None:
             self.video_label_yolo.setVisible(False)
+            self.video_label.setVisible(True)
             h, w, _ = frame.shape
             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
             self.video_label.setPixmap(QPixmap.fromImage(img).scaled(

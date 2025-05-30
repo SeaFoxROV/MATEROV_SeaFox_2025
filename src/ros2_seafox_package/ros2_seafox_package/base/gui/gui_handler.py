@@ -9,7 +9,7 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Int32MultiArray, Empty
 from cv_bridge import CvBridge
 
-from .components import MainWindow
+from components import MainWindow
 
 #component for camera gui
 
