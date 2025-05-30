@@ -33,22 +33,12 @@ class RosserialNode(Node):
         self.bar_publisher = self.create_publisher(Float32MultiArray, 'bar02', 10)
         self.leak_publisher = self.create_publisher(Bool, 'leak_sensor', 10)
 
-        self.puerto = self.get_port()
-        try:
-            self.arduino = serial.Serial(self.puerto, 115200, timeout=0.01)
-            self.get_logger().info(f"Conectado al Arduino en el puerto {self.puerto}")
-        except Exception as e:
-            self.get_logger().error(f"No se pudo conectar al Arduino: {e}")
-            self.arduino = None    
-
+        
+        self.arduino = serial.Serial("/dev/esp32", 115200, timeout=0.01)
+        self.get_logger().info(f"Conectado al Arduino en el puerto {self.puerto}")
+    
         self.create_timer(0.05, self.update_motors)
 
-    def get_port(self):
-        puertos = serial.tools.list_ports.comports()
-        for puerto in puertos:
-            if "USB" in puerto.device or "ACM" in puerto.device  :  # Asegúrate de verificar correctamente el nombre del puerto
-                return puerto.device
-        return None
 
     def cmd_callback(self, msg):
         self.pwm_values = list(msg.data)

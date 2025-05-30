@@ -20,8 +20,9 @@ class CameraSubscriber(Node):
         self.topic_names = [
             'camera_left/image_processed',
             'camera_right/image_processed',
-            'camera_realsense/image_processed'
+            'real/image_raw'
         ]
+      
         self.yolo_topic_names = [
             'yolocamera_left/image_raw',
             'yolocamera_right/image_raw',
@@ -35,6 +36,16 @@ class CameraSubscriber(Node):
         self.subscribers = []
         for i, topic in enumerate(self.topic_names):
             sub = self.create_subscription(
+                Image,
+                topic,
+                lambda msg, idx=i: self.callback(msg, idx),
+                10
+            )
+            self.subscribers.append(sub)
+
+        self.real_sub = []
+        for i, topic in enumerate(self.one):
+            sub_one = self.create_subscription(
                 Image,
                 topic,
                 lambda msg, idx=i: self.callback(msg, idx),
@@ -158,21 +169,30 @@ class CameraGUI(QWidget):
         self.send_camera_selection(self.current_camera_pair)
 
     def connect_jetson(self):
-        command = "df"
-
-        # Update the next three lines with your
-        # server's information
-
-        host = "192.168.0.145"
-        username = "YOUR_LIMITED_USER_ACCOUNT"
+        hostname = "192.168"
+        username = "jetson"
         password = "seafox"
+        port = 22 # default SSH port
 
-        client = paramiko.client.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(host, username=username, password=password)
-        _stdin, _stdout,_stderr = client.exec_command("df")
-        print(_stdout.read().decode())
-        client.close()
+        try:
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(hostname=hostname, port=port, username=username, password=password)
+
+            # Execute commands (optional)
+            stdin, stdout, stderr = client.exec_command("ls -l")
+            output = stdout.read().decode()
+            print(output)
+
+        except paramiko.AuthenticationException:
+            print("Authentication failed, check your credentials.")
+        except paramiko.SSHException as ssh_ex:
+            print(f"SSH error occurred: {ssh_ex}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        finally:
+            if client:
+                client.close()
 
     def toggle_view(self):
         # Cuando se pulsa el botón, se actualiza el texto y se publica el modo en el tópico mode_selection
@@ -224,16 +244,30 @@ class CameraGUI(QWidget):
 
     def update_image(self):
         # Actualiza la imagen de RealSense
-        frame_realsense = self.node.image_data[2]
-        if frame_realsense is not None:
-            height, width, channel = frame_realsense.shape
+
+        # frame_realsense = self.node.image_data[2]
+        # if frame_realsense is not None:
+        #     height, width, channel = frame_realsense.shape
+        #     bytes_per_line = 3 * width
+        #     q_img = QImage(frame_realsense.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+        #     pixmap = QPixmap.fromImage(q_img).scaled(self.label_realsense.width(), self.label_realsense.height())
+        #     self.label_realsense.setPixmap(pixmap)
+        #     self.label_realsense.mousePressEvent = self.getPos
+        # else:
+        #     self.label_realsense.setText("No signal from RealSense")
+
+        real_frame = self.node.image_data[2]
+        if real_frame is not None:
+            height, width, channel = real_frame.shape
             bytes_per_line = 3 * width
-            q_img = QImage(frame_realsense.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+            q_img = QImage(real_frame.data, width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
             pixmap = QPixmap.fromImage(q_img).scaled(self.label_realsense.width(), self.label_realsense.height())
             self.label_realsense.setPixmap(pixmap)
-            self.label_realsense.mousePressEvent = self.getPos
+     
+            # self.label_realsense.mousePressEvent = self.getPos
         else:
             self.label_realsense.setText("No signal from RealSense")
+
 
         # Actualiza la imagen de la cámara izquierda
         frame_left = self.node.image_data[0]
