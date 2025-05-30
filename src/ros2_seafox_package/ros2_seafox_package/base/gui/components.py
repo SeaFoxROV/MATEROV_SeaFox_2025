@@ -9,6 +9,9 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
 import sys
+from ultralytics import YOLO
+import cv2
+from cv_bridge import CvBridge
 
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
@@ -91,6 +94,9 @@ class CameraViewerWidget(QWidget):
 class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
+        self.yolo = False
+        self.model = YOLO(r'src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
         self.setFixedSize(500, 420)
@@ -100,12 +106,17 @@ class ObjectDetectionPopup(QDialog):
         self.video_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.video_label)
 
+        self.video_label_yolo = QLabel(); self.video_label_yolo.setFixedSize(480, 270)
+        self.video_label_yolo.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.video_label_yolo)
+
         self.selector = QComboBox()
         self.selector.addItems(["Frontal", "Apoyo 1", "Apoyo 2", "RealSense"])
         layout.addWidget(self.selector)
 
         btn_layout = QHBoxLayout()
         self.yolo_btn  = QPushButton("YOLO")
+        self.yolo_btn.clicked.connect(self.set_Yolo)
         self.close_btn = QPushButton("Cerrar")
         self.yolo_btn.setStyleSheet("font-size:18px; padding:10px;")
         self.close_btn.clicked.connect(self.close)
@@ -114,6 +125,37 @@ class ObjectDetectionPopup(QDialog):
         layout.addLayout(btn_layout)
 
         self.timer = QTimer(self); self.timer.timeout.connect(self.update_image); self.timer.start(33)
+    
+    def set_Yolo(self):
+        if self.yolo:
+            self.yolo = False
+        else:
+            self.yolo = True
+        self.bridge = CvBridge()                                                  
+        # # Recorre cada cámara y procesa según el modo actual
+        # for i, frame_msg in enumerate(self.video_label):
+        #     if frame_msg is None:
+        #         continue
+        #     try:
+        #         # Conversión de ROS2 a OpenCV
+        #         cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, desired_encoding='bgr8')
+        #     except Exception as e:
+        #         self.get_logger().error(f"Error converting image: {e}")
+        #         continue
+
+        #     # Modo YOLO: se procesa la imagen y se publica la imagen anotada
+        #     results = self.model(cv_frame)
+        #     annotated_frame = results[0].plot()
+        #     try:
+        #         img_msg = self.bridge.cv2_to_imgmsg(annotated_frame, encoding='bgr8')
+        #         self.video_label_yolo = img_msg
+        #     except Exception as e:
+        #         self.get_logger().error(f"Error converting YOLO image back to ROS2: {e}")
+        #         continue
+        #     # self.yolo_publishers[i].publish(img_msg)
+    def closeEvent(self, a0):
+        self.yolo = False
+        super().closeEvent(a0)
 
     def update_image(self):
         idx = self.selector.currentIndex()
@@ -121,7 +163,17 @@ class ObjectDetectionPopup(QDialog):
             frame = self.node.image_data[idx]
         else:
             frame = getattr(self.node, "realsense_frame", None)
-        if frame is not None:
+        if self.yolo:
+            try:
+                results = self.model(frame)
+                annotated_frame = results[0].plot()
+                h, w, _ = annotated_frame.shape
+                img = QImage(annotated_frame.data, w, h, 3 * w, QImage.Format_RGB888).rgbSwapped()
+                self.video_label_yolo.setPixmap(QPixmap.fromImage(img).scaled(
+                    self.video_label_yolo.width(), self.video_label_yolo.height(), Qt.KeepAspectRatio))
+            except Exception as e:
+                print(f"Error in YOLO processing: {e}")
+        elif frame is not None:
             h, w, _ = frame.shape
             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
             self.video_label.setPixmap(QPixmap.fromImage(img).scaled(
