@@ -29,8 +29,8 @@ class CameraPublisher(Node):
 
         # Configura parámetros de captura
         for cam in [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]:
-            cam.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-            cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+            cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             cam.set(cv2.CAP_PROP_FPS, 25)
 
         # Verifica si las cámaras se abrieron correctamente

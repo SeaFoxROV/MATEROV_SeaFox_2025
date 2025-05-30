@@ -170,32 +170,53 @@ class MeasurePopup(QDialog):
 # ------------------------------
 # Popup de PhotoSphere
 # ------------------------------
+# ----------------------------------------
+# Popup de PhotoSphere con captura y Stitch
+# ----------------------------------------
+from img_stitcher import ImageStitcher
+import cv2
 class PhotoSpherePopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.node = node
         self.setWindowTitle("PhotoSphere")
-        self.setFixedSize(500, 420)
+        self.setFixedSize(520, 500)
 
         layout = QVBoxLayout(self)
-        self.video_label = QLabel(); self.video_label.setFixedSize(480, 270)
+        self.video_label = QLabel()
+        self.video_label.setFixedSize(500, 280)
         self.video_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.video_label)
 
+        # Selector de cámara
         self.selector = QComboBox()
         self.selector.addItems(["Frontal", "Apoyo 1", "Apoyo 2", "RealSense"])
         layout.addWidget(self.selector)
 
+        # Botones: Capturar, Stitch, Cerrar
         btn_layout = QHBoxLayout()
         self.capture_btn = QPushButton("Capturar")
+        self.stitch_btn = QPushButton("Stitch")
         self.close_btn   = QPushButton("Cerrar")
-        self.capture_btn.setStyleSheet("font-size:18px; padding:10px;")
+        self.capture_btn.setStyleSheet("font-size:14px; padding:8px;")
+        self.stitch_btn.setStyleSheet("font-size:14px; padding:8px;")
         self.close_btn.clicked.connect(self.close)
         btn_layout.addWidget(self.capture_btn)
+        btn_layout.addWidget(self.stitch_btn)
         btn_layout.addWidget(self.close_btn)
         layout.addLayout(btn_layout)
 
-        self.timer = QTimer(self); self.timer.timeout.connect(self.update_image); self.timer.start(33)
+        # Conectar señales
+        self.capture_btn.clicked.connect(self.capture_frame)
+        self.stitch_btn.clicked.connect(self.perform_stitch)
+
+        # Lista de cuadros capturados
+        self.captured_frames = []
+
+        # Timer para refrescar vista
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_image)
+        self.timer.start(33)
 
     def update_image(self):
         idx = self.selector.currentIndex()
@@ -210,6 +231,32 @@ class PhotoSpherePopup(QDialog):
                 self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio))
         else:
             self.video_label.setText("No signal")
+
+    def capture_frame(self):
+        # Captura el frame actual y lo añade a la lista
+        idx = self.selector.currentIndex()
+        if idx < 3:
+            frame = self.node.image_data[idx]
+        else:
+            frame = getattr(self.node, "realsense_frame", None)
+        if frame is not None:
+            self.captured_frames.append(frame)
+            print(f"Frame capturado de cámara {self.selector.currentText()} (total {len(self.captured_frames)})")
+            cv2.imshow("dauhfhqew", frame)
+
+    def perform_stitch(self):
+        # Realiza el stitch de las imágenes capturadas
+        stitcher = ImageStitcher()
+        result = stitcher.stitch_images(self.captured_frames)
+        if result is not None:
+            cv2.imshow('Fotoesfera Stitch', result)
+            cv2.waitKey(0)
+
+    def closeEvent(self, event):
+        # Limpiar lista al cerrar
+        self.captured_frames.clear()
+        event.accept()
+
 # ----------------------------------------
 # Botonera con popups
 # ----------------------------------------

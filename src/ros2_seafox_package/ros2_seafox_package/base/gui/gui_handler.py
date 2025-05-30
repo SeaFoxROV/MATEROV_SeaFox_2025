@@ -50,14 +50,21 @@ class GUI_Node(Node):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
             self.image_data[index] = cv_image
-            self.get_logger().info("Cameras!")
 
         except Exception as e:
             print(f"Error converting image: {e}")
 
+def sigint_handler(*args):
+    """Handler for the SIGINT signal."""
+    sys.stderr.write('\r')
+    QApplication.quit()
+
+
+
 def main(args=None):
     rclpy.init(args=args)
-
+    signal.signal(signal.SIGINT, sigint_handler)
+    
     app = QApplication(sys.argv)
 
     # Crear el nodo ROS2 suscriptor
