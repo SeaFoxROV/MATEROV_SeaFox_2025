@@ -35,13 +35,13 @@ class RosserialNode(Node):
 
         
         self.arduino = serial.Serial("/dev/esp32", 115200, timeout=0.01)
-        self.get_logger().info(f"Conectado al Arduino en el puerto {self.puerto}")
+        self.get_logger().info(f"Conectado al Arduino en el puerto serial")
     
         self.create_timer(0.05, self.update_motors)
 
 
     def cmd_callback(self, msg):
-        self.pwm_values = list(msg.data)
+        self.motor_values = list(msg.data)
         self.last_cmd_time = time.time()
 
     def gripper_callback(self, msg):
