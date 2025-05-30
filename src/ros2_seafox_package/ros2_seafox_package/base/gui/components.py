@@ -12,7 +12,7 @@ import sys
 from ultralytics import YOLO
 import cv2
 from cv_bridge import CvBridge
-
+from ros2_seafox_package.base.gui.imageroll import ImagePopup
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
@@ -95,7 +95,7 @@ class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.yolo = False
-        self.model = YOLO(r'src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
 
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
@@ -171,6 +171,7 @@ class ObjectDetectionPopup(QDialog):
                 img = QImage(annotated_frame.data, w, h, 3 * w, QImage.Format_RGB888).rgbSwapped()
                 self.video_label_yolo.setPixmap(QPixmap.fromImage(img).scaled(
                     self.video_label_yolo.width(), self.video_label_yolo.height(), Qt.KeepAspectRatio))
+                # self.logger("procesamiento yolo")
             except Exception as e:
                 print(f"Error in YOLO processing: {e}")
         elif frame is not None:
@@ -225,7 +226,8 @@ class MeasurePopup(QDialog):
 # ----------------------------------------
 # Popup de PhotoSphere con captura y Stitch
 # ----------------------------------------
-from img_stitcher import ImageStitcher
+from ros2_seafox_package.base.gui.img_stitcher import ImageStitcher
+
 import cv2
 class PhotoSpherePopup(QDialog):
     def __init__(self, node):
@@ -260,7 +262,7 @@ class PhotoSpherePopup(QDialog):
 
         # Conectar señales
         self.capture_btn.clicked.connect(self.capture_frame)
-        self.stitch_btn.clicked.connect(self.perform_stitch)
+        self.stitch_btn.clicked.connect(self.image_roll)
 
         # Lista de cuadros capturados
         self.captured_frames = []
@@ -269,6 +271,15 @@ class PhotoSpherePopup(QDialog):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
+
+    def image_roll(self):
+        # Abre un pop-up para mostrar las imágenes capturadas
+        if not self.captured_frames:
+            print("No hay imágenes capturadas para mostrar.")
+            return
+        image_paths = [f"captured_frame_{i}.jpg" for i in range(len(self.captured_frames))]
+        popup = ImagePopup(image_paths, self)
+        popup.exec_()
 
     def update_image(self):
         idx = self.selector.currentIndex()
@@ -294,7 +305,6 @@ class PhotoSpherePopup(QDialog):
         if frame is not None:
             self.captured_frames.append(frame)
             print(f"Frame capturado de cámara {self.selector.currentText()} (total {len(self.captured_frames)})")
-            cv2.imshow("dauhfhqew", frame)
 
     def perform_stitch(self):
         # Realiza el stitch de las imágenes capturadas
@@ -303,6 +313,8 @@ class PhotoSpherePopup(QDialog):
         if result is not None:
             cv2.imshow('Fotoesfera Stitch', result)
             cv2.waitKey(0)
+    
+
 
     def closeEvent(self, event):
         # Limpiar lista al cerrar
@@ -361,6 +373,7 @@ class StatusTableWidget(QWidget):
 # ----------------------------------------
 class MainWindow(QMainWindow):
     def __init__(self, node):
+
         super().__init__()
         self.setWindowTitle("Interfaz del ROV")
         self.setMinimumSize(1200, 800)
@@ -379,6 +392,7 @@ class MainWindow(QMainWindow):
         main_v.addWidget(Camaras(node))
 
         self.setCentralWidget(central)
+
 
 # ----------------------------------------
 # Ejecución de prueba (sin ROS2)
