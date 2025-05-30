@@ -24,8 +24,12 @@ class newton_to_pwm(Node):
         self.pwm_fit_params = newton_to_pwm.generate_pwm_fit_params()
 
         self.subscription = self.create_subscription(Float32MultiArray, "motor_values", self.pwm_callback,10)
-        
+            
+        self.create_subscription(Float32MultiArray, '/joystick_data', self.joystick_callback, 100)
+
         self.pwm_pub = self.create_publisher(Int16MultiArray, "pwm_values", 10)
+
+        self.joystick_data = None
 
     @staticmethod
     def newtons_to_pwm(x: float, a: float, b: float, c: float, d: float, e: float, f: float) -> float:
@@ -54,7 +58,11 @@ class newton_to_pwm(Node):
 
         optimal_params, param_covariance = curve_fit(newton_to_pwm.newtons_to_pwm, x, y)
         return optimal_params
-
+    
+    def joystick_callback(self, msg):
+        """Callback para guardar los datos del joystick"""
+        self.joystick_data = msg.data
+    
     def pwm_callback(self, motor_values):
         # Creamos un nuevo mensaje para publicar PWM
         pwm_msg = Int16MultiArray()
@@ -74,12 +82,35 @@ class newton_to_pwm(Node):
             # Limitar el rango de pwm
             up = 1750
             down = 1250
+            
             pwm = up if pwm > up else down if pwm < down else pwm
         
             # Si el valor en newton es 0, lo asignamos a 1500
             if newton == 0:
                 pwm = 1500
             pwm_msg.data[index] = pwm
+        # if pwm_msg.data[3] > 1700 and pwm_msg.data[2] < 1200:
+
+        if pwm_msg.data[2]>1600:
+            pwm_msg.data[2] = 1850
+        if pwm_msg.data[2]<1400:
+            pwm_msg.data[2] = 1150
+        if pwm_msg.data[3]>1600:
+            pwm_msg.data[3] = 1850
+        if pwm_msg.data[3]<1400:
+            pwm_msg.data[3] = 1150
+
+        if self.joystick_data is not None:
+            if bool(self.joystick_data[8]):#derecha
+                pwm_msg.data[0] = 1250 
+                pwm_msg.data[1] = 1750 
+                pwm_msg.data[4] = 1750 
+                pwm_msg.data[5] = 1250 
+            if bool(self.joystick_data[7]):#izquierda
+                pwm_msg.data[0] = 1750 
+                pwm_msg.data[1] = 1250 
+                pwm_msg.data[4] = 1250 
+                pwm_msg.data[5] = 1750 
 
         pwm_msg.data[3] += 15
         self.pwm_pub.publish(pwm_msg)
