@@ -164,6 +164,7 @@ class ObjectDetectionPopup(QDialog):
         else:
             frame = getattr(self.node, "realsense_frame", None)
         if self.yolo:
+            self.video_label.setVisible(False)
             try:
                 results = self.model(frame)
                 annotated_frame = results[0].plot()
@@ -171,13 +172,16 @@ class ObjectDetectionPopup(QDialog):
                 img = QImage(annotated_frame.data, w, h, 3 * w, QImage.Format_RGB888).rgbSwapped()
                 self.video_label_yolo.setPixmap(QPixmap.fromImage(img).scaled(
                     self.video_label_yolo.width(), self.video_label_yolo.height(), Qt.KeepAspectRatio))
+                print("Yolo")
             except Exception as e:
                 print(f"Error in YOLO processing: {e}")
         elif frame is not None:
+            self.video_label_yolo.setVisible(False)
             h, w, _ = frame.shape
             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
             self.video_label.setPixmap(QPixmap.fromImage(img).scaled(
                 self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio))
+            print("Normal")
         else:
             self.video_label.setText("No signal")
 
