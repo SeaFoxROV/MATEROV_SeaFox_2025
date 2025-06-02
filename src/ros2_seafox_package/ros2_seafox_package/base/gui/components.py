@@ -13,6 +13,7 @@ from ultralytics import YOLO
 import cv2
 from cv_bridge import CvBridge
 from ros2_seafox_package.base.gui.imageroll import ImagePopup
+import pyrealsense2 as rs
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
@@ -20,17 +21,33 @@ class Camaras(QWidget):
     def __init__(self, node, width=400):  # duplicado de tamaño de 200 a 400
         super().__init__()
         self.node = node
+        self.permision_video = [True, True, True]
 
         # Tres labels para frontal, apoyo1, apoyo2
         self.label_left   = QLabel(); self.label_left.setFixedSize(width, (width*3)//4)
         self.label_middle = QLabel(); self.label_middle.setFixedSize(width, (width*3)//4)
         self.label_right  = QLabel(); self.label_right.setFixedSize(width, (width*3)//4)
 
+        # Crosses to cancel the image
+        self.cancel_left = QPushButton("X")
+        self.cancel_left.clicked.connect(lambda: self.close_image(0))
+        self.cancel_center = QPushButton("X")
+        self.cancel_center.clicked.connect(lambda: self.close_image(1))
+        self.cancel_right = QPushButton("X")
+        self.cancel_right.clicked.connect(lambda: self.close_image(2))
+        for button in (self.cancel_left, self.cancel_right, self.cancel_center):
+            button.setFixedSize(30, 30)
+            button.setStyleSheet("background-color: red; color: white; border-radius: 15px;")
+            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
         layout = QHBoxLayout(self)
         layout.addStretch()
         layout.addWidget(self.label_left)
         layout.addWidget(self.label_middle)
         layout.addWidget(self.label_right)
+        layout.addWidget(self.cancel_left, alignment=Qt.AlignTop)
+        layout.addWidget(self.cancel_center, alignment=Qt.AlignTop)
+        layout.addWidget(self.cancel_right, alignment=Qt.AlignTop)
         layout.addStretch()
         self.setLayout(layout)
 
@@ -40,17 +57,38 @@ class Camaras(QWidget):
         self.timer.start(33)
 
     def update_image(self):
-        for label, frame in zip(
+        for i, (label, frame) in enumerate(zip(
             (self.label_left, self.label_middle, self.label_right),
             (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
-        ):
-            if frame is not None:
+        )):
+            if frame is not None and self.permision_video[i]== True:
                 h, w, _ = frame.shape
                 img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
                 label.setPixmap(QPixmap.fromImage(img).scaled(
                     label.width(), label.height(), Qt.KeepAspectRatio))
             else:
                 label.setText("No signal")
+    def close_image(self, camera_index):
+        if camera_index == 0:
+            self.label_left.clear()
+            if self.permision_video[0] == True:
+                self.permision_video[0] = False
+            else:
+                self.permision_video[0] = True
+        elif camera_index == 1:
+            self.label_middle.clear()
+            if self.permision_video[1] == True:
+                self.permision_video[1] = False
+            else:
+                self.permision_video[1] = True
+        elif camera_index == 2:
+            self.label_right.clear()
+            if self.permision_video[2] == True:
+                self.permision_video[2] = False
+            else:
+                self.permision_video[2] = True
+        else:
+            raise ValueError("Índice de cámara no válido. Debe ser 0, 1 o 2.")
 
 # ----------------------------------------
 # Viewer grande para RealSense
@@ -73,10 +111,13 @@ class RealsenseViewerWidget(QWidget):
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
 
+        #Variable for lengt measurement
+        point = 0
+
     def update_image(self):
         frame = self.node.image_data[3]  # RealSense frame
-        frame_depth = self.node.image_data[4]  # Depth frame
-        video = [frame, frame_depth] #Esto para que solo el video rgb se muestre y el depth corra de fondo pero sin verse
+        self.frame_depth = self.node.image_data[4]  # Depth frame
+        video = [frame, self.frame_depth] #Esto para que solo el video rgb se muestre y el depth corra de fondo pero sin verse
         for i, frame in enumerate(video):
             if frame is not None:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -102,12 +143,12 @@ class RealsenseViewerWidget(QWidget):
             self.points = []
 
         # Verificamos que se disponga del frame de profundidad
-        if not hasattr(self, 'depth_frame') or self.depth_frame is None:
+        if not hasattr(self, 'depth_frame') or self.frame_depth is None:
             self.get_logger().warn("No hay frame de profundidad disponible")
             return
 
         # Obtener la distancia en el pixel
-        depth = self.depth_frame.get_distance(x, y)
+        depth = self.frame_depth.get_distance(x, y)
         if depth == 0:
             self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
             return
