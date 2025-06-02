@@ -28,6 +28,8 @@ class CameraPublisher(Node):
         self.cam_realsense = cv2.VideoCapture('/dev/camaras/realsense')
         if not self.cam_realsense.isOpened():
             self.get_logger().warn("Realsense camera not found")
+        else:
+            self.get_logger().info("Realsense camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
         self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
