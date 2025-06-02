@@ -26,7 +26,9 @@ class GUI_Node(Node):
         self.frames = {
             'frontal': None,
             'apoyo_1': None,
-            'apoyo_2': None
+            'apoyo_2': None,
+            'realsense': None,
+            'depth': None,
         }
         self.image_data = [None] * len(self.frames)
 

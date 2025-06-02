@@ -55,7 +55,7 @@ class Camaras(QWidget):
 # ----------------------------------------
 # Viewer grande para RealSense
 # ----------------------------------------
-class CameraViewerWidget(QWidget):
+class RealsenseViewerWidget(QWidget):
     def __init__(self, node, parent=None):
         super().__init__(parent)
         self.node = node
@@ -74,15 +74,67 @@ class CameraViewerWidget(QWidget):
         self.timer.start(33)
 
     def update_image(self):
-        frame = getattr(self.node, "realsense_frame", None)
+        frame = self.node.image_data[3]  # RealSense frame
         if frame is not None:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, _ = frame.shape
-            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
+            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
             pix = QPixmap.fromImage(img).scaled(
                 self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
             self.video_label.setPixmap(pix)
         else:
             self.video_label.setText("No signal")
+    
+    def pixelpos(self, pos):
+        # Se recibe el mensaje con la posición del pixel desde la GUI
+        x = pos.data[0]
+        y = pos.data[1]
+        self.get_logger().info(f"Posición recibida: x={x}, y={y}")
+
+        # Si ya hay dos puntos, reiniciamos para una nueva medición
+        if len(self.points) >= 2:
+            self.points = []
+
+        # Verificamos que se disponga del frame de profundidad
+        if not hasattr(self, 'depth_frame') or self.depth_frame is None:
+            self.get_logger().warn("No hay frame de profundidad disponible")
+            return
+
+        # Obtener la distancia en el pixel
+        depth = self.depth_frame.get_distance(x, y)
+        if depth == 0:
+            self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
+            return
+
+        # Deproyectar el pixel a coordenadas 3D usando los intrínsecos del sensor de color
+        point_3d = rs.rs2_deproject_pixel_to_point(self.color_intrinsics, [x, y], depth)
+        self.points.append((x, y, point_3d))
+        self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
+
+        if len(self.points) == 2:
+            p1 = np.array(self.points[0][2])
+            p2 = np.array(self.points[1][2])
+            distance = np.linalg.norm(p1 - p2)
+
+            # Ajuste de distancia
+            if 1 <= distance <= 1.10:
+                distance = distance - 3.4
+            elif 1.11 <= distance <= 1.39:
+                distance = distance - 3.8
+            elif 1.40 <= distance <= 1.59:
+                distance = distance - 4
+            elif 1.60 <= distance <= 1.79:
+                distance = distance - 3.4
+            elif 1.80 <= distance <= 1.99:
+                distance = distance - 9
+            elif 2 <= distance <= 2.10:
+                distance = distance - 12.8
+
+            # Convertir a mensaje Float32 y publicarlo
+            msg = Float32()
+            msg.data = float(distance)
+            self.distance_publisher.publish(msg)
+            self.get_logger().info(f"Distance between points: {distance:.2f} meters")
 
 # ----------------------------------------
 # Popups omitidos (mantener mismos de antes)
@@ -132,27 +184,7 @@ class ObjectDetectionPopup(QDialog):
         else:
             self.yolo = True
         self.bridge = CvBridge()                                                  
-        # # Recorre cada cámara y procesa según el modo actual
-        # for i, frame_msg in enumerate(self.video_label):
-        #     if frame_msg is None:
-        #         continue
-        #     try:
-        #         # Conversión de ROS2 a OpenCV
-        #         cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, desired_encoding='bgr8')
-        #     except Exception as e:
-        #         self.get_logger().error(f"Error converting image: {e}")
-        #         continue
 
-        #     # Modo YOLO: se procesa la imagen y se publica la imagen anotada
-        #     results = self.model(cv_frame)
-        #     annotated_frame = results[0].plot()
-        #     try:
-        #         img_msg = self.bridge.cv2_to_imgmsg(annotated_frame, encoding='bgr8')
-        #         self.video_label_yolo = img_msg
-        #     except Exception as e:
-        #         self.get_logger().error(f"Error converting YOLO image back to ROS2: {e}")
-        #         continue
-        #     # self.yolo_publishers[i].publish(img_msg)
     def closeEvent(self, a0):
         self.yolo = False
         super().closeEvent(a0)
@@ -276,7 +308,7 @@ class PhotoSpherePopup(QDialog):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
-
+        self.i = 0
     def image_roll(self):
         # Abre un pop-up para mostrar las imágenes capturadas
         if not self.captured_frames:
@@ -309,6 +341,8 @@ class PhotoSpherePopup(QDialog):
             frame = getattr(self.node, "realsense_frame", None)
         if frame is not None:
             self.captured_frames.append(frame)
+            cv2.imwrite(f"hgeswhj{self.i}", frame)
+            self.i += 1
             print(f"Frame capturado de cámara {self.selector.currentText()} (total {len(self.captured_frames)})")
 
     def perform_stitch(self):
@@ -389,7 +423,7 @@ class MainWindow(QMainWindow):
         # Fila superior: botones - RealSense viewer - tabla
         top_h = QHBoxLayout()
         top_h.addWidget(FeatureButtonsWidget(node), 1)
-        top_h.addWidget(CameraViewerWidget(node), 3)
+        top_h.addWidget(RealsenseViewerWidget(node), 3)
         top_h.addWidget(StatusTableWidget(node), 1)
         main_v.addLayout(top_h)
 
