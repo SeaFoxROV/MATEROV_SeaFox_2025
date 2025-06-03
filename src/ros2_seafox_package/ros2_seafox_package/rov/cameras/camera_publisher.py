@@ -17,12 +17,14 @@ class CameraPublisher(Node):
             'frontal',
             'apoyo_1',
             'apoyo_2',
-            'realsense',
-            'depth'
+            # 'realsense',
+            # 'depth'
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
-        self.permission_cameras = self.create_subscription(
+        self.permission_cameras = [1] * len(self.topic_names)
+
+        self.subscription_permission_cameras = self.create_subscription(
             Int8MultiArray,
             'video_permission',
             self.permission_callback,
