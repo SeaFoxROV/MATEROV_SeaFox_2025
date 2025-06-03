@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Empty
 from cv_bridge import CvBridge
+from std_msgs.msg import Int8MultiArray
 import cv2
 
 class CameraPublisher(Node):
@@ -18,9 +19,15 @@ class CameraPublisher(Node):
             'apoyo_2',
             'realsense',
             'depth'
-
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
+
+        self.permission_cameras = node.create_subscription(
+            Int8MultiArray,
+            'video_permission',
+            self.permission_callback,
+            10
+        )
 
         # Abre las cámaras
         self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
@@ -84,9 +91,13 @@ class CameraPublisher(Node):
     def timer_callback(self):
         for i, cam in enumerate(self.captures):
             ret, frame = cam.read()
-            if ret:
+            if ret and self.permission_cameras[i]==1:
                 msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                 self.image_publishers[i].publish(msg)
+
+    def permission_callback(self, msg):
+        self.permission_cameras = msg.data
+        self.get_logger().info("Data received")
 
     def destroy_node(self):
         for cam in self.captures:

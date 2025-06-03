@@ -14,6 +14,7 @@ import cv2
 from cv_bridge import CvBridge
 from ros2_seafox_package.base.gui.imageroll import ImagePopup
 import pyrealsense2 as rs
+from std_msgs.msg import Int8MultiArray
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
@@ -22,7 +23,9 @@ class Camaras(QWidget):
         super().__init__()
         self.node = node
         self.permision_video = [True, True, True]
-
+        self.permission_video = self.node.create_publisher(
+            Int8MultiArray, 'video_permission', 10
+        )
         # Tres labels para frontal, apoyo1, apoyo2
         self.label_left   = QLabel(); self.label_left.setFixedSize(width, (width*3)//4)
         self.label_middle = QLabel(); self.label_middle.setFixedSize(width, (width*3)//4)
@@ -75,20 +78,28 @@ class Camaras(QWidget):
                 self.permision_video[0] = False
             else:
                 self.permision_video[0] = True
+            self.publish_video_permission()
         elif camera_index == 1:
             self.label_middle.clear()
             if self.permision_video[1] == True:
                 self.permision_video[1] = False
             else:
                 self.permision_video[1] = True
+            self.publish_video_permission()
         elif camera_index == 2:
             self.label_right.clear()
             if self.permision_video[2] == True:
                 self.permision_video[2] = False
             else:
                 self.permision_video[2] = True
+            self.publish_video_permission()
         else:
             raise ValueError("Índice de cámara no válido. Debe ser 0, 1 o 2.")
+        
+    def publish_video_permission(self):
+        msg = Int8MultiArray()
+        msg.data = [int(val) for val in self.permision_video] # Turn to int
+        self.permission_video.publish(msg)
 
 # ----------------------------------------
 # Viewer grande para RealSense
