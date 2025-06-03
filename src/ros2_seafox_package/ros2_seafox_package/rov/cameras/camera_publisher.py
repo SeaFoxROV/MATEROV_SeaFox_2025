@@ -22,7 +22,7 @@ class CameraPublisher(Node):
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
-        self.permission_cameras = node.create_subscription(
+        self.permission_cameras = self.create_subscription(
             Int8MultiArray,
             'video_permission',
             self.permission_callback,
