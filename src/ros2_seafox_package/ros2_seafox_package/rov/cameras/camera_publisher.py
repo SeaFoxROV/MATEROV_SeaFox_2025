@@ -47,16 +47,13 @@ class CameraPublisher(Node):
             self.get_logger().info("Depth camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense, self.cam_depth]
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
 
         # Configura parámetros de captura
-        for cam in [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense, self.cam_depth]:
+        for cam in self.captures:
             cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             cam.set(cv2.CAP_PROP_FPS, 25)
-        # self.cam_realsense.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        # self.cam_realsense.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        # self.cam_realsense.set(cv2.CAP_PROP_FPS, 30)
 
         # Verifica si las cámaras se abrieron correctamente
         for i, cam in enumerate(self.captures):
@@ -84,7 +81,7 @@ class CameraPublisher(Node):
         self.cam_realsense = cv2.VideoCapture('/dev/camaras/realsense')
         self.cam_depth = cv2.VideoCapture('/dev/camaras/depth')
 
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense, self.cam_depth]
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
 
         for i, cam in enumerate(self.captures):
             if not cam.isOpened():
