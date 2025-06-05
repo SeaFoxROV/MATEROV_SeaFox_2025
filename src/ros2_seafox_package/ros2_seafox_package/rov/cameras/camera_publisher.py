@@ -89,8 +89,9 @@ class CameraPublisher(Node):
 
     def timer_callback(self):
         for i, cam in enumerate(self.captures):
-            ret, frame = cam.read()
-            if ret and self.permission_cameras[i]==1:
+            if self.permission_cameras[i] == 1: #cambiar esto para evitar que se evite el cv2.VideoCapture
+                ret, frame = cam.read()
+            if ret:
                 msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                 self.image_publishers[i].publish(msg)
 

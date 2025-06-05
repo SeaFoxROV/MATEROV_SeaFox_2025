@@ -19,13 +19,13 @@ from std_msgs.msg import Int8MultiArray
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
 class Camaras(QWidget):
-    def __init__(self, node, width=400):  # duplicado de tamaño de 200 a 400
-        super().__init__()
+    def __init__(self, node, permission_video, width=400, parent=None):  # duplicado de tamaño de 200 a 400
+        super().__init__(parent)
         self.node = node
-        self.permision_video = [True, True, True]
-        self.permission_video = self.node.create_publisher(
-            Int8MultiArray, 'video_permission', 10
-        )
+        self.permission_video = permission_video
+        # self.permision_video = [1, 1, 1, 1, 1]
+        self.real = RealsenseViewerWidget()
+        
         # Tres labels para frontal, apoyo1, apoyo2
         self.label_left   = QLabel(); self.label_left.setFixedSize(width, (width*3)//4)
         self.label_middle = QLabel(); self.label_middle.setFixedSize(width, (width*3)//4)
@@ -38,7 +38,9 @@ class Camaras(QWidget):
         self.cancel_center.clicked.connect(lambda: self.close_image(1))
         self.cancel_right = QPushButton("X")
         self.cancel_right.clicked.connect(lambda: self.close_image(2))
-        for button in (self.cancel_left, self.cancel_right, self.cancel_center):
+        self.cancel_realsense = QPushButton("X")
+        self.cancel_realsense.clicked.connect(lambda: self.close_image(3))
+        for button in (self.cancel_left, self.cancel_right, self.cancel_center, self.cancel_realsense):
             button.setFixedSize(30, 30)
             button.setStyleSheet("background-color: red; color: white; border-radius: 15px;")
             button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -71,6 +73,7 @@ class Camaras(QWidget):
                     label.width(), label.height(), Qt.KeepAspectRatio))
             else:
                 label.setText("No signal")
+                
     def close_image(self, camera_index):
         if camera_index == 0:
             self.label_left.clear()
@@ -93,8 +96,17 @@ class Camaras(QWidget):
             else:
                 self.permision_video[2] = True
             self.publish_video_permission()
+        elif camera_index == 3:
+            self.real.close_video()
+            if self.permission_video[3] == True:
+                self.permision_video[3] = False
+                self.permission_video[4] = False
+            else:
+                self.permision_video[3] = True
+                self.permission_video[4] = True
+            self.publish_video_permission()
         else:
-            raise ValueError("Índice de cámara no válido. Debe ser 0, 1 o 2.")
+            raise ValueError("Índice de cámara no válido")
         
     def publish_video_permission(self):
         msg = Int8MultiArray()
@@ -105,8 +117,8 @@ class Camaras(QWidget):
 # Viewer grande para RealSense
 # ----------------------------------------
 class RealsenseViewerWidget(QWidget):
-    def __init__(self, node, parent=None):
-        super().__init__(parent)
+    def __init__(self, node):
+        super().__init__()
         self.node = node
 
         layout = QVBoxLayout(self)
@@ -142,57 +154,60 @@ class RealsenseViewerWidget(QWidget):
                 continue
             else:
                 self.video_label.setText("No signal")
+        
+    def close_video(self):
+        self.video_label.clear()
     
-    def pixelpos(self, pos):
-        # Se recibe el mensaje con la posición del pixel desde la GUI
-        x = pos.data[0]
-        y = pos.data[1]
-        self.get_logger().info(f"Posición recibida: x={x}, y={y}")
+    # def pixelpos(self, pos):
+    #     # Se recibe el mensaje con la posición del pixel desde la GUI
+    #     x = pos.data[0]
+    #     y = pos.data[1]
+    #     self.get_logger().info(f"Posición recibida: x={x}, y={y}")
 
-        # Si ya hay dos puntos, reiniciamos para una nueva medición
-        if len(self.points) >= 2:
-            self.points = []
+    #     # Si ya hay dos puntos, reiniciamos para una nueva medición
+    #     if len(self.points) >= 2:
+    #         self.points = []
 
-        # Verificamos que se disponga del frame de profundidad
-        if not hasattr(self, 'depth_frame') or self.frame_depth is None:
-            self.get_logger().warn("No hay frame de profundidad disponible")
-            return
+    #     # Verificamos que se disponga del frame de profundidad
+    #     if not hasattr(self, 'depth_frame') or self.frame_depth is None:
+    #         self.get_logger().warn("No hay frame de profundidad disponible")
+    #         return
 
-        # Obtener la distancia en el pixel
-        depth = self.frame_depth.get_distance(x, y)
-        if depth == 0:
-            self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
-            return
+    #     # Obtener la distancia en el pixel
+    #     depth = self.frame_depth.get_distance(x, y)
+    #     if depth == 0:
+    #         self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
+    #         return
 
-        # Deproyectar el pixel a coordenadas 3D usando los intrínsecos del sensor de color
-        point_3d = rs.rs2_deproject_pixel_to_point(self.color_intrinsics, [x, y], depth)
-        self.points.append((x, y, point_3d))
-        self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
+    #     # Deproyectar el pixel a coordenadas 3D usando los intrínsecos del sensor de color
+    #     point_3d = rs.rs2_deproject_pixel_to_point(self.color_intrinsics, [x, y], depth)
+    #     self.points.append((x, y, point_3d))
+    #     self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
 
-        if len(self.points) == 2:
-            p1 = np.array(self.points[0][2])
-            p2 = np.array(self.points[1][2])
-            distance = np.linalg.norm(p1 - p2)
+    #     if len(self.points) == 2:
+    #         p1 = np.array(self.points[0][2])
+    #         p2 = np.array(self.points[1][2])
+    #         distance = np.linalg.norm(p1 - p2)
 
-            # Ajuste de distancia
-            if 1 <= distance <= 1.10:
-                distance = distance - 3.4
-            elif 1.11 <= distance <= 1.39:
-                distance = distance - 3.8
-            elif 1.40 <= distance <= 1.59:
-                distance = distance - 4
-            elif 1.60 <= distance <= 1.79:
-                distance = distance - 3.4
-            elif 1.80 <= distance <= 1.99:
-                distance = distance - 9
-            elif 2 <= distance <= 2.10:
-                distance = distance - 12.8
+    #         # Ajuste de distancia
+    #         if 1 <= distance <= 1.10:
+    #             distance = distance - 3.4
+    #         elif 1.11 <= distance <= 1.39:
+    #             distance = distance - 3.8
+    #         elif 1.40 <= distance <= 1.59:
+    #             distance = distance - 4
+    #         elif 1.60 <= distance <= 1.79:
+    #             distance = distance - 3.4
+    #         elif 1.80 <= distance <= 1.99:
+    #             distance = distance - 9
+    #         elif 2 <= distance <= 2.10:
+    #             distance = distance - 12.8
 
-            # Convertir a mensaje Float32 y publicarlo
-            msg = Float32()
-            msg.data = float(distance)
-            self.distance_publisher.publish(msg)
-            self.get_logger().info(f"Distance between points: {distance:.2f} meters")
+    #         # Convertir a mensaje Float32 y publicarlo
+    #         msg = Float32()
+    #         msg.data = float(distance)
+    #         self.distance_publisher.publish(msg)
+    #         self.get_logger().info(f"Distance between points: {distance:.2f} meters")
 
 # ----------------------------------------
 # Popups omitidos (mantener mismos de antes)
@@ -469,11 +484,13 @@ class StatusTableWidget(QWidget):
 # Ventana Principal con nuevo layout
 # ----------------------------------------
 class MainWindow(QMainWindow):
-    def __init__(self, node):
-
-        super().__init__()
+    def __init__(self, node, permission_video, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Interfaz del ROV")
         self.setMinimumSize(1200, 800)
+        self.node = node
+        self.permission_video = permission_video
+        self.permission_video = [1, 1, 1, 1, 1]
 
         central = QWidget()
         main_v = QVBoxLayout(central)
@@ -486,7 +503,7 @@ class MainWindow(QMainWindow):
         main_v.addLayout(top_h)
 
         # Fila inferior: cámaras pequeñas
-        main_v.addWidget(Camaras(node))
+        main_v.addWidget(Camaras(node, self.permission_video, 400, self))
 
         self.setCentralWidget(central)
 
