@@ -93,7 +93,7 @@ class CameraPublisher(Node):
     def permission_callback(self, msg):
         self.permission_cameras = msg.data
         self.get_logger().info("Data received")
-        for i in range(len(self.permission_cameras)):
+        for i in range(len(self.permission_cameras)-1):
             if self.permission_cameras[i] == 0 and self.captures[i].isOpened():
                 self.get_logger().info("Camera disabled")
                 self.captures[i].release()

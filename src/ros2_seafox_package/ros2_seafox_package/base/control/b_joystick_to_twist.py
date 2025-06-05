@@ -36,7 +36,7 @@ class MotionController(Node):
 
     def joy_callback(self, msg: Joy):
         if len(msg.data) < 6:
-            self.get_logger().error(f"Received less axes than expected: got {len(msg.data)}, expected at least 6")
+            #self.get_logger().error(f"Received less axes than expected: got {len(msg.data)}, expected at least 6")
             return
         #[leftx,lefty,lefttrigger,rightx,righty,rightrigger,A,B,X,Y,LT,RT,BACK,SELECT,crossx,crossy]
         # Map joystick axes to velocity command

@@ -136,22 +136,16 @@ class RealsenseViewerWidget(QWidget):
         point = 0
 
     def update_image(self):
-        frame = self.node.image_data[3]  # RealSense frame
-        self.frame_depth = self.node.image_data[4]  # Depth frame
-        video = [frame, self.frame_depth] #Esto para que solo el video rgb se muestre y el depth corra de fondo pero sin verse
-        for i, frame in enumerate(video):
-            if frame is not None:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, _ = frame.shape
-                img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
-                pix = QPixmap.fromImage(img).scaled(
-                    self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
-                if i == 0:
-                    self.video_label.setPixmap(pix)
-            elif frame is None and i == 1:
-                continue
-            else:
-                self.video_label.setText("No signal")
+        frame = self.node.image_data[3]  # RealSense fram
+        if frame is not None:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            h, w, _ = frame.shape
+            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
+            pix = QPixmap.fromImage(img).scaled(
+                self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
+            self.video_label.setPixmap(pix)
+        else:
+            self.video_label.setText("No signal")
         
     def close_video(self):
         self.video_label.clear()
