@@ -17,8 +17,7 @@ class CameraPublisher(Node):
             'frontal',
             'apoyo_1',
             'apoyo_2',
-            # 'realsense',
-            # 'depth'
+            'realsense'
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
@@ -108,7 +107,7 @@ class CameraPublisher(Node):
                     elif i == 2:
                         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
                     elif i == 3:
-                        self.cam_realsense = cv2.VideoCapture(3)
+                        self.cam_realsense = cv2.VideoCapture(2)
                     self.captures[i] = self.captures[i]
 
 
