@@ -77,31 +77,31 @@ class Camaras(QWidget):
     def close_image(self, camera_index):
         if camera_index == 0:
             self.label_left.clear()
-            if self.permission_video[0] == True:
-                self.permission_video[0] = False
+            if self.permission_video[0] == 1:
+                self.permission_video[0] = 0
             else:
-                self.permission_video[0] = True
+                self.permission_video[0] = 1
             self.publish_video_permission()
         elif camera_index == 1:
             self.label_middle.clear()
-            if self.permission_video[1] == True:
-                self.permission_video[1] = False
+            if self.permission_video[1] == 1:
+                self.permission_video[1] = 0
             else:
-                self.permission_video[1] = True
+                self.permission_video[1] = 1
             self.publish_video_permission()
         elif camera_index == 2:
             self.label_right.clear()
-            if self.permission_video[2] == True:
-                self.permission_video[2] = False
+            if self.permission_video[2] == 1:
+                self.permission_video[2] = 0
             else:
-                self.permission_video[2] = True
+                self.permission_video[2] = 1
             self.publish_video_permission()
         elif camera_index == 3:
             self.real.close_video()
-            if self.permission_video[3] == True:
-                self.permission_video[3] = False
+            if self.permission_video[3] == 1:
+                self.permission_video[3] = 0
             else:
-                self.permission_video[3] = True
+                self.permission_video[3] = 1
             self.publish_video_permission()
         else:
             raise ValueError("Índice de cámara no válido")
