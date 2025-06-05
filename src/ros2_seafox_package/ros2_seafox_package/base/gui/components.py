@@ -17,7 +17,7 @@ from ros2_seafox_package.base.gui.imageroll import ImagePopup
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
 class Camaras(QWidget):
-    def __init__(self, node, width=400):  # duplicado de tamaño de 200 a 400
+    def __init__(self, node, width=900):  # duplicado de tamaño de 200 a 400
         super().__init__()
         self.node = node
 
@@ -95,7 +95,7 @@ class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.yolo = False
-        self.model = YOLO(r'src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'/home/valap/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
 
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
