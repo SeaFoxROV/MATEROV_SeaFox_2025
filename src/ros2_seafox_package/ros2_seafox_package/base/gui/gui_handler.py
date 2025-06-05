@@ -44,6 +44,10 @@ class GUI_Node(Node):
             )
             self.subscribers.append(sub)
 
+        #Publisher de permisos de camaras
+        self.permission_video = self.create_publisher(
+        Int8MultiArray, 'video_permission', 10
+        )
 
         self.get_logger().info("GUI node has started!")
 
@@ -72,14 +76,9 @@ def main(args=None):
 
     # Crear el nodo ROS2 suscriptor
     camera_node = GUI_Node()
-
-    #Publisher de permisos de camaras
-    permission_video = camera_node.create_publisher(
-        Int8MultiArray, 'video_permission', 10
-        )
     
     # Crear la GUI y pasarle el nodo ROS2
-    gui = MainWindow(camera_node, permission_video, None)
+    gui = MainWindow(camera_node, None)
     gui.showMaximized()
     gui.show()
 

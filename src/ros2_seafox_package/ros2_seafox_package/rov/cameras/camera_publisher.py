@@ -35,16 +35,13 @@ class CameraPublisher(Node):
         self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+
         self.cam_realsense = cv2.VideoCapture(3)
-        self.cam_depth = cv2.VideoCapture(2)
+
         if not self.cam_realsense.isOpened():
             self.get_logger().warn("Realsense camera not found")
         else:
             self.get_logger().info("Realsense camera found and opened successfully")
-        if not self.cam_depth.isOpened():
-            self.get_logger().warn("Depth camera not found")
-        else:
-            self.get_logger().info("Depth camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
         self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
@@ -79,9 +76,8 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
         self.cam_realsense = cv2.VideoCapture('/dev/camaras/realsense')
-        self.cam_depth = cv2.VideoCapture('/dev/camaras/depth')
 
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
 
         for i, cam in enumerate(self.captures):
             if not cam.isOpened():
@@ -98,6 +94,23 @@ class CameraPublisher(Node):
     def permission_callback(self, msg):
         self.permission_cameras = msg.data
         self.get_logger().info("Data received")
+        for i in range(len(self.permission_cameras)):
+            if self.permission_cameras[i] == 0 and self.captures[i].isOpened():
+                self.get_logger().info("Camera disabled")
+                cv2.release(self.captures[i])
+            else:
+                if not self.captures[i].isOpened():
+                    self.get_logger().info("Camera enabled")
+                    if i == 0:
+                        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
+                    elif i == 1:
+                        self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
+                    elif i == 2:
+                        self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+                    elif i == 3:
+                        self.cam_realsense = cv2.VideoCapture(3)
+                    self.captures[i] = self.captures[i]
+
 
     def destroy_node(self):
         for cam in self.captures:

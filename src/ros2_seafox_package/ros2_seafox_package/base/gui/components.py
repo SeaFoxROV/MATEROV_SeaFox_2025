@@ -19,12 +19,11 @@ from std_msgs.msg import Int8MultiArray
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
 class Camaras(QWidget):
-    def __init__(self, node, permission_video, width=400, parent=None):  # duplicado de tamaño de 200 a 400
+    def __init__(self, node, width=400, parent=None):  # duplicado de tamaño de 200 a 400
         super().__init__(parent)
         self.node = node
-        self.permission_video = permission_video
-        # self.permision_video = [1, 1, 1, 1, 1]
-        self.real = RealsenseViewerWidget()
+        self.permission_video = [1, 1, 1, 1]
+        self.real = RealsenseViewerWidget(self.node)
         
         # Tres labels para frontal, apoyo1, apoyo2
         self.label_left   = QLabel(); self.label_left.setFixedSize(width, (width*3)//4)
@@ -53,6 +52,7 @@ class Camaras(QWidget):
         layout.addWidget(self.cancel_left, alignment=Qt.AlignTop)
         layout.addWidget(self.cancel_center, alignment=Qt.AlignTop)
         layout.addWidget(self.cancel_right, alignment=Qt.AlignTop)
+        layout.addWidget(self.cancel_realsense, alignment=Qt.AlignTop)
         layout.addStretch()
         self.setLayout(layout)
 
@@ -66,52 +66,51 @@ class Camaras(QWidget):
             (self.label_left, self.label_middle, self.label_right),
             (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
         )):
-            if frame is not None and self.permision_video[i]== True:
+            if frame is not None and self.permission_video[i]== True:
                 h, w, _ = frame.shape
                 img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
                 label.setPixmap(QPixmap.fromImage(img).scaled(
                     label.width(), label.height(), Qt.KeepAspectRatio))
             else:
                 label.setText("No signal")
-                
+
     def close_image(self, camera_index):
         if camera_index == 0:
             self.label_left.clear()
-            if self.permision_video[0] == True:
-                self.permision_video[0] = False
+            if self.permission_video[0] == True:
+                self.permission_video[0] = False
             else:
-                self.permision_video[0] = True
+                self.permission_video[0] = True
             self.publish_video_permission()
         elif camera_index == 1:
             self.label_middle.clear()
-            if self.permision_video[1] == True:
-                self.permision_video[1] = False
+            if self.permission_video[1] == True:
+                self.permission_video[1] = False
             else:
-                self.permision_video[1] = True
+                self.permission_video[1] = True
             self.publish_video_permission()
         elif camera_index == 2:
             self.label_right.clear()
-            if self.permision_video[2] == True:
-                self.permision_video[2] = False
+            if self.permission_video[2] == True:
+                self.permission_video[2] = False
             else:
-                self.permision_video[2] = True
+                self.permission_video[2] = True
             self.publish_video_permission()
         elif camera_index == 3:
             self.real.close_video()
             if self.permission_video[3] == True:
-                self.permision_video[3] = False
+                self.permission_video[3] = False
                 self.permission_video[4] = False
             else:
-                self.permision_video[3] = True
-                self.permission_video[4] = True
+                self.permission_video[3] = True
             self.publish_video_permission()
         else:
             raise ValueError("Índice de cámara no válido")
         
     def publish_video_permission(self):
         msg = Int8MultiArray()
-        msg.data = [int(val) for val in self.permision_video] # Turn to int
-        self.permission_video.publish(msg)
+        msg.data = [int(val) for val in self.permission_video] # Turn to int
+        self.node.permission_video.publish(msg)
 
 # ----------------------------------------
 # Viewer grande para RealSense
@@ -637,7 +636,7 @@ class MainWindow(QMainWindow):
         main_v.addLayout(top_h)
 
         # Fila inferior: cámaras pequeñas
-        main_v.addWidget(Camaras(node, self.permission_video, 400, self))
+        main_v.addWidget(Camaras(node, 400))
 
         self.setCentralWidget(central)
 
