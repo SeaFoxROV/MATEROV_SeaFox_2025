@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Empty
 from cv_bridge import CvBridge
+from std_msgs.msg import Int8MultiArray
 import cv2
 
 class CameraPublisher(Node):
@@ -15,20 +16,41 @@ class CameraPublisher(Node):
         self.topic_names = [
             'frontal',
             'apoyo_1',
-            'apoyo_2'
+            'apoyo_2',
+            # 'realsense',
+            # 'depth'
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
+        self.permission_cameras = [1] * len(self.topic_names)
+
+        self.subscription_permission_cameras = self.create_subscription(
+            Int8MultiArray,
+            'video_permission',
+            self.permission_callback,
+            10
+        )
+
         # Abre las cámaras
+        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
-        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
+        self.cam_realsense = cv2.VideoCapture(3)
+        self.cam_depth = cv2.VideoCapture(2)
+        if not self.cam_realsense.isOpened():
+            self.get_logger().warn("Realsense camera not found")
+        else:
+            self.get_logger().info("Realsense camera found and opened successfully")
+        if not self.cam_depth.isOpened():
+            self.get_logger().warn("Depth camera not found")
+        else:
+            self.get_logger().info("Depth camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
         self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
 
         # Configura parámetros de captura
-        for cam in [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]:
+        for cam in self.captures:
             cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
             cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
             cam.set(cv2.CAP_PROP_FPS, 25)
@@ -56,6 +78,8 @@ class CameraPublisher(Node):
         self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+        self.cam_realsense = cv2.VideoCapture('/dev/camaras/realsense')
+        self.cam_depth = cv2.VideoCapture('/dev/camaras/depth')
 
         self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
 
@@ -65,10 +89,15 @@ class CameraPublisher(Node):
 
     def timer_callback(self):
         for i, cam in enumerate(self.captures):
-            ret, frame = cam.read()
+            if self.permission_cameras[i] == 1: #cambiar esto para evitar que se evite el cv2.VideoCapture
+                ret, frame = cam.read()
             if ret:
                 msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
                 self.image_publishers[i].publish(msg)
+
+    def permission_callback(self, msg):
+        self.permission_cameras = msg.data
+        self.get_logger().info("Data received")
 
     def destroy_node(self):
         for cam in self.captures:

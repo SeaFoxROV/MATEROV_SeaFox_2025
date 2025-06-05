@@ -13,24 +13,46 @@ from ultralytics import YOLO
 import cv2
 from cv_bridge import CvBridge
 from ros2_seafox_package.base.gui.imageroll import ImagePopup
+import pyrealsense2 as rs
+from std_msgs.msg import Int8MultiArray
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
 class Camaras(QWidget):
-    def __init__(self, node, width=900):  # duplicado de tamaño de 200 a 400
-        super().__init__()
+    def __init__(self, node, permission_video, width=400, parent=None):  # duplicado de tamaño de 200 a 400
+        super().__init__(parent)
         self.node = node
-
+        self.permission_video = permission_video
+        # self.permision_video = [1, 1, 1, 1, 1]
+        self.real = RealsenseViewerWidget()
+        
         # Tres labels para frontal, apoyo1, apoyo2
         self.label_left   = QLabel(); self.label_left.setFixedSize(width, (width*3)//4)
         self.label_middle = QLabel(); self.label_middle.setFixedSize(width, (width*3)//4)
         self.label_right  = QLabel(); self.label_right.setFixedSize(width, (width*3)//4)
+
+        # Crosses to cancel the image
+        self.cancel_left = QPushButton("X")
+        self.cancel_left.clicked.connect(lambda: self.close_image(0))
+        self.cancel_center = QPushButton("X")
+        self.cancel_center.clicked.connect(lambda: self.close_image(1))
+        self.cancel_right = QPushButton("X")
+        self.cancel_right.clicked.connect(lambda: self.close_image(2))
+        self.cancel_realsense = QPushButton("X")
+        self.cancel_realsense.clicked.connect(lambda: self.close_image(3))
+        for button in (self.cancel_left, self.cancel_right, self.cancel_center, self.cancel_realsense):
+            button.setFixedSize(30, 30)
+            button.setStyleSheet("background-color: red; color: white; border-radius: 15px;")
+            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         layout = QHBoxLayout(self)
         layout.addStretch()
         layout.addWidget(self.label_left)
         layout.addWidget(self.label_middle)
         layout.addWidget(self.label_right)
+        layout.addWidget(self.cancel_left, alignment=Qt.AlignTop)
+        layout.addWidget(self.cancel_center, alignment=Qt.AlignTop)
+        layout.addWidget(self.cancel_right, alignment=Qt.AlignTop)
         layout.addStretch()
         self.setLayout(layout)
 
@@ -40,24 +62,63 @@ class Camaras(QWidget):
         self.timer.start(33)
 
     def update_image(self):
-        for label, frame in zip(
+        for i, (label, frame) in enumerate(zip(
             (self.label_left, self.label_middle, self.label_right),
             (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
-        ):
-            if frame is not None:
+        )):
+            if frame is not None and self.permision_video[i]== True:
                 h, w, _ = frame.shape
                 img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
                 label.setPixmap(QPixmap.fromImage(img).scaled(
                     label.width(), label.height(), Qt.KeepAspectRatio))
             else:
                 label.setText("No signal")
+                
+    def close_image(self, camera_index):
+        if camera_index == 0:
+            self.label_left.clear()
+            if self.permision_video[0] == True:
+                self.permision_video[0] = False
+            else:
+                self.permision_video[0] = True
+            self.publish_video_permission()
+        elif camera_index == 1:
+            self.label_middle.clear()
+            if self.permision_video[1] == True:
+                self.permision_video[1] = False
+            else:
+                self.permision_video[1] = True
+            self.publish_video_permission()
+        elif camera_index == 2:
+            self.label_right.clear()
+            if self.permision_video[2] == True:
+                self.permision_video[2] = False
+            else:
+                self.permision_video[2] = True
+            self.publish_video_permission()
+        elif camera_index == 3:
+            self.real.close_video()
+            if self.permission_video[3] == True:
+                self.permision_video[3] = False
+                self.permission_video[4] = False
+            else:
+                self.permision_video[3] = True
+                self.permission_video[4] = True
+            self.publish_video_permission()
+        else:
+            raise ValueError("Índice de cámara no válido")
+        
+    def publish_video_permission(self):
+        msg = Int8MultiArray()
+        msg.data = [int(val) for val in self.permision_video] # Turn to int
+        self.permission_video.publish(msg)
 
 # ----------------------------------------
 # Viewer grande para RealSense
 # ----------------------------------------
-class CameraViewerWidget(QWidget):
-    def __init__(self, node, parent=None):
-        super().__init__(parent)
+class RealsenseViewerWidget(QWidget):
+    def __init__(self, node):
+        super().__init__()
         self.node = node
 
         layout = QVBoxLayout(self)
@@ -73,16 +134,214 @@ class CameraViewerWidget(QWidget):
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
 
+        #Variable for lengt measurement
+        point = 0
+
     def update_image(self):
-        frame = getattr(self.node, "realsense_frame", None)
-        if frame is not None:
-            h, w, _ = frame.shape
-            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
-            pix = QPixmap.fromImage(img).scaled(
-                self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
-            self.video_label.setPixmap(pix)
-        else:
-            self.video_label.setText("No signal")
+        frame = self.node.image_data[3]  # RealSense frame
+        self.frame_depth = self.node.image_data[4]  # Depth frame
+        video = [frame, self.frame_depth] #Esto para que solo el video rgb se muestre y el depth corra de fondo pero sin verse
+        for i, frame in enumerate(video):
+            if frame is not None:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, _ = frame.shape
+                img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
+                pix = QPixmap.fromImage(img).scaled(
+                    self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
+                if i == 0:
+                    self.video_label.setPixmap(pix)
+            elif frame is None and i == 1:
+                continue
+            else:
+                self.video_label.setText("No signal")
+        
+    def close_video(self):
+        self.video_label.clear()
+    
+    # def pixelpos(self, pos):
+    #     # Se recibe el mensaje con la posición del pixel desde la GUI
+    #     x = pos.data[0]
+    #     y = pos.data[1]
+    #     self.get_logger().info(f"Posición recibida: x={x}, y={y}")
+
+    #     # Si ya hay dos puntos, reiniciamos para una nueva medición
+    #     if len(self.points) >= 2:
+    #         self.points = []
+
+    #     # Verificamos que se disponga del frame de profundidad
+    #     if not hasattr(self, 'depth_frame') or self.frame_depth is None:
+    #         self.get_logger().warn("No hay frame de profundidad disponible")
+    #         return
+
+    #     # Obtener la distancia en el pixel
+    #     depth = self.frame_depth.get_distance(x, y)
+    #     if depth == 0:
+    #         self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
+    #         return
+
+    #     # Deproyectar el pixel a coordenadas 3D usando los intrínsecos del sensor de color
+    #     point_3d = rs.rs2_deproject_pixel_to_point(self.color_intrinsics, [x, y], depth)
+    #     self.points.append((x, y, point_3d))
+    #     self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
+
+    #     if len(self.points) == 2:
+    #         p1 = np.array(self.points[0][2])
+    #         p2 = np.array(self.points[1][2])
+    #         distance = np.linalg.norm(p1 - p2)
+
+    #         # Ajuste de distancia
+    #         if 1 <= distance <= 1.10:
+    #             distance = distance - 3.4
+    #         elif 1.11 <= distance <= 1.39:
+    #             distance = distance - 3.8
+    #         elif 1.40 <= distance <= 1.59:
+    #             distance = distance - 4
+    #         elif 1.60 <= distance <= 1.79:import sys 
+
+import rclpy
+
+from rclpy.node import Node 
+
+from std_msgs.msg import Float32MultiArray,Int16MultiArray
+
+from scipy.optimize import curve_fit
+
+from os import path
+
+PATH = path.dirname(__file__)
+
+class newton_to_pwm(Node):
+    """
+    Class that implements the kinematics.
+    """
+
+    def __init__(self):
+        """Initialize this node"""
+        super().__init__("thrust")
+        
+        self.pwm_fit_params = newton_to_pwm.generate_pwm_fit_params()
+
+        self.subscription = self.create_subscription(Float32MultiArray, "motor_values", self.pwm_callback,10)
+            
+        self.create_subscription(Float32MultiArray, '/joystick_data', self.joystick_callback, 100)
+
+        self.pwm_pub = self.create_publisher(Int16MultiArray, "pwm_values", 10)
+
+        self.joystick_data = None
+
+    @staticmethod
+    def newtons_to_pwm(x: float, a: float, b: float, c: float, d: float, e: float, f: float) -> float:
+        """
+        Converts desired newtons into its corresponding PWM value
+
+        Args:
+            x: The force in newtons desired
+            a-f: Arbitrary parameters to map newtons to pwm, see __generate_curve_fit_params()
+
+        Returns:
+            PWM value corresponding to the desired thrust
+        """
+        return (a * x**5) + (b * x**4) + (c * x**3) + (d * x**2) + (e * x) + f
+
+    @staticmethod
+    def generate_pwm_fit_params():
+        x = []
+        y = []
+
+        with open(PATH + "/data/newtons_to_pwm.tsv", "r") as file:
+            for data_point in file:
+                data = data_point.split("\t")
+                x.append(data[0])
+                y.append(data[1])
+
+        optimal_params, param_covariance = curve_fit(newton_to_pwm.newtons_to_pwm, x, y)
+        return optimal_params
+    
+    def joystick_callback(self, msg):
+        """Callback para guardar los datos del joystick"""
+        self.joystick_data = msg.data
+    
+    def pwm_callback(self, motor_values):
+        # Creamos un nuevo mensaje para publicar PWM
+        pwm_msg = Int16MultiArray()
+        pwm_msg.data = [1500] * 6
+
+        # Iteramos sobre los valores recibidos en motor_values.data
+        for index, newton in enumerate(motor_values.data):
+            pwm = int(newton_to_pwm.newtons_to_pwm(
+                newton,
+                self.pwm_fit_params[0],
+                self.pwm_fit_params[1],
+                self.pwm_fit_params[2],
+                self.pwm_fit_params[3],
+                self.pwm_fit_params[4],
+                self.pwm_fit_params[5]
+            ))
+            # Limitar el rango de pwm
+            up = 1750
+            down = 1250
+            
+            pwm = up if pwm > up else down if pwm < down else pwm
+        
+            # Si el valor en newton es 0, lo asignamos a 1500
+            if newton == 0:
+                pwm = 1500
+            pwm_msg.data[index] = pwm
+        # if pwm_msg.data[3] > 1700 and pwm_msg.data[2] < 1200:
+
+        if pwm_msg.data[2]>1600:
+            pwm_msg.data[2] = 1850
+        if pwm_msg.data[2]<1400:
+            pwm_msg.data[2] = 1150
+        if pwm_msg.data[3]>1600:
+            pwm_msg.data[3] = 1850
+        if pwm_msg.data[3]<1400:
+            pwm_msg.data[3] = 1150
+
+        if self.joystick_data is not None:
+            if bool(self.joystick_data[8]):#derecha
+                pwm_msg.data[0] = 1250 
+                pwm_msg.data[1] = 1750 
+                pwm_msg.data[4] = 1750 
+                pwm_msg.data[5] = 1250 
+            if bool(self.joystick_data[7]):#izquierda
+                pwm_msg.data[0] = 1750 
+                pwm_msg.data[1] = 1250 
+                pwm_msg.data[4] = 1250 
+                pwm_msg.data[5] = 1750 
+
+        pwm_msg.data[3] += 15
+        self.pwm_pub.publish(pwm_msg)
+
+    
+    def __del__(self):
+        pwm_values = Int16MultiArray()
+        pwm_values.data = [1500] * 6
+        self.pwm_pub.publish(pwm_values)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = newton_to_pwm()
+    try: 
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        del node
+        rclpy.shutdown()    
+
+
+if __name__ == "__main__":
+    main(sys.argv)
+    #             distance = distance - 3.4
+    #         elif 1.80 <= distance <= 1.99:
+    #             distance = distance - 9
+    #         elif 2 <= distance <= 2.10:
+    #             distance = distance - 12.8
+
+    #         # Convertir a mensaje Float32 y publicarlo
+    #         msg = Float32()
+    #         msg.data = float(distance)
+    #         self.distance_publisher.publish(msg)
+    #         self.get_logger().info(f"Distance between points: {distance:.2f} meters")
 
 # ----------------------------------------
 # Popups omitidos (mantener mismos de antes)
@@ -132,27 +391,7 @@ class ObjectDetectionPopup(QDialog):
         else:
             self.yolo = True
         self.bridge = CvBridge()                                                  
-        # # Recorre cada cámara y procesa según el modo actual
-        # for i, frame_msg in enumerate(self.video_label):
-        #     if frame_msg is None:
-        #         continue
-        #     try:
-        #         # Conversión de ROS2 a OpenCV
-        #         cv_frame = self.bridge.imgmsg_to_cv2(frame_msg, desired_encoding='bgr8')
-        #     except Exception as e:
-        #         self.get_logger().error(f"Error converting image: {e}")
-        #         continue
 
-        #     # Modo YOLO: se procesa la imagen y se publica la imagen anotada
-        #     results = self.model(cv_frame)
-        #     annotated_frame = results[0].plot()
-        #     try:
-        #         img_msg = self.bridge.cv2_to_imgmsg(annotated_frame, encoding='bgr8')
-        #         self.video_label_yolo = img_msg
-        #     except Exception as e:
-        #         self.get_logger().error(f"Error converting YOLO image back to ROS2: {e}")
-        #         continue
-        #     # self.yolo_publishers[i].publish(img_msg)
     def closeEvent(self, a0):
         self.yolo = False
         super().closeEvent(a0)
@@ -276,7 +515,7 @@ class PhotoSpherePopup(QDialog):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
-
+        self.i = 0
     def image_roll(self):
         # Abre un pop-up para mostrar las imágenes capturadas
         if not self.captured_frames:
@@ -309,6 +548,8 @@ class PhotoSpherePopup(QDialog):
             frame = getattr(self.node, "realsense_frame", None)
         if frame is not None:
             self.captured_frames.append(frame)
+            cv2.imwrite(f"hgeswhj{self.i}", frame)
+            self.i += 1
             print(f"Frame capturado de cámara {self.selector.currentText()} (total {len(self.captured_frames)})")
 
     def perform_stitch(self):
@@ -377,11 +618,13 @@ class StatusTableWidget(QWidget):
 # Ventana Principal con nuevo layout
 # ----------------------------------------
 class MainWindow(QMainWindow):
-    def __init__(self, node):
-
-        super().__init__()
+    def __init__(self, node, permission_video, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Interfaz del ROV")
         self.setMinimumSize(1200, 800)
+        self.node = node
+        self.permission_video = permission_video
+        self.permission_video = [1, 1, 1, 1, 1]
 
         central = QWidget()
         main_v = QVBoxLayout(central)
@@ -389,12 +632,12 @@ class MainWindow(QMainWindow):
         # Fila superior: botones - RealSense viewer - tabla
         top_h = QHBoxLayout()
         top_h.addWidget(FeatureButtonsWidget(node), 1)
-        top_h.addWidget(CameraViewerWidget(node), 3)
+        top_h.addWidget(RealsenseViewerWidget(node), 3)
         top_h.addWidget(StatusTableWidget(node), 1)
         main_v.addLayout(top_h)
 
         # Fila inferior: cámaras pequeñas
-        main_v.addWidget(Camaras(node))
+        main_v.addWidget(Camaras(node, self.permission_video, 400, self))
 
         self.setCentralWidget(central)
 

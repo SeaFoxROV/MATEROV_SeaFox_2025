@@ -6,7 +6,7 @@ import signal
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int32MultiArray, Empty
+from std_msgs.msg import Int32MultiArray, Empty, Int8MultiArray
 from cv_bridge import CvBridge
 
 from ros2_seafox_package.base.gui.components import MainWindow
@@ -26,7 +26,9 @@ class GUI_Node(Node):
         self.frames = {
             'frontal': None,
             'apoyo_1': None,
-            'apoyo_2': None
+            'apoyo_2': None,
+            'realsense': None,
+            'depth': None,
         }
         self.image_data = [None] * len(self.frames)
 
@@ -67,11 +69,17 @@ def main(args=None):
     
     app = QApplication(sys.argv)
 
+
     # Crear el nodo ROS2 suscriptor
     camera_node = GUI_Node()
 
+    #Publisher de permisos de camaras
+    permission_video = camera_node.create_publisher(
+        Int8MultiArray, 'video_permission', 10
+        )
+    
     # Crear la GUI y pasarle el nodo ROS2
-    gui = MainWindow(camera_node)
+    gui = MainWindow(camera_node, permission_video, None)
     gui.showMaximized()
     gui.show()
 
