@@ -100,7 +100,6 @@ class Camaras(QWidget):
             self.real.close_video()
             if self.permission_video[3] == True:
                 self.permission_video[3] = False
-                self.permission_video[4] = False
             else:
                 self.permission_video[3] = True
             self.publish_video_permission()

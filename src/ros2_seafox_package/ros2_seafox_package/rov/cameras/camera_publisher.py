@@ -36,7 +36,7 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
-        self.cam_realsense = cv2.VideoCapture(3)
+        self.cam_realsense = cv2.VideoCapture(2)
 
         if not self.cam_realsense.isOpened():
             self.get_logger().warn("Realsense camera not found")
@@ -97,7 +97,7 @@ class CameraPublisher(Node):
         for i in range(len(self.permission_cameras)):
             if self.permission_cameras[i] == 0 and self.captures[i].isOpened():
                 self.get_logger().info("Camera disabled")
-                cv2.release(self.captures[i])
+                self.captures[i].release()
             else:
                 if not self.captures[i].isOpened():
                     self.get_logger().info("Camera enabled")
