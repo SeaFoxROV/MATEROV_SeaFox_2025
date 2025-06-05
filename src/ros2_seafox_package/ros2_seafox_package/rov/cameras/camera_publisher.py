@@ -124,33 +124,48 @@ class CameraPublisher(Node):
 
     def permission_callback(self, msg):
         self.permission_cameras = msg.data
-        self.get_logger().info("Data received")
+        self.get_logger().info(f"permission_callback: {self.permission_cameras}")
+
         for i in range(len(self.permission_cameras)):
-            if self.permission_cameras[i] == 0 and self.captures[i].isOpened():
-                self.get_logger().info("Camera disabled")
+            permiso = self.permission_cameras[i]
+
+            # 1) Si permiso = 0 Y está abierta → liberar
+            if permiso == 0 and self.captures[i] is not None and self.captures[i].isOpened():
+                self.get_logger().info(f"Camera '{self.topic_names[i]}' disabled → calling release()")
                 self.captures[i].release()
-            else:
-                if not self.captures[i].isOpened():
-                    self.get_logger().info("Camera enabled")
-                    if i == 0:
-                        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')                
-                        self.captures[i] = self.cam_frontal
-                    elif i == 1:
-                        self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
-                        self.captures[i] = self.cam_apoyo1
-                    elif i == 2:
-                        self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
-                        self.captures[i] = self.cam_apoyo2
-                    elif i == 3:
-                        self.cam_realsense = cv2.VideoCapture(self.indice_realsense)  
-                        self.captures[i] = self.cam_realsense
-                    
-                    if self.captures[i].isOpened():
-                        self.captures[i].set(cv2.CAP_PROP_FRAME_WIDTH,  640)
-                        self.captures[i].set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-                        self.captures[i].set(cv2.CAP_PROP_FPS,         25)
-                    else:
-                        self.get_logger().error(f"Failed to reopen camera {self.topic_names[i]}")
+
+            # 2) Si permiso = 1 Y está cerrada (o nunca se abrió) → reabrir
+            elif permiso == 1 and (self.captures[i] is None or not self.captures[i].isOpened()):
+                self.get_logger().info(f"Camera '{self.topic_names[i]}' enabled → reopening")
+                if i == 0:
+                    self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
+                    self.captures[i] = self.cam_frontal
+
+                elif i == 1:
+                    self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
+                    self.captures[i] = self.cam_apoyo1
+
+                elif i == 2:
+                    self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+                    self.captures[i] = self.cam_apoyo2
+
+                elif i == 3:
+                    # Asegúrate de que self.indice_realsense fue calculado en __init__
+                    self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
+                    self.captures[i] = self.cam_realsense
+
+                # Si reabriste con éxito, fija ancho/alto/FPS
+                cam_nueva = self.captures[i]
+                if cam_nueva is not None and cam_nueva.isOpened():
+                    cam_nueva.set(cv2.CAP_PROP_FRAME_WIDTH,  640)
+                    cam_nueva.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+                    cam_nueva.set(cv2.CAP_PROP_FPS,         25)
+                else:
+                    self.get_logger().error(f"Failed to reopen camera '{self.topic_names[i]}'")
+
+            # 3) En cualquier otro caso (permiso=0 y ya estaba cerrada, o permiso=1 y ya estaba abierta),
+            #    NO hago nada.
+
 
     def destroy_node(self):
         for cam in self.captures:

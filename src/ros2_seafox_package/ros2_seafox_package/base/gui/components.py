@@ -134,10 +134,11 @@ class RealsenseViewerWidget(QWidget):
 
         #Variable for lengt measurement
         point = 0
+        self.permission = True
 
     def update_image(self):
         frame = self.node.image_data[3]  # RealSense fram
-        if frame is not None:
+        if frame is not None and self.permission:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, _ = frame.shape
             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
@@ -148,6 +149,10 @@ class RealsenseViewerWidget(QWidget):
             self.video_label.setText("No signal")
         
     def close_video(self):
+        if self.permission == True:
+            self.permission = False
+        else:
+            self.permission = True
         self.video_label.clear()
     
     # def pixelpos(self, pos):
