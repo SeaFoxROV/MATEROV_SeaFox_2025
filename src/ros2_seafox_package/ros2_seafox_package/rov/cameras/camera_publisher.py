@@ -7,6 +7,29 @@ from cv_bridge import CvBridge
 from std_msgs.msg import Int8MultiArray
 import cv2
 
+import os
+import re
+
+def video_index_from_symlink(syspath):
+    """
+    Dado el path de un symlink en /dev (p. ej. '/dev/camaras/apoyo_1'),
+    devuelve el índice entero X si apunta a '/dev/videoX'. Si no es un
+    enlace válido o no apunta a /dev/video*, devuelve None.
+    """
+    # 1) Primero convierte el symlink en su ruta real:
+    try:
+        real = os.path.realpath(syspath)  # e.g. '/dev/video2'
+    except Exception:
+        return None
+
+    # 2) Extrae el número final, si coincide con '/dev/video(\d+)'
+    m = re.match(r".*/video(\d+)$", real)
+    if m:
+        return int(m.group(1))
+    return None
+
+
+
 class CameraPublisher(Node):
     def __init__(self):
         super().__init__('camera_publisher')
@@ -35,8 +58,11 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
-        self.cam_realsense = cv2.VideoCapture(2)
-
+        self.indice_realsense = max([5,4,3,2,1,0].pop(video_index_from_symlink('/dev/camaras/frontal')).pop(video_index_from_symlink('/dev/camaras/apoyo_1')).pop(video_index_from_symlink('/dev/camaras/apoyo_2')))
+        
+        self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
+        self.get_logger().warn("Realsense camera not found")
+        
         if not self.cam_realsense.isOpened():
             self.get_logger().warn("Realsense camera not found")
         else:
@@ -109,7 +135,7 @@ class CameraPublisher(Node):
                         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
                         self.captures[i] = self.cam_apoyo2
                     elif i == 3:
-                        self.cam_realsense = cv2.VideoCapture(2)  
+                        self.cam_realsense = cv2.VideoCapture(self.indice_realsense)  
                         self.captures[i] = self.cam_realsense
                     
                     if self.captures[i].isOpened():
