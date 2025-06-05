@@ -43,7 +43,7 @@ class CameraPublisher(Node):
             self.get_logger().info("Realsense camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
 
         # Configura parámetros de captura
         for cam in self.captures:
