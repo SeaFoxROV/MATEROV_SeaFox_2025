@@ -8,25 +8,34 @@ from std_msgs.msg import Int8MultiArray
 import cv2
 
 import os
+import subprocess
 import re
 
-def video_index_from_symlink(syspath):
-    """
-    Dado el path de un symlink en /dev (p. ej. '/dev/camaras/apoyo_1'),
-    devuelve el índice entero X si apunta a '/dev/videoX'. Si no es un
-    enlace válido o no apunta a /dev/video*, devuelve None.
-    """
-    # 1) Primero convierte el symlink en su ruta real:
-    try:
-        real = os.path.realpath(syspath)  # e.g. '/dev/video2'
-    except Exception:
-        return None
 
-    # 2) Extrae el número final, si coincide con '/dev/video(\d+)'
-    m = re.match(r".*/video(\d+)$", real)
-    if m:
-        return int(m.group(1))
-    return None
+def find_video_index_by_name(name_substring, max_index=10):
+    """
+    Busca entre /dev/video0 .. /dev/video{max_index-1} aquel dispositivo
+    cuyo nombre contenga 'name_substring'. Devuelve la lista de índices que coincidan.
+    """
+    encontrados = []
+    for i in range(max_index):
+        dev = f"/dev/video{i}"
+        if not os.path.exists(dev):
+            continue
+        # Ejecutar: v4l2-ctl --device=/dev/video{i} --info    <-- debe estar instalado
+        try:
+            info = subprocess.check_output(
+                ["v4l2-ctl", "--device", dev, "--info"],
+                stderr=subprocess.DEVNULL,
+                encoding="utf-8"
+            )
+        except subprocess.CalledProcessError:
+            continue
+
+        # Por ejemplo, la línea “Driver name” o “Card type” suele contener algo reconocible
+        if name_substring.lower() in info.lower():
+            encontrados.append(i)
+    return encontrados
 
 
 
@@ -45,7 +54,6 @@ class CameraPublisher(Node):
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
         self.permission_cameras = [1] * len(self.topic_names)
-
         self.subscription_permission_cameras = self.create_subscription(
             Int8MultiArray,
             'video_permission',
@@ -58,8 +66,7 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
-        self.indice_realsense = max([5,4,3,2,1,0].pop(video_index_from_symlink('/dev/camaras/frontal')).pop(video_index_from_symlink('/dev/camaras/apoyo_1')).pop(video_index_from_symlink('/dev/camaras/apoyo_2')))
-        
+        self.indice_realsense = max(find_video_index_by_name('realsense'))        
         self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
         self.get_logger().warn("Realsense camera not found")
         
