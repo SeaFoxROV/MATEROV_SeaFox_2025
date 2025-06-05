@@ -38,16 +38,19 @@ class twist_to_newtons(Node):
            
         ]
         """
-        Z and Y axis exchanged
-
-
         
-            [-0.136 ,  0.048,  0.1946], # Motor 1
-            [ 0.1400, -0.021,  0.1687], # Motor 2
-            [ 0.1412,  0.031, -0.0010], # Motor 3
-            [-0.1406,  0.031, -0.0010], # Motor 4
-            [ 0.2130, -0.061, -0.1270], # Motor 5
-            [-0.1896, -0.061, -0.1309], # Motor 6        
+
+        ANTIGUA CONFIGURACION DE MOTORES
+        self.motor_thrusts = [ # [X, Y, Z] Fuerzas descompuestas respecto a la orientacion del ROV
+            [ 0.7071,  0.7071, 0.0],   # Motor 1
+            [-0.7071,  0.7071, 0.0],   # Motor 2 
+            [    0.0,     0.0, 1.0],   # Motor 3
+            [    0.0,     0.0, -1.0],   # Motor 4
+            [ 0.7071,  0.7071, 0.0],   # Motor 5
+            [-0.7071,  0.7071, 0.0],   # Motor 6
+            
+        ]
+      
         """
         
         self.motor_thrusts = [ # [X, Y, Z] Fuerzas descompuestas respecto a la orientacion del ROV
@@ -55,7 +58,7 @@ class twist_to_newtons(Node):
             [-0.7071,  0.7071, 0.0],   # Motor 2 
             [    0.0,     0.0, 1.0],   # Motor 3
             [    0.0,     0.0, -1.0],   # Motor 4
-            [ 0.7071,  0.7071, 0.0],   # Motor 5
+            [ -0.7071,  -0.7071, 0.0],   # Motor 5
             [-0.7071,  0.7071, 0.0],   # Motor 6
             
         ]
