@@ -100,15 +100,24 @@ class CameraPublisher(Node):
                 if not self.captures[i].isOpened():
                     self.get_logger().info("Camera enabled")
                     if i == 0:
-                        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
+                        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')                
+                        self.captures[i] = self.cam_frontal
                     elif i == 1:
                         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
+                        self.captures[i] = self.cam_apoyo1
                     elif i == 2:
                         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+                        self.captures[i] = self.cam_apoyo2
                     elif i == 3:
                         self.cam_realsense = cv2.VideoCapture(2)
-                    self.captures[i] = self.captures[i]
-
+                        self.captures[i] = self.cam_realsense
+                    
+                    if self.captures[i].isOpened():
+                        self.captures[i].set(cv2.CAP_PROP_FRAME_WIDTH,  640)
+                        self.captures[i].set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+                        self.captures[i].set(cv2.CAP_PROP_FPS,         25)
+                    else:
+                        self.get_logger().error(f"Failed to reopen camera {self.topic_names[i]}")
 
     def destroy_node(self):
         for cam in self.captures:
