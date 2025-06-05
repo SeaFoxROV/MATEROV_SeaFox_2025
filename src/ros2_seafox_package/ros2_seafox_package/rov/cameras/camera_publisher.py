@@ -35,7 +35,7 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
-        self.cam_realsense = cv2.VideoCapture(2)
+        self.cam_realsense = cv2.VideoCapture(1)
 
         if not self.cam_realsense.isOpened():
             self.get_logger().warn("Realsense camera not found")
@@ -109,7 +109,7 @@ class CameraPublisher(Node):
                         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
                         self.captures[i] = self.cam_apoyo2
                     elif i == 3:
-                        self.cam_realsense = cv2.VideoCapture(2)
+                        self.cam_realsense = cv2.VideoCapture(1)
                         self.captures[i] = self.cam_realsense
                     
                     if self.captures[i].isOpened():
