@@ -67,7 +67,7 @@ class CameraPublisher(Node):
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
         self.indice_realsense = max(find_video_index_by_name('realsense'))        
-        #self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
+        self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
         self.get_logger().warn("Realsense camera not found")
         
         if not self.cam_realsense.isOpened():
