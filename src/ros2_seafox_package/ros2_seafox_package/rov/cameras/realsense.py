@@ -37,18 +37,20 @@ class RealSenseNode(Node):
         # self.create_subscription(Empty, 'reset_cameras', self.reset_realsense_callback, 10)
 
 
-        # try:
-        #     self.pipeline.start(config)
-        #     self.get_logger().info("RealSense iniciada correctamente")
-        # except Exception as e:
-        #     self.get_logger().error(f"Error iniciando la RealSense: {str(e)}")
-        #     return
+        ### CREO QUE LA REALSENSE SI FUNCIONA. SE TIENE QUE COMENTAR ESTE CODIGO PARA QUE SE PUEDA VER EN LA GUI PORTQUE SI NO SE VA A ESTAR
+        ### INTENTANDO VER EN LOS DOS
+        try:
+            self.pipeline.start(config)
+            self.get_logger().info("RealSense iniciada correctamente")
+        except Exception as e:
+            self.get_logger().error(f"Error iniciando la RealSense: {str(e)}")
+            return
 
-        # # Timer para capturar frames a ~30 FPS
-        # self.timer = self.create_timer(0.033, self.capture_frame)
+        # Timer para capturar frames a ~30 FPS
+        self.timer = self.create_timer(0.033, self.capture_frame)
 
-        # # Para visualizar la imagen (opcional)
-        # #cv2.namedWindow('RealSense')
+        # Para visualizar la imagen (opcional)
+        #cv2.namedWindow('RealSense')
 
     def reset_realsense_callback(self, msg):
         self.get_logger().info("Resetting RealSense camera...")
