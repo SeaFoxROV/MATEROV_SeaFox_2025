@@ -70,10 +70,10 @@ class CameraPublisher(Node):
         #self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
         #self.get_logger().warn("Realsense camera not found")
         
-        if not self.cam_realsense.isOpened():
-            self.get_logger().warn("Realsense camera not found")
-        else:
-            self.get_logger().info("Realsense camera found and opened successfully")
+        # if not self.cam_realsense.isOpened():
+        #     self.get_logger().warn("Realsense camera not found")
+        # else:
+        #     self.get_logger().info("Realsense camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
         self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
@@ -107,9 +107,9 @@ class CameraPublisher(Node):
         self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
-        self.cam_realsense = cv2.VideoCapture('/dev/camaras/realsense')
+        # self.cam_realsense = cv2.VideoCapture('/dev/camaras/realsense')
 
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
 
         for i, cam in enumerate(self.captures):
             if not cam.isOpened():
@@ -149,10 +149,10 @@ class CameraPublisher(Node):
                     self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
                     self.captures[i] = self.cam_apoyo2
 
-                elif i == 3:
-                    # Asegúrate de que self.indice_realsense fue calculado en __init__
-                    self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
-                    self.captures[i] = self.cam_realsense
+                # elif i == 3:
+                #     # Asegúrate de que self.indice_realsense fue calculado en __init__
+                #     self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
+                #     self.captures[i] = self.cam_realsense
 
                 # Si reabriste con éxito, fija ancho/alto/FPS
                 cam_nueva = self.captures[i]
