@@ -136,7 +136,7 @@ class RealsenseViewerWidget(QWidget):
         self.permission = True
 
     def update_image(self):
-        frame = self.node.image_data[3]  # RealSense fram
+        frame = self.node.realsense  # RealSense fram
         if frame is not None and self.permission:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, _ = frame.shape

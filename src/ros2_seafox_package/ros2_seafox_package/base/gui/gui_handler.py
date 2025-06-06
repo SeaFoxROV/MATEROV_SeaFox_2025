@@ -43,6 +43,14 @@ class GUI_Node(Node):
             )
             self.subscribers.append(sub)
 
+        #Subscriber de video de realsesene
+        self.create_subscription(
+            Image,
+            'camera_realsense/image_raw',
+            self.realsense_callback,  # callback que convierte y guarda el frame
+            10
+        )
+
         #Publisher de permisos de camaras
         self.permission_video = self.create_publisher(
         Int8MultiArray, 'video_permission', 10
@@ -64,6 +72,14 @@ class GUI_Node(Node):
 
         except Exception as e:
             print(f"Error converting image: {e}")
+    
+    def realsense_callback(self, msg: Image):
+        try:
+            cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            self.get_logger().info("Received image from camera")
+            self.realsense = cv_img
+        except Exception as e:
+            self.get_logger().error(f"Error CvBridge: {e}")
 
 def sigint_handler(*args):
     """Handler for the SIGINT signal."""
