@@ -33,22 +33,22 @@ class RealSenseNode(Node):
             10
         )
 
-        # Add subscriber for resetting the RealSense camera
-        self.create_subscription(Empty, 'reset_cameras', self.reset_realsense_callback, 10)
+        # # Add subscriber for resetting the RealSense camera
+        # self.create_subscription(Empty, 'reset_cameras', self.reset_realsense_callback, 10)
 
 
-        try:
-            self.pipeline.start(config)
-            self.get_logger().info("RealSense iniciada correctamente")
-        except Exception as e:
-            self.get_logger().error(f"Error iniciando la RealSense: {str(e)}")
-            return
+        # try:
+        #     self.pipeline.start(config)
+        #     self.get_logger().info("RealSense iniciada correctamente")
+        # except Exception as e:
+        #     self.get_logger().error(f"Error iniciando la RealSense: {str(e)}")
+        #     return
 
-        # Timer para capturar frames a ~30 FPS
-        self.timer = self.create_timer(0.033, self.capture_frame)
+        # # Timer para capturar frames a ~30 FPS
+        # self.timer = self.create_timer(0.033, self.capture_frame)
 
-        # Para visualizar la imagen (opcional)
-        #cv2.namedWindow('RealSense')
+        # # Para visualizar la imagen (opcional)
+        # #cv2.namedWindow('RealSense')
 
     def reset_realsense_callback(self, msg):
         self.get_logger().info("Resetting RealSense camera...")

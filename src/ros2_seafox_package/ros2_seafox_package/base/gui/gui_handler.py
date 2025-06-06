@@ -48,6 +48,12 @@ class GUI_Node(Node):
         Int8MultiArray, 'video_permission', 10
         )
 
+        self.pos = self.create_publisher(
+            Int32MultiArray,
+            'pixel_position',
+            10
+        )
+
         self.get_logger().info("GUI node has started!")
 
 
