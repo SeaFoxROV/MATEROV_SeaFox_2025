@@ -138,6 +138,7 @@ class RealSenseNode(Node):
         # Publicar la imagen
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
         self.image_publisher.publish(msg)
+        self.get_logger().info("Frame capturado y publicado")
 
 
     def destroy_node(self):

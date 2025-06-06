@@ -132,7 +132,6 @@ class RealsenseViewerWidget(QWidget):
         self.timer.timeout.connect(self.update_image)
         self.timer.start(33)
 
-        #Variable for lengt measurement
         self.permission = True
 
     def update_image(self):
@@ -141,8 +140,7 @@ class RealsenseViewerWidget(QWidget):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, _ = frame.shape
             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
-            pix = QPixmap.fromImage(img).scaled(
-                self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
+            pix = QPixmap.fromImage(img)
             self.video_label.setPixmap(pix)
             self.video_label.mousePressEvent = self.getPos
         else:

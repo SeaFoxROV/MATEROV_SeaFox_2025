@@ -8,6 +8,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int32MultiArray, Empty, Int8MultiArray
 from cv_bridge import CvBridge
+import threading
 
 from ros2_seafox_package.base.gui.components import MainWindow
 
@@ -32,6 +33,7 @@ class GUI_Node(Node):
         self.image_data = [None] * len(self.frames)
 
         self.subscribers = []
+        self.realsense = None
 
         #subscribers de camaras
         for i, topic in enumerate(self.frames):
@@ -47,7 +49,7 @@ class GUI_Node(Node):
         self.create_subscription(
             Image,
             'camera_realsense/image_raw',
-            self.realsense_callback,  # callback que convierte y guarda el frame
+            self.realsense_callback,
             10
         )
 
@@ -104,9 +106,13 @@ def main(args=None):
     gui.show()
 
     # Timer para procesar los callbacks de ROS
-    spin_timer = QTimer()
-    spin_timer.timeout.connect(lambda: rclpy.spin_once(camera_node, timeout_sec=0.01))
-    spin_timer.start(10)
+    # spin_timer = QTimer()
+    # spin_timer.timeout.connect(lambda: rclpy.spin_once(camera_node, timeout_sec=0.01))
+    # spin_timer.start(10)
+
+    # Timer para ejecutar los callbacks de ROS en un thread diferente
+    spin_timer = threading.Thread(target=rclpy.spin, args=(camera_node,), daemon=True)
+    spin_timer.start()
 
     exit_code = app.exec_()
 
