@@ -145,8 +145,16 @@ class RealsenseViewerWidget(QWidget):
             pix = QPixmap.fromImage(img).scaled(
                 self.video_label.width(), self.video_label.height(), Qt.KeepAspectRatio)
             self.video_label.setPixmap(pix)
+            self.video_label.mousePressEvent = self.getPos
         else:
             self.video_label.setText("No signal")
+
+    def getPos(self, event):
+        x = event.pos().x()
+        y = event.pos().y()
+        pos = [x, y]
+        self.get_logger().info(f"Posición del pixel: x={x}, y={y}")
+        self.pixelpos(pos)
         
     def close_video(self):
         if self.permission == True:
@@ -155,45 +163,55 @@ class RealsenseViewerWidget(QWidget):
             self.permission = True
         self.video_label.clear()
     
-    # def pixelpos(self, pos):
-    #     # Se recibe el mensaje con la posición del pixel desde la GUI
-    #     x = pos.data[0]
-    #     y = pos.data[1]
-    #     self.get_logger().info(f"Posición recibida: x={x}, y={y}")
+    def pixelpos(self, pos):
+        # Se recibe el mensaje con la posición del pixel desde la GUI
+        x = pos.data[0]
+        y = pos.data[1]
+        self.get_logger().info(f"Posición recibida: x={x}, y={y}")
 
-    #     # Si ya hay dos puntos, reiniciamos para una nueva medición
-    #     if len(self.points) >= 2:
-    #         self.points = []
+        # Si ya hay dos puntos, reiniciamos para una nueva medición
+        if len(self.points) >= 2:
+            self.points = []
 
-    #     # Verificamos que se disponga del frame de profundidad
-    #     if not hasattr(self, 'depth_frame') or self.frame_depth is None:
-    #         self.get_logger().warn("No hay frame de profundidad disponible")
-    #         return
+        # Verificamos que se disponga del frame de profundidad
+        if not hasattr(self, 'depth_frame') or self.depth_frame is None:
+            self.get_logger().warn("No hay frame de profundidad disponible")
+            return
 
-    #     # Obtener la distancia en el pixel
-    #     depth = self.frame_depth.get_distance(x, y)
-    #     if depth == 0:
-    #         self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
-    #         return
+        # Obtener la distancia en el pixel
+        depth = self.depth_frame.get_distance(x, y)
+        if depth == 0:
+            self.get_logger().warn(f"No hay datos de profundidad válidos en ({x}, {y}). Intenta otro punto.")
+            return
 
-    #     # Deproyectar el pixel a coordenadas 3D usando los intrínsecos del sensor de color
-    #     point_3d = rs.rs2_deproject_pixel_to_point(self.color_intrinsics, [x, y], depth)
-    #     self.points.append((x, y, point_3d))
-    #     self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
+        # Deproyectar el pixel a coordenadas 3D usando los intrínsecos del sensor de color
+        point_3d = rs.rs2_deproject_pixel_to_point(self.color_intrinsics, [x, y], depth)
+        self.points.append((x, y, point_3d))
+        self.get_logger().info(f"Punto agregado. Total puntos: {len(self.points)}")
 
-    #     if len(self.points) == 2:
-    #         p1 = np.array(self.points[0][2])
-    #         p2 = np.array(self.points[1][2])
-    #         distance = np.linalg.norm(p1 - p2)
+        if len(self.points) == 2:
+            p1 = np.array(self.points[0][2])
+            p2 = np.array(self.points[1][2])
+            distance = np.linalg.norm(p1 - p2)
 
-    #         # Ajuste de distancia
-    #         if 1 <= distance <= 1.10:
-    #             distance = distance - 3.4
-    #         elif 1.11 <= distance <= 1.39:
-    #             distance = distance - 3.8
-    #         elif 1.40 <= distance <= 1.59:
-    #             distance = distance - 4
-    #         elif 1.60 <= distance <= 1.79:import sys 
+            # Ajuste de distancia
+            if 1 <= distance <= 1.10:
+                distance = distance - 3.4
+            elif 1.11 <= distance <= 1.39:
+                distance = distance - 3.8
+            elif 1.40 <= distance <= 1.59:
+                distance = distance - 4
+            elif 1.60 <= distance <= 1.79:
+                distance = distance - 3.4
+            elif 1.80 <= distance <= 1.99:
+                distance = distance - 9
+            elif 2 <= distance <= 2.10:
+                distance = distance - 12.8
+
+            # Convertir a mensaje Float32 y publicarlo
+            self.get_logger().info(f"Distance between points: {distance:.2f} meters")
+
+import sys 
 
 import rclpy
 
@@ -351,7 +369,7 @@ class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.yolo = False
-        self.model = YOLO(r'/home/valap/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
 
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
