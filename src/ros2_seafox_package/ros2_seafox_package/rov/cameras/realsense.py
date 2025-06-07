@@ -137,7 +137,7 @@ class RealSenseNode(Node):
 
         # Publicar la imagen
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
-        # self.image_publisher.publish(msg)
+        self.image_publisher.publish(msg)
         b=time.time()
         #self.get_logger().info(f"Tiempo de captura: {b-a} segundos")
 

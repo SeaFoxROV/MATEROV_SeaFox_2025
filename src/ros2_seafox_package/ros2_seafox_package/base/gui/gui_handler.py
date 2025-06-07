@@ -28,7 +28,7 @@ class GUI_Node(Node):
             'frontal': None,
             'apoyo_1': None,
             'apoyo_2': None,
-            'realsense': None,
+            # 'realsense': None,
         }
         self.image_data = [None] * len(self.frames)
 

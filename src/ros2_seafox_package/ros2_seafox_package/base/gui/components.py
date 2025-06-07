@@ -134,18 +134,18 @@ class RealsenseViewerWidget(QWidget):
 
         self.permission = True
 
-    def update_image(self):
-        frame = self.node.realsense  # RealSense fram
+    # def update_image(self):
+    #     frame = self.node.realsense  # RealSense fram
 
-        if frame is not None and self.permission:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            h, w, _ = frame.shape
-            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
-            pix = QPixmap.fromImage(img)
-            self.video_label.setPixmap(pix)
-            self.video_label.mousePressEvent = self.getPos
-        else:
-            self.video_label.setText("No signal")
+    #     if frame is not None and self.permission:
+    #         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #         h, w, _ = frame.shape
+    #         img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
+    #         pix = QPixmap.fromImage(img)
+    #         self.video_label.setPixmap(pix)
+    #         self.video_label.mousePressEvent = self.getPos
+    #     else:
+    #         self.video_label.setText("No signal")
 
     def getPos(self, event):
         x = event.pos().x()
@@ -446,9 +446,9 @@ class MainWindow(QMainWindow):
         self.permission_video = [1, 1, 1, 1, 1]
         
         # A single qtimer for the entire GUI
-        # self.gui_timer = QTimer(self)
-        # self.gui_timer.timeout.connect(self.refresh_gui)
-        # self.gui_timer.start(33)
+        self.gui_timer = QTimer(self)
+        self.gui_timer.timeout.connect(self.refresh_gui)
+        self.gui_timer.start(33)
 
         central = QWidget()
         main_v = QVBoxLayout(central)
@@ -465,7 +465,36 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central)
 
-    # def refresh_gui(self):
+    def refresh_gui(self):
+        # Update image of the RealSense
+        frame = self.node.realsense  # RealSense fram
+
+        if frame is not None and self.permission:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            h, w, _ = frame.shape
+            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
+            pix = QPixmap.fromImage(img)
+            self.video_label.setPixmap(pix)
+            self.video_label.mousePressEvent = self.getPos
+        else:
+            self.video_label.setText("No signal")
+
+        # Update the normal cameras
+        label = (self.label_left, self.label_middle, self.label_right)
+
+        for i, (label, frame) in enumerate(zip(
+            (self.label_left, self.label_middle, self.label_right),
+            (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
+        )):
+            if frame is not None and self.permission_video[i]== True:
+                h, w, _ = frame.shape
+                img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
+                label.setPixmap(QPixmap.fromImage(img).scaled(
+                    label.width(), label.height(), Qt.KeepAspectRatio))
+            else:
+                label.setText("No signal")
+
+        
 
 
 # ----------------------------------------
