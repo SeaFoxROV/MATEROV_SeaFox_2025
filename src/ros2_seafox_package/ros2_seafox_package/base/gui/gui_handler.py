@@ -34,7 +34,6 @@ class GUI_Node(Node):
 
         self.subscribers = []
         self.realsense = None
-
         #subscribers de camaras
         for i, topic in enumerate(self.frames):
             sub = self.create_subscription(
@@ -70,6 +69,7 @@ class GUI_Node(Node):
     def camara_callback(self, msg, index):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            self.get_logger().info(f"Received image from camera {index}")
             self.image_data[index] = cv_image
 
         except Exception as e:
@@ -78,7 +78,7 @@ class GUI_Node(Node):
     def realsense_callback(self, msg: Image):
         try:
             cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            self.get_logger().info("Received image from camera")
+            self.get_logger().info("Received image from realsense")
             self.realsense = cv_img
         except Exception as e:
             self.get_logger().error(f"Error CvBridge: {e}")
@@ -100,19 +100,19 @@ def main(args=None):
     # Crear el nodo ROS2 suscriptor
     camera_node = GUI_Node()
     
+    # Timer para procesar los callbacks de ROS
+    spin_timer = QTimer()
+    spin_timer.timeout.connect(lambda: rclpy.spin_once(camera_node, timeout_sec=0.001))
+    spin_timer.start(1)
+
+    # Timer para ejecutar los callbacks de ROS en un thread diferente
+    # spin_timer = threading.Thread(target=rclpy.spin, args=(camera_node,), daemon=True)
+    # spin_timer.start()
+    
     # Crear la GUI y pasarle el nodo ROS2
     gui = MainWindow(camera_node, None)
     gui.showMaximized()
     gui.show()
-
-    # Timer para procesar los callbacks de ROS
-    # spin_timer = QTimer()
-    # spin_timer.timeout.connect(lambda: rclpy.spin_once(camera_node, timeout_sec=0.01))
-    # spin_timer.start(10)
-
-    # Timer para ejecutar los callbacks de ROS en un thread diferente
-    spin_timer = threading.Thread(target=rclpy.spin, args=(camera_node,), daemon=True)
-    spin_timer.start()
 
     exit_code = app.exec_()
 

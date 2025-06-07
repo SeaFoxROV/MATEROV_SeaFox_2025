@@ -38,8 +38,6 @@ class RealSenseNode(Node):
         # self.create_subscription(Empty, 'reset_cameras', self.reset_realsense_callback, 10)
 
 
-        ### CREO QUE LA REALSENSE SI FUNCIONA. SE TIENE QUE COMENTAR ESTE CODIGO PARA QUE SE PUEDA VER EN LA GUI PORTQUE SI NO SE VA A ESTAR
-        ### INTENTANDO VER EN LOS DOS
         try:
             self.pipeline.start(config)
             self.get_logger().info("RealSense iniciada correctamente")
@@ -141,7 +139,7 @@ class RealSenseNode(Node):
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
         self.image_publisher.publish(msg)
         b=time.time()
-        self.get_logger().info(f"Tiempo de captura: {b-a} segundos")
+        #self.get_logger().info(f"Tiempo de captura: {b-a} segundos")
 
 
     def destroy_node(self):
