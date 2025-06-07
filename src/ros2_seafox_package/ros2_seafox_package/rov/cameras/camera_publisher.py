@@ -117,10 +117,18 @@ class CameraPublisher(Node):
 
     def timer_callback(self):
         for i, cam in enumerate(self.captures):
+            if self.permission_cameras[i] == 0:
+                continue
+
+            if cam is None or not cam.isOpened():
+                continue
+
             ret, frame = cam.read()
-            if ret:
-                msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
-                self.image_publishers[i].publish(msg)
+            if not ret:
+                continue
+            
+            msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+            self.image_publishers[i].publish(msg)
 
     def permission_callback(self, msg):
         self.permission_cameras = msg.data

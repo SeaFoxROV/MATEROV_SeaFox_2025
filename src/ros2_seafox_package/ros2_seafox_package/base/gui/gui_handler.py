@@ -6,7 +6,7 @@ import signal
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int32MultiArray, Empty, Int8MultiArray
+from std_msgs.msg import Int32MultiArray, Empty, Int8MultiArray, Bool
 from cv_bridge import CvBridge
 import threading
 
@@ -28,7 +28,7 @@ class GUI_Node(Node):
             'frontal': None,
             'apoyo_1': None,
             'apoyo_2': None,
-            # 'realsense': None,
+            'realsense': None,
         }
         self.image_data = [None] * len(self.frames)
 
@@ -69,7 +69,7 @@ class GUI_Node(Node):
     def camara_callback(self, msg, index):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            self.get_logger().info(f"Received image from camera {index}")
+            # self.get_logger().info(f"Received image from camera {index}")
             self.image_data[index] = cv_image
 
         except Exception as e:
@@ -78,7 +78,7 @@ class GUI_Node(Node):
     def realsense_callback(self, msg: Image):
         try:
             cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            self.get_logger().info("Received image from realsense")
+            # self.get_logger().info("Received image from realsense")
             self.realsense = cv_img
         except Exception as e:
             self.get_logger().error(f"Error CvBridge: {e}")

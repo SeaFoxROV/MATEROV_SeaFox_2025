@@ -57,48 +57,48 @@ class Camaras(QWidget):
         self.setLayout(layout)
 
         # Temporizador para refrescar imágenes
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_image)
-        self.timer.start(33)
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self.update_image)
+        # self.timer.start(33)
 
-    def update_image(self):
-        for i, (label, frame) in enumerate(zip(
-            (self.label_left, self.label_middle, self.label_right),
-            (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
-        )):
-            if frame is not None and self.permission_video[i]== True:
-                h, w, _ = frame.shape
-                img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
-                label.setPixmap(QPixmap.fromImage(img).scaled(
-                    label.width(), label.height(), Qt.KeepAspectRatio))
-            else:
-                label.setText("No signal")
+    # def update_image(self):
+    #     for i, (label, frame) in enumerate(zip(
+    #         (self.label_left, self.label_middle, self.label_right),
+    #         (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
+    #     )):
+    #         if frame is not None and self.permission_video[i]== True:
+    #             h, w, _ = frame.shape
+    #             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
+    #             label.setPixmap(QPixmap.fromImage(img).scaled(
+    #                 label.width(), label.height(), Qt.KeepAspectRatio))
+    #         else:
+    #             label.setText("No signal")
 
     def close_image(self, camera_index):
         if camera_index == 0:
-            self.label_left.clear()
             if self.permission_video[0] == 1:
+                # self.label_left.clear()
                 self.permission_video[0] = 0
             else:
                 self.permission_video[0] = 1
             self.publish_video_permission()
         elif camera_index == 1:
-            self.label_middle.clear()
             if self.permission_video[1] == 1:
+                # self.label_middle.clear()
                 self.permission_video[1] = 0
             else:
                 self.permission_video[1] = 1
             self.publish_video_permission()
         elif camera_index == 2:
-            self.label_right.clear()
             if self.permission_video[2] == 1:
+                # self.label_right.clear()
                 self.permission_video[2] = 0
             else:
                 self.permission_video[2] = 1
             self.publish_video_permission()
         elif camera_index == 3:
-            self.real.close_video()
             if self.permission_video[3] == 1:
+                # self.real.close_video()
                 self.permission_video[3] = 0
             else:
                 self.permission_video[3] = 1
@@ -128,9 +128,9 @@ class RealsenseViewerWidget(QWidget):
         layout.addWidget(self.video_label, alignment=Qt.AlignCenter)
 
         # Timer para refrescar RealSense
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_image)
-        self.timer.start(33)
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self.update_image)
+        # self.timer.start(33)
 
         self.permission = True
 
@@ -262,11 +262,8 @@ class MeasurePopup(QDialog):
         layout.addWidget(self.video_label)
 
         btn_layout = QHBoxLayout()
-        self.measure_btn = QPushButton("Medir")
         self.close_btn   = QPushButton("Cerrar")
-        self.measure_btn.setStyleSheet("font-size:18px; padding:10px;")
         self.close_btn.clicked.connect(self.close)
-        btn_layout.addWidget(self.measure_btn)
         btn_layout.addWidget(self.close_btn)
         layout.addLayout(btn_layout)
 
@@ -442,13 +439,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Interfaz del ROV")
         self.setMinimumSize(1200, 800)
         self.node = node
-        self.permission_video = permission_video
-        self.permission_video = [1, 1, 1, 1, 1]
-        
-        # A single qtimer for the entire GUI
-        self.gui_timer = QTimer(self)
-        self.gui_timer.timeout.connect(self.refresh_gui)
-        self.gui_timer.start(33)
+
+        # Widgets
+        self.realsense_widget = RealsenseViewerWidget(node)
+        self.camaras_widget = Camaras(node, 400)
 
         central = QWidget()
         main_v = QVBoxLayout(central)
@@ -456,38 +450,42 @@ class MainWindow(QMainWindow):
         # Fila superior: botones - RealSense viewer - tabla
         top_h = QHBoxLayout()
         top_h.addWidget(FeatureButtonsWidget(node), 1)
-        top_h.addWidget(RealsenseViewerWidget(node), 3)
+        top_h.addWidget(self.realsense_widget, 3)
         top_h.addWidget(StatusTableWidget(node), 1)
         main_v.addLayout(top_h)
 
         # Fila inferior: cámaras pequeñas
-        main_v.addWidget(Camaras(node, 400))
+        main_v.addWidget(self.camaras_widget)
 
         self.setCentralWidget(central)
 
+        # A single qtimer for the entire GUI
+        self.gui_timer = QTimer(self)
+        self.gui_timer.timeout.connect(self.refresh_gui)
+        self.gui_timer.start(33)
+
     def refresh_gui(self):
         # Update image of the RealSense
-        frame = self.node.realsense  # RealSense fram
+        frame_rs = self.node.realsense  # RealSense fram
 
-        if frame is not None and self.permission:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            h, w, _ = frame.shape
-            img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888)
+        if frame_rs is not None:
+            frame_rs = cv2.cvtColor(frame_rs, cv2.COLOR_BGR2RGB)
+            h, w, _ = frame_rs.shape
+            img = QImage(frame_rs.data, w, h, 3*w, QImage.Format_RGB888)
             pix = QPixmap.fromImage(img)
-            self.video_label.setPixmap(pix)
-            self.video_label.mousePressEvent = self.getPos
+            self.realsense_widget.video_label.setPixmap(pix)
+            self.realsense_widget.video_label.mousePressEvent = self.realsense_widget.getPos
         else:
-            self.video_label.setText("No signal")
+            self.realsense_widget.video_label.setText("No signal")
 
         # Update the normal cameras
-        label = (self.label_left, self.label_middle, self.label_right)
+        label = (self.camaras_widget.label_left, self.camaras_widget.label_middle, self.camaras_widget.label_right)
 
-        for i, (label, frame) in enumerate(zip(
-            (self.label_left, self.label_middle, self.label_right),
-            (self.node.image_data[0], self.node.image_data[1], self.node.image_data[2])
-        )):
-            if frame is not None and self.permission_video[i]== True:
-                h, w, _ = frame.shape
+        for i, label in enumerate(label):
+            frame = self.node.image_data[i]
+            if frame is not None and self.camaras_widget.permission_video[i] == 1:
+                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, _ = rgb.shape
                 img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
                 label.setPixmap(QPixmap.fromImage(img).scaled(
                     label.width(), label.height(), Qt.KeepAspectRatio))
