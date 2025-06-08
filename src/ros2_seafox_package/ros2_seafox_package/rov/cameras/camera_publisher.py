@@ -49,7 +49,7 @@ class CameraPublisher(Node):
             'frontal',
             'apoyo_1',
             'apoyo_2',
-            #'realsense'
+            'realsense'
         ]
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
@@ -66,17 +66,17 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
-        #self.indice_realsense = max(find_video_index_by_name('realsense'))        
-        #self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
-        #self.get_logger().warn("Realsense camera not found")
+        self.indice_realsense = max(find_video_index_by_name('realsense'))        
+        self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
+        self.get_logger().warn("Realsense camera not found")
         
-        # if not self.cam_realsense.isOpened():
-        #     self.get_logger().warn("Realsense camera not found")
-        # else:
-        #     self.get_logger().info("Realsense camera found and opened successfully")
+        if not self.cam_realsense.isOpened():
+            self.get_logger().warn("Realsense camera not found")
+        else:
+            self.get_logger().info("Realsense camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2]
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
 
         # Configura parámetros de captura
         for cam in self.captures:

@@ -57,9 +57,17 @@ class GUI_Node(Node):
         Int8MultiArray, 'video_permission', 10
         )
 
+        #Publisher of coordinates of the pixel position
         self.pos = self.create_publisher(
             Int32MultiArray,
             'pixel_position',
+            10
+        )
+
+        #Publisher to kill nodes
+        self.measure_node = self.create_publisher(
+            Bool,
+            'measure_node',
             10
         )
 
