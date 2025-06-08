@@ -1,3 +1,4 @@
+import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Bool
 
@@ -19,3 +20,13 @@ class Node_Killer(Node):
             print("Hola")
         else:
             print("Adios")
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = Node_Killer()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

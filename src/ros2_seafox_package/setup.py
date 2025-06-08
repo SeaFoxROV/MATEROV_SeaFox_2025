@@ -32,6 +32,7 @@ setup(
             
             #gui scripts
                 'gui_handler = ros2_seafox_package.base.gui.gui_handler:main',
+                'node_killer = ros2_seafox_package.base.gui.node_killer:main',
 
         #ROV scripts
             #cameras scripts
