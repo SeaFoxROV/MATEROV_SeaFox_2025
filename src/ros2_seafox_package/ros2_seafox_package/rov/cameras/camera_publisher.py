@@ -51,6 +51,8 @@ class CameraPublisher(Node):
             'apoyo_2',
             'realsense'
         ]
+    
+    def start(self):
         self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
         self.permission_cameras = [1] * len(self.topic_names)

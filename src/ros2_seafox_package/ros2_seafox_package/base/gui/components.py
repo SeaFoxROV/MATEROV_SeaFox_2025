@@ -445,9 +445,9 @@ class MainWindow(QMainWindow):
                 h, w, _ = frame_rs.shape
                 img = QImage(frame_rs.data, w, h, 3*w, QImage.Format_RGB888)
                 pix = QPixmap.fromImage(img)
-                self.realsense_widget.video_label.setPixmap(pix)
+                self.realsense_measure.video_label.setPixmap(pix)
             else:
-                self.realsense_widget.video_label.setText("No signal")
+                self.realsense_measure.video_label.setText(":,v")
 
             # Update the normal cameras
             label = (self.camaras_widget.label_left, self.camaras_widget.label_middle, self.camaras_widget.label_right)
