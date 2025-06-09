@@ -69,7 +69,6 @@ class CameraPublisher(Node):
 
         self.indice_realsense = max(find_video_index_by_name('realsense'))        
         self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
-        self.get_logger().warn("Realsense camera not found")
         
         if not self.cam_realsense.isOpened():
             self.get_logger().warn("Realsense camera not found")
@@ -181,16 +180,16 @@ class CameraPublisher(Node):
             cam.release()
         super().destroy_node()
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = CameraPublisher()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    def start(args=None):
+        rclpy.init(args=args)
+        node = CameraPublisher()
+        try:
+            rclpy.spin(node)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            node.destroy_node()
+            rclpy.shutdown()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
