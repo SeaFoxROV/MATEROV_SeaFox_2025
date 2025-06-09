@@ -17,6 +17,7 @@ class Node_Killer(Node):
         )
         self.node_cameras = CameraPublisher()
         self.node_realsense = RealSenseNode()
+        self.node_cameras.start()
     
     def kill_node_callback(self, msg):
         self.get_logger().info("Received message to kill node")
