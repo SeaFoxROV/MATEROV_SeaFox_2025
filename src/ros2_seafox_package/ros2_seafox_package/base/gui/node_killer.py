@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
 from ros2_seafox_package.rov.cameras.camera_publisher import CameraPublisher
 from ros2_seafox_package.rov.cameras.realsense import RealSenseNode
 from std_msgs.msg import Bool
@@ -38,9 +39,15 @@ class Node_Killer(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = Node_Killer()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+    executor.add_node(node.node)
+    try:
+        executor.spin()
+    finally:
+        node.node.destroy_node()
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
