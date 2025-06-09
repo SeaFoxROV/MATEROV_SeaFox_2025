@@ -15,20 +15,18 @@ class Node_Killer(Node):
             self.kill_node_callback,
             10
         )
-        self.node_cameras = CameraPublisher()
-        self.node_realsense = RealSenseNode()
-        self.node_cameras.start()
+        self.node = CameraPublisher()
     
     def kill_node_callback(self, msg):
         self.get_logger().info("Received message to kill node")
         if msg.data:
-            self.node_cameras.destroy_node()
+            self.node.destroy_node()
             self.get_logger().info("Node cameras has been killed")
-            self.node_realsense.start()
+            self.node = RealSenseNode()
         else:
-            self.node_realsense.destroy_node()
+            self.node.destroy_node()
             self.get_logger().info("Node realsense has been killed")
-            self.node_cameras.start()
+            self.node = CameraPublisher()
 
 def main(args=None):
     rclpy.init(args=args)

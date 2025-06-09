@@ -17,7 +17,6 @@ class RealSenseNode(Node):
     def __init__(self):
         super().__init__('realsense')
         
-    def start(self):
         self.points = []  # Lista global para almacenar puntos seleccionados
         self.pipeline = rs.pipeline()
         config = rs.config()
