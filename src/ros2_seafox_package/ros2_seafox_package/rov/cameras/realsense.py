@@ -151,7 +151,7 @@ class RealSenseNode(Node):
         rclpy.init(args=args)
         rclpy.spin(self)
         self.destroy_node()
-        rclpy.shutdown()
+        # rclpy.shutdown()
 
 # if __name__ == '__main__':
 #     main()

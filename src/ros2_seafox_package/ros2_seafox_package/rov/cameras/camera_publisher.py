@@ -188,7 +188,7 @@ class CameraPublisher(Node):
             pass
         finally:
             self.destroy_node()
-            rclpy.shutdown()
+            # rclpy.shutdown()
 
 # if __name__ == '__main__':
 #     main()
