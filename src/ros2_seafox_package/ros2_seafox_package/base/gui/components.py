@@ -241,12 +241,7 @@ class MeasurePopup(QDialog):
         msg = Bool()
         msg.data = True
         self.node.measure_node.publish(msg)
-
-    def closeEvent(self, event):
-        self.measure_node = False
-        msg = Bool()
-        msg.data = False
-        self.node.measure_node.publish(msg)
+        self.node.get_logger().info("Mensaje publicado")
 
 # ------------------------------
 # Popup de PhotoSphere

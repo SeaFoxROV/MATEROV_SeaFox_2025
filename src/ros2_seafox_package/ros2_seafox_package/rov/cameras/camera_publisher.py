@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-
-from rclpy.lifecycle import LifecycleNode, State, TransitionCallbackReturn
-from rclpy.lifecycle.publisher import LifecyclePublisher
-
 from sensor_msgs.msg import Image
 from std_msgs.msg import Empty
 from cv_bridge import CvBridge
@@ -41,15 +37,12 @@ def find_video_index_by_name(name_substring, max_index=10):
             encontrados.append(i)
     return encontrados
 
-class CameraPublisher(LifecycleNode):
+
+
+class CameraPublisher(Node):
     def __init__(self):
         super().__init__('camera_publisher')
-        self.captures = []
-
-    def on_configure(self, state):
-        self.get_logger().info("Configuring CameraPublisher node.S...")
         self.bridge = CvBridge()
-        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
 
         # Define los nombres de los tópicos para cada cámara
         self.topic_names = [
@@ -58,17 +51,9 @@ class CameraPublisher(LifecycleNode):
             'apoyo_2',
             'realsense'
         ]
-        self.get_logger().info("AAAAAAAAAAA")
-        return TransitionCallbackReturn.SUCCESS
-        
-    def on_activate(self, state):
-        self.get_logger().info("Activating CameraPublisher node...")
-        self.image_publishers = [self.create_publisher(Image, topic, 10, publisher_class=LifecyclePublisher) for topic in self.topic_names]
-        for pub in self.image_publishers:
-            pub.on_activate()
+        self.image_publishers = [self.create_publisher(Image, topic, 10) for topic in self.topic_names]
 
         self.permission_cameras = [1] * len(self.topic_names)
-
         self.subscription_permission_cameras = self.create_subscription(
             Int8MultiArray,
             'video_permission',
@@ -91,6 +76,7 @@ class CameraPublisher(LifecycleNode):
             self.get_logger().info("Realsense camera found and opened successfully")
 
         # Guarda las cámaras en una lista para fácil manejo
+        self.captures = [self.cam_frontal, self.cam_apoyo1, self.cam_apoyo2, self.cam_realsense]
 
         # Configura parámetros de captura
         for cam in self.captures:
@@ -110,29 +96,6 @@ class CameraPublisher(LifecycleNode):
         self.timer = self.create_timer(0.033, self.timer_callback)
 
         self.get_logger().info("CameraPublisher node has started!")
-        return TransitionCallbackReturn.SUCCESS
-    
-    def on_deactivate(self, state):
-        self.get_logger().info("Deactivating CameraPublisher node...")
-        for cam in self.captures:
-            if cam is not None and cam.isOpened():
-                cam.release()
-        for pub in self.image_publishers:
-            pub.on_deactivate()
-        self.get_logger().info("Cameras released on deactivation.")
-        return TransitionCallbackReturn.SUCCESS
-    
-    def on_cleanup(self, state):
-        self.get_logger().info("Killing CameraPublisher node...")
-        for cam in self.captures:
-            if cam is not None and cam.isOpened():
-                cam.release()
-        for pub in self.image_publishers:
-            self.destroy_publisher(pub)
-        self.get_logger().info("Cameras released on cleanup.")
-        CameraPublisher.destroy_node()
-        rclpy.shutdown()
-        return TransitionCallbackReturn.SUCCESS
 
     def reset_cameras_callback(self, msg):
         self.get_logger().info("Resetting cameras...")
@@ -210,6 +173,7 @@ class CameraPublisher(LifecycleNode):
 
             # 3) En cualquier otro caso (permiso=0 y ya estaba cerrada, o permiso=1 y ya estaba abierta),
             #    NO hago nada.
+
 
     def destroy_node(self):
         for cam in self.captures:
