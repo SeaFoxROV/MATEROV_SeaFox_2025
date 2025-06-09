@@ -1,5 +1,7 @@
 import rclpy
 from rclpy.node import Node
+from ros2_seafox_package.rov.cameras.camera_publisher import CameraPublisher
+from ros2_seafox_package.rov.cameras.realsense import RealSenseNode
 from std_msgs.msg import Bool
 
 class Node_Killer(Node):
@@ -13,13 +15,19 @@ class Node_Killer(Node):
             self.kill_node_callback,
             10
         )
+        self.node_cameras = CameraPublisher()
+        self.node_realsense = RealSenseNode()
     
     def kill_node_callback(self, msg):
         self.get_logger().info("Received message to kill node")
         if msg.data:
-            print("Hola")
+            self.node_cameras.destroy_node()
+            self.get_logger().info("Node cameras has been killed")
+            self.node_realsense.start()
         else:
-            print("Adios")
+            self.node_realsense.destroy_node()
+            self.get_logger().info("Node realsense has been killed")
+            self.node_cameras.start()
 
 def main(args=None):
     rclpy.init(args=args)
