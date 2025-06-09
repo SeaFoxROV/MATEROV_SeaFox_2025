@@ -147,11 +147,10 @@ class RealSenseNode(Node):
         self.pipeline.stop()
         super().destroy_node()
 
-    def start(args=None):
+    def create_node(self,args=None):
         rclpy.init(args=args)
-        node = RealSenseNode()
-        rclpy.spin(node)
-        node.destroy_node()
+        rclpy.spin(self)
+        self.destroy_node()
         rclpy.shutdown()
 
 # if __name__ == '__main__':

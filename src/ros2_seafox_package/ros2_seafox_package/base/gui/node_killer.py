@@ -23,7 +23,7 @@ class Node_Killer(Node):
             self.node.destroy_node()
             self.get_logger().info("Node cameras has been killed")
             self.node = RealSenseNode()
-            self.node.start()
+            self.node.create_node()
         else:
             self.node.destroy_node()
             self.get_logger().info("Node realsense has been killed")
