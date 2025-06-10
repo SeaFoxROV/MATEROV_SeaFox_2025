@@ -13,7 +13,7 @@ from ultralytics import YOLO
 import cv2
 from cv_bridge import CvBridge
 from ros2_seafox_package.base.gui.imageroll import ImagePopup
-import pyrealsense2 as rs
+# import pyrealsense2 as rs
 from std_msgs.msg import Int8MultiArray, Int32MultiArray, Bool
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
