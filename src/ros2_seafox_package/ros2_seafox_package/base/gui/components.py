@@ -111,14 +111,6 @@ class RealsenseViewerWidget(QWidget):
 
         self.permission = True
 
-    def getPos(self, event):
-        x = event.pos().x()
-        y = event.pos().y()
-        pos = [x, y]
-        self.node.get_logger().info(f"Posición del pixel: x={x}, y={y}")
-        msg = Int32MultiArray()
-        msg.data = pos
-        self.node.pos.publish(msg) 
     def close_video(self):
         if self.permission == True:
             self.permission = False
@@ -219,10 +211,10 @@ class MeasurePopup(QDialog):
         self.node = node
         self.measure_node = False
         self.setWindowTitle("Measurement Tool")
-        self.setFixedSize(500, 360)
+        self.setFixedSize(700, 500)
 
         layout = QVBoxLayout(self)
-        self.video_label = QLabel(); self.video_label.setFixedSize(480, 270)
+        self.video_label = QLabel(); self.video_label.setFixedSize(640, 480)
         self.video_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.video_label)
 
@@ -235,6 +227,15 @@ class MeasurePopup(QDialog):
     def showEvent(self, event):
         super().showEvent(event)
         self.on_open()
+
+    def getPos(self, event):
+        x = event.pos().x()
+        y = event.pos().y()
+        pos = [x, y]
+        self.node.get_logger().info(f"Posición del pixel: x={x}, y={y}")
+        msg = Int32MultiArray()
+        msg.data = pos
+        self.node.pos.publish(msg) 
 
     def on_open(self):
         self.measure_node = True
@@ -473,7 +474,7 @@ class MainWindow(QMainWindow):
                 img = QImage(frame_rs.data, w, h, 3*w, QImage.Format_RGB888)
                 pix = QPixmap.fromImage(img)
                 self.realsense_measure.video_label.setPixmap(pix)
-                self.realsense_measure.video_label.mousePressEvent = self.realsense_widget.getPos
+                self.realsense_measure.video_label.mousePressEvent = self.realsense_measure.getPos
             else:
                 self.realsense_measure.video_label.setText(":v")
 
