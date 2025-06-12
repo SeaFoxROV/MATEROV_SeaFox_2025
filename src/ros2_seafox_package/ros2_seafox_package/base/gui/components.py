@@ -224,6 +224,10 @@ class MeasurePopup(QDialog):
         btn_layout.addWidget(self.close_btn)
         layout.addLayout(btn_layout)
 
+        self.measure_label = QLabel(f"Distance measured: {self.node.measure} m")
+        layout.addWidget(self.measure_label)
+
+
     def showEvent(self, event):
         super().showEvent(event)
         self.on_open()
