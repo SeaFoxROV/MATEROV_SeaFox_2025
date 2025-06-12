@@ -6,7 +6,7 @@ import signal
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int32MultiArray, Empty, Int8MultiArray, Bool
+from std_msgs.msg import Int32MultiArray, Empty, Int8MultiArray, Bool, Float32
 from cv_bridge import CvBridge
 import threading
 
@@ -34,6 +34,7 @@ class GUI_Node(Node):
 
         self.subscribers = []
         self.realsense = None
+        self.measure = None
         #subscribers de camaras
         for i, topic in enumerate(self.frames):
             sub = self.create_subscription(
@@ -49,6 +50,14 @@ class GUI_Node(Node):
             Image,
             'camera_realsense/image_raw',
             self.realsense_callback,
+            10
+        )
+
+        #Subscriber de measure distance
+        self.create_subscription(
+            Float32,
+            'distance_point',
+            self.measure_distance_callback,
             10
         )
 
@@ -90,6 +99,10 @@ class GUI_Node(Node):
             self.realsense = cv_img
         except Exception as e:
             self.get_logger().error(f"Error CvBridge: {e}")
+
+    def measure_distance_callback(self, msg: Float32):
+        self.get_logger().info(f"Distance measured: {msg.data} m")
+        self.measure = msg.data
 
 def sigint_handler(*args):
     """Handler for the SIGINT signal."""
