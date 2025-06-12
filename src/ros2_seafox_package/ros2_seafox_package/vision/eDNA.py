@@ -89,15 +89,14 @@ class Video(QWidget):
             text = pytesseract.image_to_string('photo_to_compare.jpg')
             for compare in self.captured_text:
                 similarity = SequenceMatcher(None, text, compare).ratio()
-                print("A")
-                if similarity > 0.8:
+                if similarity > 0.5:
                     self.label_info.setText(f"The eADN sequence is similar to sequence number {(self.captured_text.index(compare)+1)} with similarity {similarity:.2f}")
                     break
                 else:
-                    self.label_info.setText("No similar eADN sequence found.")    
+                    self.label_info.setText(f"No similar eADN sequence found. The probability is of {similarity:.2f} with the last sequence.")    
 
     def show_history(self):
-        self.label_info.setText()
+        print(self.captured_text)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -108,7 +107,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
         self.layout.addWidget(Video())
-        print(pytesseract.image_to_string(Image.open('/home/cedricmtz/Documents/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/vision/Lorem_ipsum_in_Noto_Sans_20191111.pdf.jpg')))
+        print(pytesseract.image_to_string(Image.open('/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/vision/image0.png')))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
