@@ -211,7 +211,7 @@ class MeasurePopup(QDialog):
         self.node = node
         self.measure_node = False
         self.setWindowTitle("Measurement Tool")
-        self.setFixedSize(700, 500)
+        self.setFixedSize(1000, 1000)
 
         layout = QVBoxLayout(self)
         self.video_label = QLabel(); self.video_label.setFixedSize(640, 480)
