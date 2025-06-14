@@ -22,24 +22,24 @@ class Camaras(QWidget):
     def __init__(self, node, width=400, parent=None):  # duplicado de tamaño de 200 a 400
         super().__init__(parent)
         self.node = node
-        self.permission_video = [1, 1, 1, 1]
+        self.permission_video = [1, 1, 1]
         self.real = RealsenseViewerWidget(self.node)
         
         # Tres labels para frontal, apoyo1, apoyo2
         self.label_left   = QLabel(); self.label_left.setFixedSize(width, (width*3)//4)
         self.label_middle = QLabel(); self.label_middle.setFixedSize(width, (width*3)//4)
-        self.label_right  = QLabel(); self.label_right.setFixedSize(width, (width*3)//4)
+        # self.label_right  = QLabel(); self.label_right.setFixedSize(width, (width*3)//4)
 
         # Crosses to cancel the image
         self.cancel_left = QPushButton("X")
         self.cancel_left.clicked.connect(lambda: self.close_image(0))
         self.cancel_center = QPushButton("X")
         self.cancel_center.clicked.connect(lambda: self.close_image(1))
-        self.cancel_right = QPushButton("X")
-        self.cancel_right.clicked.connect(lambda: self.close_image(2))
+        # self.cancel_right = QPushButton("X")
+        # self.cancel_right.clicked.connect(lambda: self.close_image(2))
         self.cancel_realsense = QPushButton("X")
         self.cancel_realsense.clicked.connect(lambda: self.close_image(3))
-        for button in (self.cancel_left, self.cancel_right, self.cancel_center, self.cancel_realsense):
+        for button in (self.cancel_left, self.cancel_center, self.cancel_realsense):
             button.setFixedSize(30, 30)
             button.setStyleSheet("background-color: red; color: white; border-radius: 15px;")
             button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -48,10 +48,10 @@ class Camaras(QWidget):
         layout.addStretch()
         layout.addWidget(self.label_left)
         layout.addWidget(self.label_middle)
-        layout.addWidget(self.label_right)
+        # layout.addWidget(self.label_right)
         layout.addWidget(self.cancel_left, alignment=Qt.AlignTop)
         layout.addWidget(self.cancel_center, alignment=Qt.AlignTop)
-        layout.addWidget(self.cancel_right, alignment=Qt.AlignTop)
+        # layout.addWidget(self.cancel_right, alignment=Qt.AlignTop)
         layout.addWidget(self.cancel_realsense, alignment=Qt.AlignTop)
         layout.addStretch()
         self.setLayout(layout)
@@ -280,7 +280,7 @@ class PhotoSpherePopup(QDialog):
 
         # Selector de cámara
         self.selector = QComboBox()
-        self.selector.addItems(["Frontal", "Apoyo 1", "Apoyo 2", "RealSense"])
+        self.selector.addItems(["Frontal", "Apoyo 1", "RealSense"])
         layout.addWidget(self.selector)
 
         # Botones: Capturar, Stitch, Cerrar
@@ -390,22 +390,22 @@ class FeatureButtonsWidget(QWidget):
 # ----------------------------------------
 # Tabla de estado
 # ----------------------------------------
-class StatusTableWidget(QWidget):
-    def __init__(self, node, parent=None):
-        super().__init__(parent)
-        layout = QVBoxLayout(self)
-        table = QTableWidget(3, 3)
-        table.setMaximumWidth(230)
-        table.setHorizontalHeaderLabels(["Item", "...", "Status"])
-        table.verticalHeader().setVisible(False)
-        table.setEditTriggers(QTableWidget.NoEditTriggers)
-        items = [("Comms","...", "OK"),("Cams","...", "OK"),("Joy","...", "OK")]
-        for r, (k, m, v) in enumerate(items):
-            table.setItem(r, 0, QTableWidgetItem(k))
-            table.setItem(r, 1, QTableWidgetItem(m))
-            table.setItem(r, 2, QTableWidgetItem(v))
-        table.resizeColumnsToContents()
-        layout.addWidget(table)
+# class StatusTableWidget(QWidget):
+#     def __init__(self, node, parent=None):
+#         super().__init__(parent)
+#         layout = QVBoxLayout(self)
+#         table = QTableWidget(3, 3)
+#         table.setMaximumWidth(230)
+#         table.setHorizontalHeaderLabels(["Item", "...", "Status"])
+#         table.verticalHeader().setVisible(False)
+#         table.setEditTriggers(QTableWidget.NoEditTriggers)
+#         items = [("Comms","...", "OK"),("Cams","...", "OK"),("Joy","...", "OK")]
+#         for r, (k, m, v) in enumerate(items):
+#             table.setItem(r, 0, QTableWidgetItem(k))
+#             table.setItem(r, 1, QTableWidgetItem(m))
+#             table.setItem(r, 2, QTableWidgetItem(v))
+#         table.resizeColumnsToContents()
+#         layout.addWidget(table)
 
 # ----------------------------------------
 # Ventana Principal con nuevo layout
@@ -429,7 +429,7 @@ class MainWindow(QMainWindow):
         top_h = QHBoxLayout()
         top_h.addWidget(FeatureButtonsWidget(node, self.realsense_measure), 1)
         top_h.addWidget(self.realsense_widget, 3)
-        top_h.addWidget(StatusTableWidget(node), 1)
+        # top_h.addWidget(StatusTableWidget(node), 1)
         main_v.addLayout(top_h)
 
         # Fila inferior: cámaras pequeñas
@@ -457,7 +457,7 @@ class MainWindow(QMainWindow):
                 self.realsense_widget.video_label.setText(":,v")
 
             # Update the normal cameras
-            label = (self.camaras_widget.label_left, self.camaras_widget.label_middle, self.camaras_widget.label_right)
+            label = (self.camaras_widget.label_left, self.camaras_widget.label_middle)
 
             for i, label in enumerate(label):
                 frame = self.node.image_data[i]
