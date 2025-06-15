@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import cv2
+import os
 import pytesseract
 
 # Configuración de Tesseract para reconocer solo Y y N
@@ -98,6 +99,39 @@ class ComputerModel:
             bin_row = [1 if cell == 'Y' else 0 for cell in row]
             binary.append(bin_row)
         return binary
+    
+    def video_maker(self, binary_table):
+        video_name = "src/ros2_seafox_package/ros2_seafox_package/imgs/output_video.mp4"
+        region0 = "src/ros2_seafox_package/ros2_seafox_package/imgs/lake.png"
+        region1 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 1.png"
+        region2 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 2.png"
+        region3 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 3.png"
+        region4 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 4.png"
+        region5 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 5.png"
+        images = [region0,region1, region2, region3, region4, region5]
+        images_correct = []
+
+        # Width and height for the whole video
+        first_image = cv2.imread(images[0])
+        height, width, _ = first_image.shape
+
+        for image in images:
+            image_data = cv2.imread(image)
+            # if not height == image_data.shape[0] or not width == image_data.shape[1]:
+            image = cv2.resize(image_data, (width, height), interpolation=cv2.INTER_AREA)
+            images_correct.append(image)
+
+        # Initialize video writer
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Use 'mp4v' for MP4 format
+        video = cv2.VideoWriter(video_name, fourcc, 20, (width, height))
+
+        # Add images to the video
+        for image in images_correct:
+            video.write(image)
+
+        # Release the video writer
+        video.release()
+        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     path = "src/ros2_seafox_package/ros2_seafox_package/imgs/table1.png"
@@ -108,3 +142,4 @@ if __name__ == '__main__':
     print(df)
     print("\nBinary Table:")
     print(binary_table)
+    comp.video_maker(binary_table)
