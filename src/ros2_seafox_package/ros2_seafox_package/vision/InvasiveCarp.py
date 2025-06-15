@@ -108,7 +108,7 @@ class ComputerModel:
         region3 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 3.png"
         region4 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 4.png"
         region5 = "src/ros2_seafox_package/ros2_seafox_package/imgs/Region 5.png"
-        images = [region0,region1, region2, region3, region4, region5]
+        images = [region0, region1, region2, region3, region4, region5]
         images_correct = []
 
         # Width and height for the whole video
@@ -123,11 +123,25 @@ class ComputerModel:
 
         # Initialize video writer
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Use 'mp4v' for MP4 format
-        video = cv2.VideoWriter(video_name, fourcc, 20, (width, height))
+        video = cv2.VideoWriter(video_name, fourcc, .60, (width, height))
 
         # Add images to the video
-        for image in images_correct:
-            video.write(image)
+        j = 1
+        k = 0
+        video.write(images_correct[0])
+        for i, row in enumerate(binary_table):
+            if row[k] == 1:
+                k += 1
+                if j >= len(images_correct):
+                    break
+                image = images_correct[j].copy()
+                j += 1
+                # Add year text
+                year_text = f"Year: {2016 + i}"
+                cv2.putText(image, year_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 4)
+
+                # Write the image to the video
+                video.write(image)
 
         # Release the video writer
         video.release()
