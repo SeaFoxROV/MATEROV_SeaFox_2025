@@ -10,30 +10,30 @@ import cv2
 import os
 import subprocess
 
-def find_video_index_by_name(name_substring, max_index=10):
-    """
-    Busca entre /dev/video0 .. /dev/video{max_index-1} aquel dispositivo
-    cuyo nombre contenga 'name_substring'. Devuelve la lista de índices que coincidan.
-    """
-    encontrados = []
-    for i in range(max_index):
-        dev = f"/dev/video{i}"
-        if not os.path.exists(dev):
-            continue
-        # Ejecutar: v4l2-ctl --device=/dev/video{i} --info    <-- debe estar instalado
-        try:
-            info = subprocess.check_output(
-                ["v4l2-ctl", "--device", dev, "--info"],
-                stderr=subprocess.DEVNULL,
-                encoding="utf-8"
-            )
-        except subprocess.CalledProcessError:
-            continue
+# def find_video_index_by_name(name_substring, max_index=10):
+#     """
+#     Busca entre /dev/video0 .. /dev/video{max_index-1} aquel dispositivo
+#     cuyo nombre contenga 'name_substring'. Devuelve la lista de índices que coincidan.
+#     """
+#     encontrados = []
+#     for i in range(max_index):
+#         dev = f"/dev/video{i}"
+#         if not os.path.exists(dev):
+#             continue
+#         # Ejecutar: v4l2-ctl --device=/dev/video{i} --info    <-- debe estar instalado
+#         try:
+#             info = subprocess.check_output(
+#                 ["v4l2-ctl", "--device", dev, "--info"],
+#                 stderr=subprocess.DEVNULL,
+#                 encoding="utf-8"
+#             )
+#         except subprocess.CalledProcessError:
+#             continue
 
-        # Por ejemplo, la línea “Driver name” o “Card type” suele contener algo reconocible
-        if name_substring.lower() in info.lower():
-            encontrados.append(i)
-    return encontrados
+#         # Por ejemplo, la línea “Driver name” o “Card type” suele contener algo reconocible
+#         if name_substring.lower() in info.lower():
+#             encontrados.append(i)
+#     return encontrados
 
 
 
@@ -65,7 +65,7 @@ class CameraPublisher(Node):
         self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
-        self.indice_realsense = max(find_video_index_by_name('realsense'))        
+        # self.indice_realsense = max(find_video_index_by_name('realsense'))        
         # self.cam_realsense = cv2.VideoCapture(self.indice_realsense)
         
         # if not self.cam_realsense.isOpened():

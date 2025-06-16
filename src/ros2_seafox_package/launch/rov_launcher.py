@@ -16,13 +16,13 @@ def generate_launch_description():
             prefix='taskset -c 1',
             output='screen',
         ),
-        Node(
-            package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
-            executable='camera_publisher',  # Reemplaza con el nombre del ejecutable de tu nodo
-            name='camera_publisher',
-            prefix='taskset -c 0',
-            output='screen',
-        ),
+        # Node(
+        #     package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
+        #     executable='camera_publisher',  # Reemplaza con el nombre del ejecutable de tu nodo
+        #     name='camera_publisher',
+        #     prefix='taskset -c 0',
+        #     output='screen',
+        # ),
         # Node(
         #     package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
         #     executable='node_killer',  # Reemplaza con el nombre del ejecutable de tu nodo
