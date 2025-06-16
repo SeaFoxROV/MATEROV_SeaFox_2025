@@ -22,7 +22,7 @@ class Camaras(QWidget):
     def __init__(self, node, width=400, parent=None):  # duplicado de tamaño de 200 a 400
         super().__init__(parent)
         self.node = node
-        self.permission_video = [1, 1, 1, 1]
+        self.permission_video = [1, 1, 1]
         self.real = RealsenseViewerWidget(self.node)
         
         # Tres labels para frontal, apoyo1, apoyo2
@@ -125,6 +125,15 @@ class RealsenseViewerWidget(QWidget):
         else:
             self.permission = True
         self.video_label.clear()
+
+    def getPos(self, event):
+        x = event.pos().x()
+        y = event.pos().y()
+        pos = [x, y]
+        self.node.get_logger().info(f"Posición del pixel: x={x}, y={y}")
+        msg = Int32MultiArray()
+        msg.data = pos
+        self.node.pos.publish(msg) 
 
 # ----------------------------------------
 # Popups omitidos (mantener mismos de antes)
@@ -469,6 +478,7 @@ class MainWindow(QMainWindow):
                 pix = QPixmap.fromImage(img)
                 pix = pix.scaled(1200, 960, Qt.KeepAspectRatio)
                 self.realsense_widget.video_label.setPixmap(pix)
+                self.realsense_widget.video_label.mousePressEvent = self.realsense_measure.getPos
             else:
                 self.realsense_widget.video_label.setText(":,v")
 
