@@ -46,7 +46,7 @@ class RealSenseNode(Node):
             return
 
         # Timer para capturar frames a ~30 FPS
-        self.timer = self.create_timer(0.033, self.capture_frame)
+        self.timer = self.create_timer(0.1, self.capture_frame)
 
         # Para visualizar la imagen (opcional)
         #cv2.namedWindow('RealSense')

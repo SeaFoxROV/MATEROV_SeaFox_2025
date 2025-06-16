@@ -9,8 +9,6 @@ import cv2
 
 import os
 import subprocess
-import re
-
 
 def find_video_index_by_name(name_substring, max_index=10):
     """
@@ -93,7 +91,7 @@ class CameraPublisher(Node):
         self.create_subscription(Empty, 'reset_cameras', self.reset_cameras_callback, 10)
 
         # Temporizador para publicar a 30 Hz
-        self.timer = self.create_timer(0.033, self.timer_callback)
+        self.timer = self.create_timer(0.1, self.timer_callback)
 
         self.get_logger().info("CameraPublisher node has started!")
 
