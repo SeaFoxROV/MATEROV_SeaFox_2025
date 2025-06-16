@@ -39,8 +39,8 @@ class RealSenseNode(Node):
 
 
         try:
-            config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-            config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+            config.enable_stream(rs.stream.color, 1200, 960, rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.depth, 1200, 960, rs.format.z16, 30)
             self.pipeline.start(config)
             for _ in range(5):
                 self.pipeline.wait_for_frames(timeout_ms=2000)            
@@ -61,8 +61,8 @@ class RealSenseNode(Node):
             # Stop and restart the pipeline using the same configuration.
             self.pipeline.stop()
             config = rs.config()
-            config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-            config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+            config.enable_stream(rs.stream.color, 1200, 960, rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.depth, 1200, 960, rs.format.z16, 30)
             self.pipeline.start(config)
             self.get_logger().info("RealSense reset successfully.")
         except Exception as e:
