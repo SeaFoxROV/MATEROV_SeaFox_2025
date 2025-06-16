@@ -151,9 +151,9 @@ class CameraPublisher(Node):
                     self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
                     self.captures[i] = self.cam_apoyo1
 
-                elif i == 2:
-                    self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
-                    self.captures[i] = self.cam_apoyo2
+                # elif i == 2:
+                #     self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
+                #     self.captures[i] = self.cam_apoyo2
 
                 # elif i == 3:
                 #     # Asegúrate de que self.indice_realsense fue calculado en __init__

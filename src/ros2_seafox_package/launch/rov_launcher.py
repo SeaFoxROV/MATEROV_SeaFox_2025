@@ -11,16 +11,16 @@ def generate_launch_description():
         ),
         Node(
             package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
-            executable='camera_publisher',  # Reemplaza con el nombre del ejecutable de tu nodo
-            name='camera_publisher',
-            prefix='taskset -c 0',
+            executable='realsense',  # Reemplaza con el nombre del ejecutable de tu nodo
+            name='realsense',
+            prefix='taskset -c 1',
             output='screen',
         ),
         Node(
             package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
-            executable='realsense',  # Reemplaza con el nombre del ejecutable de tu nodo
-            name='realsense',
-            prefix='taskset -c 1',
+            executable='camera_publisher',  # Reemplaza con el nombre del ejecutable de tu nodo
+            name='camera_publisher',
+            prefix='taskset -c 0',
             output='screen',
         ),
         # Node(
