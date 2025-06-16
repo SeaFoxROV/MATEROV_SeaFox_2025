@@ -486,6 +486,7 @@ class MainWindow(QMainWindow):
                     label.setText("No signal")
         else:
             frame_rs = self.node.realsense  # RealSense fram
+            self.realsense_measure.measure_label.setText(f"Distance measured: {self.node.measure} m")
 
             if frame_rs is not None:
                 frame_rs = cv2.cvtColor(frame_rs, cv2.COLOR_BGR2RGB)
