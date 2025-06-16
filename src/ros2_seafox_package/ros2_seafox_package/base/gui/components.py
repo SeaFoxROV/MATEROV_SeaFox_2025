@@ -459,7 +459,8 @@ class MainWindow(QMainWindow):
     def refresh_gui(self):
         if not self.realsense_measure.measure_node:
             # Update image of the RealSense
-            frame_rs = self.node.image_data[3]  # RealSense fram by index
+            # frame_rs = self.node.image_data[3]  # RealSense fram by index
+            frame_rs = self.node.realsense  # RealSense fram
 
             if frame_rs is not None:
                 frame_rs = cv2.cvtColor(frame_rs, cv2.COLOR_BGR2RGB)
