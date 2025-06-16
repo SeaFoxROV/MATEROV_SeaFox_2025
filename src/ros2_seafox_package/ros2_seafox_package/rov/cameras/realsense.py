@@ -42,6 +42,8 @@ class RealSenseNode(Node):
             config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
             config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
             self.pipeline.start(config)
+            for _ in range(5):
+                self.pipeline.wait_for_frames(timeout_ms=2000)            
             self.get_logger().info("RealSense iniciada correctamente")
         except Exception as e:
             self.get_logger().error(f"Error iniciando la RealSense: {str(e)}")
