@@ -58,8 +58,8 @@ class RealSenseNode(Node):
             # Stop and restart the pipeline using the same configuration.
             self.pipeline.stop()
             config = rs.config()
-            config.enable_stream(rs.stream.color, 1200, 960, rs.format.bgr8, 30)
-            config.enable_stream(rs.stream.depth, 1200, 960, rs.format.z16, 30)
+            config.enable_stream(rs.stream.color, 1920, 1080, rs.format.bgr8, 30)
+            config.enable_stream(rs.stream.depth, 1920, 1080, rs.format.z16, 30)
             self.pipeline.start(config)
             self.get_logger().info("RealSense reset successfully.")
         except Exception as e:
