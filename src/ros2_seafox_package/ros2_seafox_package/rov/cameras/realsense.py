@@ -146,11 +146,16 @@ class RealSenseNode(Node):
         self.pipeline.stop()
         super().destroy_node()
 
-    # def create_node(self,args=None):
-    #     rclpy.init(args=args)
-    #     rclpy.spin(self)
-    #     self.destroy_node()
-    #     # rclpy.shutdown()
+def main(args=None):
+    rclpy.init(args=args)
+    node = RealSenseNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
