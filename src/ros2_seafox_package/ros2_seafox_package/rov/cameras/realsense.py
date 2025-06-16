@@ -119,7 +119,6 @@ class RealSenseNode(Node):
             self.get_logger().info(f"Distance between points: {distance:.2f} meters")
     def capture_frame(self):
         # Esperar y obtener frames de profundidad y color
-        a=time.time()
         frames = self.pipeline.wait_for_frames()
         self.depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
@@ -140,7 +139,6 @@ class RealSenseNode(Node):
         # Publicar la imagen
         msg = self.bridge.cv2_to_imgmsg(color_image, encoding='bgr8')
         self.image_publisher.publish(msg)
-        b=time.time()
         #self.get_logger().info(f"Tiempo de captura: {b-a} segundos")
 
 
