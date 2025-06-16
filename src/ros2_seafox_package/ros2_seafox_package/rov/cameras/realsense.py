@@ -20,8 +20,7 @@ class RealSenseNode(Node):
         self.points = []  # Lista global para almacenar puntos seleccionados
         self.pipeline = rs.pipeline()
         config = rs.config()
-        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)  # Stream de color
-        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)    # Stream de profundidad
+    
 
         self.image_publisher = self.create_publisher(Image, 'camera_realsense/image_raw', 10)
         self.distance_publisher = self.create_publisher(Float32, 'distance_point', 10)

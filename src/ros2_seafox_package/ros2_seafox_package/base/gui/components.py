@@ -104,8 +104,16 @@ class RealsenseViewerWidget(QWidget):
         layout = QVBoxLayout(self)
         self.video_label = QLabel()
         # Tamaño más grande que las cámaras pequeñas
-        self.video_label.setFixedSize(640, 480)
+        # self.video_label.setFixedSize(640, 480)
+
+        self.video_label.setFixedSize(1200, 960)
+        self.video_label.setScaledContents(True)
         self.video_label.setAlignment(Qt.AlignCenter)
+        self.video_label.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding
+        )
+        layout.addWidget(self.video_label)
         self.video_label.setStyleSheet("background-color:#222; border:1px solid #555;")
         layout.addWidget(self.video_label, alignment=Qt.AlignCenter)
 
@@ -211,11 +219,17 @@ class MeasurePopup(QDialog):
         self.node = node
         self.measure_node = False
         self.setWindowTitle("Measurement Tool")
-        self.setFixedSize(1000, 1000)
+        self.setFixedSize(1400, 1200)
 
         layout = QVBoxLayout(self)
-        self.video_label = QLabel(); self.video_label.setFixedSize(640, 480)
+        self.video_label = QLabel()
+        self.video_label.setFixedSize(1200, 800)
+        self.video_label.setScaledContents(True)
         self.video_label.setAlignment(Qt.AlignCenter)
+        self.video_label.setSizePolicy(
+            QSizePolicy.Expanding,
+            QSizePolicy.Expanding
+        )
         layout.addWidget(self.video_label)
 
         btn_layout = QHBoxLayout()
@@ -452,6 +466,7 @@ class MainWindow(QMainWindow):
                 h, w, _ = frame_rs.shape
                 img = QImage(frame_rs.data, w, h, 3*w, QImage.Format_RGB888)
                 pix = QPixmap.fromImage(img)
+                pix = pix.scaled(1200, 960, Qt.KeepAspectRatio)
                 self.realsense_widget.video_label.setPixmap(pix)
             else:
                 self.realsense_widget.video_label.setText(":,v")
@@ -477,6 +492,10 @@ class MainWindow(QMainWindow):
                 h, w, _ = frame_rs.shape
                 img = QImage(frame_rs.data, w, h, 3*w, QImage.Format_RGB888)
                 pix = QPixmap.fromImage(img)
+
+                # Escalamos el pixmap a 800×600 manteniendo proporciones:
+                pix = pix.scaled(1200, 960, Qt.KeepAspectRatio)
+
                 self.realsense_measure.video_label.setPixmap(pix)
                 self.realsense_measure.video_label.mousePressEvent = self.realsense_measure.getPos
             else:
