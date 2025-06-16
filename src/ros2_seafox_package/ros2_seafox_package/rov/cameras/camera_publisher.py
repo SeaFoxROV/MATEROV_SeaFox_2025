@@ -178,15 +178,15 @@ class CameraPublisher(Node):
             cam.release()
         super().destroy_node()
 
-    # def create_node(self,args=None):
-    #     rclpy.init(args=args)
-    #     try:
-    #         rclpy.spin(self)
-    #     except KeyboardInterrupt:
-    #         pass
-    #     finally:
-    #         self.destroy_node()
-    #         # rclpy.shutdown()
+def main(self,args=None):
+    rclpy.init(args=args)
+    try:
+        rclpy.spin(self)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # self.destroy_node()
+        rclpy.shutdown()
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()

@@ -95,7 +95,7 @@ class GUI_Node(Node):
     def realsense_callback(self, msg: Image):
         try:
             cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            # self.get_logger().info("Received image from realsense")
+            self.get_logger().info("Received image from realsense")
             self.realsense = cv_img
         except Exception as e:
             self.get_logger().error(f"Error CvBridge: {e}")
