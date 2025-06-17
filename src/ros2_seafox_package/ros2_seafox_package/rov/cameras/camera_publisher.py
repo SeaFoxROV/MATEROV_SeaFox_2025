@@ -61,10 +61,10 @@ class CameraPublisher(Node):
         )
 
         # Abre las cámaras
-        self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
-        # self.cam_frontal = cv2.VideoCapture(1)
-        self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
-        # self.cam_apoyo1 = cv2.VideoCapture(4)
+        # self.cam_frontal = cv2.VideoCapture('/dev/camaras/frontal')
+        self.cam_frontal = cv2.VideoCapture(1)
+        # self.cam_apoyo1 = cv2.VideoCapture('/dev/camaras/apoyo_1')
+        self.cam_apoyo1 = cv2.VideoCapture(4)
         self.cam_apoyo2 = cv2.VideoCapture('/dev/camaras/apoyo_2')
 
         # self.indice_realsense = max(find_video_index_by_name('realsense'))        
