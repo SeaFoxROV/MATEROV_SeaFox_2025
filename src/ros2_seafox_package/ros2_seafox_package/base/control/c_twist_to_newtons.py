@@ -54,12 +54,12 @@ class twist_to_newtons(Node):
         """
         
         self.motor_thrusts = [ # [X, Y, Z] Fuerzas descompuestas respecto a la orientacion del ROV
-            [ 0.7071,  0.7071, 0.0],   # Motor 1
-            [-0.7071,  0.7071, 0.0],   # Motor 2 
+            [ -0.7071,  -0.7071, 0.0],   # Motor 1
+            [0.7071,  -0.7071, 0.0],   # Motor 2 
             [    0.0,     0.0, 1.0],   # Motor 3
             [    0.0,     0.0, -1.0],   # Motor 4
             [ -0.7071,  -0.7071, 0.0],   # Motor 5
-            [-0.7071,  0.7071, 0.0],   # Motor 6
+            [0.7071,  -0.7071, 0.0],   # Motor 6
             
         ]
 

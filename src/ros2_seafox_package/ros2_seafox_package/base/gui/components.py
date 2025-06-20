@@ -9,12 +9,15 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
 import sys
-from ultralytics import YOLO
+# from ultralytics import YOLO
 import cv2
 from cv_bridge import CvBridge
 from ros2_seafox_package.base.gui.imageroll import ImagePopup
 # import pyrealsense2 as rs
 from std_msgs.msg import Int8MultiArray, Int32MultiArray, Bool
+# import torch
+# from ultralytics.nn.tasks import DetectionModel
+# from torch.nn.modules.container import Sequential
 # ----------------------------------------
 # Widget principal que muestra 3 cámaras (más grandes)
 # ----------------------------------------
@@ -104,7 +107,7 @@ class RealsenseViewerWidget(QWidget):
         layout = QVBoxLayout(self)
         self.video_label = QLabel()
         # Tamaño más grande que las cámaras pequeñas
-        self.video_label.setFixedSize(640, 480)
+        self.video_label.setFixedSize(1280, 720)
         self.video_label.setAlignment(Qt.AlignCenter)
         self.video_label.setStyleSheet("background-color:#222; border:1px solid #555;")
         layout.addWidget(self.video_label, alignment=Qt.AlignCenter)
@@ -125,11 +128,12 @@ class RealsenseViewerWidget(QWidget):
 # ------------------------------
 # Popup de Object Detection
 # ------------------------------
+# torch.serialization.add_safe_globals([DetectionModel, Sequential])
 class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.yolo = False
-        self.model = YOLO(r'/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
 
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
@@ -319,10 +323,10 @@ class PhotoSpherePopup(QDialog):
 
     def update_image(self):
         idx = self.selector.currentIndex()
-        if idx < 3:
+        if idx < 2:
             frame = self.node.image_data[idx]
         else:
-            frame = getattr(self.node, "realsense_frame", None)
+            frame = self.node.image_data[3]
         if frame is not None:
             h, w, _ = frame.shape
             img = QImage(frame.data, w, h, 3*w, QImage.Format_RGB888).rgbSwapped()
@@ -334,10 +338,10 @@ class PhotoSpherePopup(QDialog):
     def capture_frame(self):
         # Captura el frame actual y lo añade a la lista
         idx = self.selector.currentIndex()
-        if idx < 3:
+        if idx < 2:
             frame = self.node.image_data[idx]
         else:
-            frame = getattr(self.node, "realsense_frame", None)
+            frame = self.node.image_data[3]
         if frame is not None:
             self.captured_frames.append(frame)
             cv2.imwrite(f"hgeswhj{self.i}", frame)
@@ -452,6 +456,7 @@ class MainWindow(QMainWindow):
                 h, w, _ = frame_rs.shape
                 img = QImage(frame_rs.data, w, h, 3*w, QImage.Format_RGB888)
                 pix = QPixmap.fromImage(img)
+                pix = pix.scaled(1280,720, Qt.KeepAspectRatio)
                 self.realsense_widget.video_label.setPixmap(pix)
             else:
                 self.realsense_widget.video_label.setText(":,v")

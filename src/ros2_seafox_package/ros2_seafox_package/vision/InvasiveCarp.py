@@ -153,6 +153,18 @@ if __name__ == '__main__':
     comp = ComputerModel()
     df, data = comp.read_table(path)
     binary_table = comp.bin(data)
+    
+    # binary_table = [[0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 [0,0,0,0,0],
+    #                 ]
     print("Y/N Table:")
     print(df)
     print("\nBinary Table:")
