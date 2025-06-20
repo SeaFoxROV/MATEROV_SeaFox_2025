@@ -129,7 +129,7 @@ class ObjectDetectionPopup(QDialog):
     def __init__(self, node):
         super().__init__()
         self.yolo = False
-        self.model = YOLO(r'/home/seafoxinventive/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
+        self.model = YOLO(r'/home/francisco/Documents/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/rov/cameras/yolo_model/best.pt')
 
         self.node = node
         self.setWindowTitle("Object Detection (YOLO)")
@@ -445,7 +445,8 @@ class MainWindow(QMainWindow):
     def refresh_gui(self):
         if not self.realsense_measure.measure_node:
             # Update image of the RealSense
-            frame_rs = self.node.image_data[3]  # RealSense fram by index
+            # frame_rs = self.node.image_data[3]  # RealSense fram by index
+            frame_rs = self.node.realsense  # RealSense fram
 
             if frame_rs is not None:
                 frame_rs = cv2.cvtColor(frame_rs, cv2.COLOR_BGR2RGB)
