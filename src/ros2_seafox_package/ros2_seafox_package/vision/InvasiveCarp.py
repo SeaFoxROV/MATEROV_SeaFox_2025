@@ -149,7 +149,7 @@ class ComputerModel:
         cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    path = "src/ros2_seafox_package/ros2_seafox_package/imgs/table1.png"
+    path = "/home/cedricmtz/Documents/MATEROV_SeaFox_2025/src/ros2_seafox_package/ros2_seafox_package/imgs/Screenshot from 2025-06-20 11-44-39.png"
     comp = ComputerModel()
     df, data = comp.read_table(path)
     binary_table = comp.bin(data)
@@ -163,8 +163,7 @@ if __name__ == '__main__':
     #                 [0,0,0,0,0],
     #                 [0,0,0,0,0],
     #                 [0,0,0,0,0],
-    #                 [0,0,0,0,0],
-    #                 ]
+    #                 [0,0,0,0,0]]
     print("Y/N Table:")
     print(df)
     print("\nBinary Table:")
