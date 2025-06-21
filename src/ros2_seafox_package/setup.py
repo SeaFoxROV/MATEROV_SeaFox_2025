@@ -42,6 +42,7 @@ setup(
                 
             #serial
                 'rosserial = ros2_seafox_package.rov.serial.rosserial:main',
+                'spacebar = ros2_seafox_package.base.control.spacebar:main'
 
         #'otro_nodo = otro_nodo:main',
         ],

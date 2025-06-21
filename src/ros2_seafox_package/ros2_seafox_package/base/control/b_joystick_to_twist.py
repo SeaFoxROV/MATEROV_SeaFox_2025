@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Joy
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, Bool
 
 class MotionController(Node):
     def __init__(self):
@@ -14,6 +14,7 @@ class MotionController(Node):
         
         # Subscribers
         self.create_subscription(Float32MultiArray, '/joystick_data', self.joy_callback, 100)
+        self.create_subscription(Bool, 'space_event', self.spacebar, 100)
         #self.create_subscription(Float64, '/control_effort/angular/x', self.roll_effort_callback, 100)
         #self.create_subscription(Float64, '/control_effort/angular/y', self.pitch_effort_callback, 100)
         
@@ -66,7 +67,21 @@ class MotionController(Node):
         
         """
 
-        if bool(msg.data[15]):
+        
+                    
+        #self.pwms.data[0] += (msg.data[10]*self.pwm_tick)-(msg.data[11]*self.pwm_tick)
+        self.pwms.data[0] = 1500
+
+        if bool(msg.data):
+            self.pwms.data[0] = 1400
+        if bool(msg.data[11]):
+            self.pwms.data[0] = 1600
+        if bool(msg.data[10]) and bool(msg.data[11]):
+            self.pwms.data[0] = 1500
+        self.last_command_time = self.get_clock().now()
+
+    def spacebar(self, msg: Bool):
+        if (msg.data):
             self.pwms.data[1] = 1600
             self.pwms.data[2] = 1600
         else:
@@ -74,17 +89,7 @@ class MotionController(Node):
             self.pwms.data[1] = 1400
             self.pwms.data[2] = 1400
         
-                    
-        #self.pwms.data[0] += (msg.data[10]*self.pwm_tick)-(msg.data[11]*self.pwm_tick)
-        self.pwms.data[0] = 1500
-
-        if bool(msg.data[10]):
-            self.pwms.data[0] = 1400
-        if bool(msg.data[11]):
-            self.pwms.data[0] = 1600
-        if bool(msg.data[10]) and bool(msg.data[11]):
-            self.pwms.data[0] = 1500
-        self.last_command_time = self.get_clock().now()
+        
 
  #   def roll_effort_callback(self, msg: Float64):
  #         self.roll_pid_effort = msg.data

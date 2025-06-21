@@ -34,7 +34,7 @@ class RosserialNode(Node):
         self.leak_publisher = self.create_publisher(Bool, 'leak_sensor', 10)
 
         
-        self.arduino = serial.Serial("/dev/esp32", 115200, timeout=0.01)
+        self.arduino = serial.Serial("/dev/ttyACM0", 115200, timeout=0.01)
         self.get_logger().info(f"Conectado al Arduino en el puerto serial")
     
         self.create_timer(0.05, self.update_motors)
@@ -75,7 +75,7 @@ class RosserialNode(Node):
         output = ";".join([f"{int(value)}" for value in output_values]) + ";\n"
         try:
             self.arduino.write(output.encode())
-            #self.get_logger().info(f"Datos de motores: {output.strip()}")
+            self.get_logger().info(f"Datos de motores: {output.strip()}")
         except Exception as e:
             self.get_logger().error(f"Error al escribir en el Arduino: {e}")
 
