@@ -3,17 +3,20 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     return LaunchDescription([
+        # Nodo de rosserial
         Node(
-            package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
-            executable='rosserial',  # Reemplaza con el nombre del ejecutable de tu nodo
+            package='ros2_seafox_package',
+            executable='rosserial',
             name='rosserial',
             output='screen',
         ),
-        Node(
-            package='ros2_seafox_package',  # Reemplaza con el nombre de tu paquete
-            executable='node_killer',  # Reemplaza con el nombre del ejecutable de tu nodo
-            name='node_killer',
-            output='screen',
-        ),          
 
+        # Nodo de cámara con argumento para elegir índice
+        Node(
+            package='ros2_seafox_package',
+            executable='camera_publisher',
+            name='camera_publisher',
+            output='screen',
+            arguments=['4'],   # <<< AQUÍ eliges la cámara (/dev/video4)
+        ),
     ])
