@@ -37,16 +37,22 @@ class CameraPublisher(Node):
             return
 
         ret, frame = self.cap.read()
-        if not ret:
+        if not ret or frame is None:
             return
+
+        # Asegurar que el frame esté en BGR8
+        # Si viene en YUYV (H, W, 2), lo convertimos:
+        if len(frame.shape) == 3 and frame.shape[2] == 2:
+            frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_YUYV)
 
         msg = self.bridge.cv2_to_imgmsg(frame, encoding='bgr8')
         self.publisher.publish(msg)
 
-    def destroy_node(self):
-        if self.cap.isOpened():
-            self.cap.release()
-        super().destroy_node()
+
+        def destroy_node(self):
+            if self.cap.isOpened():
+                self.cap.release()
+            super().destroy_node()
 
 
 def main(args=None):
